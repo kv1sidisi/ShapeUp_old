@@ -1,4 +1,4 @@
-package registration
+package grpc
 
 import (
 	regv1 "RegistrationService/api/pb"
