@@ -16,6 +16,10 @@ func New(
 	storagePath string,
 	tokenTTL time.Duration,
 ) *App {
+	// TODO: initialize storage
+
+	// TODO: initialize registration service
+
 	grpcApp := grpcapp.New(log, grpcPort)
 
 	return &App{

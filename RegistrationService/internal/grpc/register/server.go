@@ -2,8 +2,10 @@ package register
 
 import (
 	regv1 "RegistrationService/api/pb"
+	"RegistrationService/internal/service/register"
 	"RegistrationService/internal/validator"
 	"context"
+	"errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -38,6 +40,10 @@ func (s *serverAPI) Register(
 
 	userId, err := s.register.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
+		if errors.Is(err, register.ErrUserExists) {
+			return nil, status.Error(codes.AlreadyExists, err.Error())
+		}
+
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
