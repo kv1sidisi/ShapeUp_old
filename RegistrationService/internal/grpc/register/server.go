@@ -15,7 +15,7 @@ func Register(gRPC *grpc.Server) {
 }
 func (s *serverAPI) Register(
 	ctx context.Context,
-	in *regv1.RegisterRequest,
+	req *regv1.RegisterRequest,
 ) (*regv1.RegisterResponse, error) {
 	panic("implement me")
 }
