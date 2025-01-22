@@ -1,6 +1,7 @@
 package main
 
 import (
+	"RegistrationService/internal/app"
 	"RegistrationService/internal/config"
 	"log/slog"
 	"os"
@@ -19,6 +20,9 @@ func main() {
 
 	log.Info("starting application", slog.Any("env", cfg))
 
+	application := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+
+	application.GRPCSrv.MustRun()
 }
 
 func setupLogger(env string) *slog.Logger {
