@@ -2,8 +2,10 @@ package app
 
 import (
 	grpcapp "RegistrationService/internal/app/grpc"
+	"RegistrationService/internal/service/register"
+	"RegistrationService/internal/storage/postgresql"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"log/slog"
-	"time"
 )
 
 type App struct {
@@ -13,14 +15,15 @@ type App struct {
 func New(
 	log *slog.Logger,
 	grpcPort int64,
-	storagePath string,
-	tokenTTL time.Duration,
+	postgresqlClient *pgxpool.Pool,
 ) *App {
-	// TODO: initialize storage
+	storage, err := postgresql.New(postgresqlClient, log)
+	if err != nil {
+		panic(err)
+	}
 
-	// TODO: initialize registration service
-
-	grpcApp := grpcapp.New(log, grpcPort)
+	registerService := register.New(log, storage)
+	grpcApp := grpcapp.New(log, registerService, grpcPort)
 
 	return &App{
 		GRPCSrv: grpcApp,
