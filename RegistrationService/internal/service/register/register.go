@@ -7,13 +7,11 @@ import (
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"log/slog"
-	"time"
 )
 
 type Register struct {
 	log       *slog.Logger
 	userSaver UserSaver
-	tokenTTL  time.Duration
 }
 
 type UserSaver interface {
@@ -31,12 +29,10 @@ var (
 // New returns a new instance of Register service.
 func New(log *slog.Logger,
 	userSaver UserSaver,
-	tokenTTL time.Duration,
 ) *Register {
 	return &Register{
 		userSaver: userSaver,
 		log:       log,
-		tokenTTL:  tokenTTL,
 	}
 }
 

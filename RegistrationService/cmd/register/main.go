@@ -3,6 +3,8 @@ package main
 import (
 	"RegistrationService/internal/app"
 	"RegistrationService/internal/config"
+	"RegistrationService/pkg/client/postgresql"
+	"context"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -17,25 +19,26 @@ const (
 
 func main() {
 	cfg := config.MustLoad()
-
 	log := setupLogger(cfg.Env)
 
+	log.Info("Connecting to database")
+	postgresqlClient, err := postgresql.NewClient(context.TODO(), 3, cfg.Storage)
+	if err != nil {
+		log.Error("Failed to connect to database", err)
+		panic(err)
+	}
+	log.Info("Connected to database")
+
 	log.Info("starting application", slog.Any("env", cfg))
-
-	application := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
-
+	application := app.New(log, cfg.GRPC.Port, postgresqlClient)
 	go application.GRPCSrv.MustRun()
 
 	//Graceful shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
-
 	sign := <-stop
-
 	log.Info("received shutdown signal", slog.Any("signal", sign))
-
 	application.GRPCSrv.Stop()
-
 	log.Info("application stopped")
 }
 
