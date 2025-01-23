@@ -8,15 +8,23 @@ import (
 )
 
 type Config struct {
-	Env         string        `yaml:"env" env-default:"local"`
-	StoragePath string        `yaml:"storage_path" env-required:"true"`
-	TokenTTL    time.Duration `yaml:"token_ttl" env-required:"true"`
-	GRPC        GRPCConfig    `yaml:"grpc"`
+	Env      string        `yaml:"env" env-default:"local"`
+	TokenTTL time.Duration `yaml:"token_ttl" env-required:"true"`
+	GRPC     GRPCConfig    `yaml:"grpc"`
+	Storage  StorageConfig `yaml:"storage"`
 }
 
 type GRPCConfig struct {
 	Port    int64         `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
+}
+
+type StorageConfig struct {
+	Host     string `json:"host"`
+	Port     string `json:"port"`
+	Database string `json:"database"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 // MustLoad gets config path and panics if there is any errors in parsing config.
