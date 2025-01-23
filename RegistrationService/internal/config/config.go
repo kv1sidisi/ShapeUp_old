@@ -13,11 +13,13 @@ type Config struct {
 	Storage StorageConfig `yaml:"storage"`
 }
 
+// GRPCConfig structure represents information from config to configure grpc server.
 type GRPCConfig struct {
 	Port    int64         `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
 }
 
+// StorageConfig structure represents information from config to connect to database.
 type StorageConfig struct {
 	Host     string `json:"host"`
 	Port     string `json:"port"`

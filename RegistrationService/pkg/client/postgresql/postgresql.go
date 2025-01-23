@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Client is interface for connection methods in pgx package
+// Client is interface for connection methods in pgx package.
 type Client interface {
 	Exec(ctx context.Context, sql string, arguments ...interface{}) (pgconn.CommandTag, error)
 	Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error)
@@ -20,6 +20,7 @@ type Client interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 }
 
+// NewClient creates client connection to postgresql throw pgx packet.
 func NewClient(ctx context.Context, maxAttempts int, sc config.StorageConfig) (pool *pgxpool.Pool, err error) {
 	dsn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", sc.Username, sc.Password, sc.Host, sc.Port, sc.Database)
 	err = utils.DoWithTries(func() error {

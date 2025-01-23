@@ -9,11 +9,13 @@ import (
 	"log/slog"
 )
 
+// Register struct represents the registration service and it is implementation of upper layer of register method of application.
 type Register struct {
 	log       *slog.Logger
 	userSaver UserSaver
 }
 
+// UserSaver interface defines the method for saving user information in database.
 type UserSaver interface {
 	SaveUser(
 		ctx context.Context,
@@ -48,6 +50,7 @@ func (r *Register) RegisterNewUser(ctx context.Context, email, password string) 
 
 	log.Info("registering new user")
 
+	// Generate a hashed password from the provided password.
 	passHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Error("failed to generate password hash")

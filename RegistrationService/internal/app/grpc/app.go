@@ -8,6 +8,7 @@ import (
 	"net"
 )
 
+// App structure represents bottom layer of application and contains grpc server.
 type App struct {
 	log        *slog.Logger
 	gRPCServer *grpc.Server

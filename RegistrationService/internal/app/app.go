@@ -8,6 +8,7 @@ import (
 	"log/slog"
 )
 
+// App structure represents upper layer of application and configure bottom layer of application with database and register service.
 type App struct {
 	GRPCSrv *grpcapp.App
 }
