@@ -12,7 +12,8 @@ import (
 	"strings"
 )
 
-// TODO: connect grpc client for analytics microservice and sending email microservice here to that level
+//ATTENTION ATTENTION ATTENTION ATTENTION ATTENTION ATTENTION ATTENTION ATTENTION
+// connect grpc client for analytics microservice and sending email microservice here to that level
 
 // Register interface represents upper layer of register method of application.
 type Register interface {
