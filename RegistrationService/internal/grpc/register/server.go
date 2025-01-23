@@ -12,9 +12,6 @@ import (
 	"strings"
 )
 
-//ATTENTION ATTENTION ATTENTION ATTENTION ATTENTION ATTENTION ATTENTION ATTENTION
-// connect grpc client for analytics microservice and sending email microservice here to that level
-
 // Register interface represents upper layer of register method of application.
 type Register interface {
 	RegisterNewUser(
@@ -55,6 +52,7 @@ func (s *serverAPI) Register(
 
 		return nil, status.Error(codes.Internal, "internal error")
 	}
+	// TODO: connect sending email microservice here and connect grpc client for analytics microservice
 
 	// Return the response with the user ID
 	return &regv1.RegisterResponse{
