@@ -1,6 +1,5 @@
 env: "local" #dev, prod
 storage_path: "./storage/db.db"
-token_ttl: 1h
 grpc:
   port: 44044
   timeout: 10h
