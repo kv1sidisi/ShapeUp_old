@@ -30,7 +30,7 @@ func main() {
 	log.Info("Connected to database")
 
 	log.Info("starting application", slog.Any("env", cfg))
-	application := app.New(log, cfg.GRPC.Port, postgresqlClient)
+	application := app.New(log, cfg, postgresqlClient)
 	go application.GRPCSrv.MustRun()
 
 	//Graceful shutdown

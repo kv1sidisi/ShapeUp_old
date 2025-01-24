@@ -30,7 +30,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 		slog.String("op", op),
 	)
 
-	q := `insert into users (email, pass_hash)
+	q := `insert into users (email, password_hash)
 			values ($1, $2)
 			returning id`
 

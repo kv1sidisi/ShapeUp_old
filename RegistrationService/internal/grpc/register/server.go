@@ -2,6 +2,7 @@ package register
 
 import (
 	regv1 "RegistrationService/api/pb"
+	"RegistrationService/internal/config"
 	"RegistrationService/internal/service/register"
 	"context"
 	"errors"
@@ -25,11 +26,12 @@ type Register interface {
 type serverAPI struct {
 	regv1.UnimplementedRegistrationServer
 	register Register
+	cfg      *config.Config
 }
 
 // RegisterServer registers the request handler for registration in the gRPC server.
-func RegisterServer(gRPC *grpc.Server, register Register) {
-	regv1.RegisterRegistrationServer(gRPC, &serverAPI{register: register})
+func RegisterServer(gRPC *grpc.Server, register Register, cfg *config.Config) {
+	regv1.RegisterRegistrationServer(gRPC, &serverAPI{register: register, cfg: cfg})
 }
 
 // Register is the gRPC server handler method, the top layer of the registration process.
@@ -52,7 +54,8 @@ func (s *serverAPI) Register(
 
 		return nil, status.Error(codes.Internal, "internal error")
 	}
-	// TODO: connect sending email microservice here and connect grpc client for analytics microservice
+
+	//generate jwt here
 
 	// Return the response with the user ID
 	return &regv1.RegisterResponse{
