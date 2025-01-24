@@ -61,13 +61,13 @@ func (s *serverAPI) Register(
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	// JWT generation
-	//jwtToken, err := jwt.GenerateToken(userId, s.cfg.JWTSecret)
-	//if err != nil {
-	//	return nil, status.Error(codes.Internal, "jwt generation error")
-	//}
+	// Generate link for account confirmation
+	link, err := jwt.JwtLinkGeneration(userId, s.cfg.JWTSecret)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "internal error")
+	}
 
-	// Confirmation link generation with JWT
+	// TODO: send link with email sender service
 
 	// Return the response with the user ID
 	return &regv1.RegisterResponse{
