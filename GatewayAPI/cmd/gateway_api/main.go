@@ -3,6 +3,8 @@ package main
 import (
 	"GatewayAPI/internal/config"
 	"fmt"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"log/slog"
 	"os"
 )
@@ -17,6 +19,13 @@ func main() {
 	cfg := config.MustLoad()
 
 	fmt.Printf("%+v\n", cfg)
+
+	router := chi.NewRouter()
+
+	// Adds id to requests
+	router.Use(middleware.RequestID)
+	// Logs requests
+	router.Use(middleware.Logger)
 
 }
 
