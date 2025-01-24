@@ -4,6 +4,7 @@ import (
 	regv1 "RegistrationService/api/pb"
 	"RegistrationService/internal/config"
 	"RegistrationService/internal/service/register"
+	"RegistrationService/pkg/utils/jwt"
 	"context"
 	"errors"
 	"github.com/asaskevich/govalidator"
@@ -55,7 +56,13 @@ func (s *serverAPI) Register(
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	//generate jwt here
+	// JWT generation
+	jwtToken, err := jwt.GenerateToken(userId, s.cfg.JWTSecret)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "jwt generation error")
+	}
+
+	// Confirmation link generation with JWT
 
 	// Return the response with the user ID
 	return &regv1.RegisterResponse{
