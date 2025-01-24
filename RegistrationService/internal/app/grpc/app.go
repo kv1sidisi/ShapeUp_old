@@ -2,7 +2,7 @@ package grpcapp
 
 import (
 	"RegistrationService/internal/config"
-	reggrpc "RegistrationService/internal/grpc/register"
+	reggrpc "RegistrationService/internal/grpc/user_creation"
 	"fmt"
 	"google.golang.org/grpc"
 	"log/slog"
@@ -19,7 +19,7 @@ type App struct {
 // New creates new gRPC server app.
 func New(
 	log *slog.Logger,
-	registerService reggrpc.Register,
+	registerService reggrpc.UserCreation,
 	cfg *config.Config,
 ) *App {
 	gRPCServer := grpc.NewServer()

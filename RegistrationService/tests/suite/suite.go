@@ -14,7 +14,7 @@ import (
 type Suite struct {
 	*testing.T
 	Cfg       *config.Config
-	RegClient regv1.RegistrationClient
+	RegClient regv1.UserCreationClient
 }
 
 const (
@@ -44,7 +44,7 @@ func New(t *testing.T) (context.Context, *Suite) {
 	return ctx, &Suite{
 		t,
 		cfg,
-		regv1.NewRegistrationClient(cc),
+		regv1.NewUserCreationClient(cc),
 	}
 }
 

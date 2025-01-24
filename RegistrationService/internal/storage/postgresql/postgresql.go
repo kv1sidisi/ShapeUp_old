@@ -53,3 +53,21 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 
 	return uid, nil
 }
+
+func (s *Storage) ConfirmAccount(ctx context.Context, uid int64) error {
+	const op = "storage.postgresql.ConfirmAccount"
+
+	log := s.log.With(
+		slog.String("op", op),
+	)
+
+	query := `UPDATE users SET isconfirmed = TRUE WHERE id = $1`
+
+	log.Info(fmt.Sprintf("SQL Query: %s", query))
+
+	if _, err := s.client.Exec(ctx, query, uid); err != nil {
+		log.Error("failed to confirm account", err)
+		return fmt.Errorf("failed to confirm account: %w", err)
+	}
+	return nil
+}

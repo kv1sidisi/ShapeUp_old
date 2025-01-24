@@ -3,7 +3,7 @@ package app
 import (
 	grpcapp "RegistrationService/internal/app/grpc"
 	"RegistrationService/internal/config"
-	"RegistrationService/internal/service/register"
+	"RegistrationService/internal/service/user_creation"
 	"RegistrationService/internal/storage/postgresql"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"log/slog"
@@ -26,7 +26,7 @@ func New(
 		panic(err)
 	}
 
-	registerService := register.New(log, storage)
+	registerService := user_creation.New(log, storage)
 	grpcApp := grpcapp.New(log, registerService, cfg)
 
 	return &App{

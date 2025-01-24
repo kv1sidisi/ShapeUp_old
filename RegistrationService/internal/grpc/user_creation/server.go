@@ -3,7 +3,7 @@ package register
 import (
 	regv1 "RegistrationService/api/pb"
 	"RegistrationService/internal/config"
-	"RegistrationService/internal/service/register"
+	"RegistrationService/internal/storage"
 	"RegistrationService/pkg/utils/jwt"
 	"context"
 	"errors"
@@ -14,25 +14,30 @@ import (
 	"strings"
 )
 
-// Register interface represents upper layer of register method of application.
-type Register interface {
+// UserCreation interface represents upper layer of userCreation method of application.
+type UserCreation interface {
 	RegisterNewUser(
 		ctx context.Context,
 		email string,
 		password string,
 	) (userId int64, err error)
+
+	ConfirmNewUser(
+		ctx context.Context,
+		userId int64,
+	) (err error)
 }
 
 // serverAPI represents the handler for the gRPC server.
 type serverAPI struct {
-	regv1.UnimplementedRegistrationServer
-	register Register
-	cfg      *config.Config
+	regv1.UnimplementedUserCreationServer
+	userCreation UserCreation
+	cfg          *config.Config
 }
 
 // RegisterServer registers the request handler for registration in the gRPC server.
-func RegisterServer(gRPC *grpc.Server, register Register, cfg *config.Config) {
-	regv1.RegisterRegistrationServer(gRPC, &serverAPI{register: register, cfg: cfg})
+func RegisterServer(gRPC *grpc.Server, userCreation UserCreation, cfg *config.Config) {
+	regv1.RegisterUserCreationServer(gRPC, &serverAPI{userCreation: userCreation, cfg: cfg})
 }
 
 // Register is the gRPC server handler method, the top layer of the registration process.
@@ -46,10 +51,10 @@ func (s *serverAPI) Register(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	// Register the new user
-	userId, err := s.register.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
+	// UserCreation the new user
+	userId, err := s.userCreation.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
-		if errors.Is(err, register.ErrUserExists) {
+		if errors.Is(err, storage.ErrUserExists) {
 			return nil, status.Error(codes.AlreadyExists, err.Error())
 		}
 
@@ -57,10 +62,10 @@ func (s *serverAPI) Register(
 	}
 
 	// JWT generation
-	jwtToken, err := jwt.GenerateToken(userId, s.cfg.JWTSecret)
-	if err != nil {
-		return nil, status.Error(codes.Internal, "jwt generation error")
-	}
+	//jwtToken, err := jwt.GenerateToken(userId, s.cfg.JWTSecret)
+	//if err != nil {
+	//	return nil, status.Error(codes.Internal, "jwt generation error")
+	//}
 
 	// Confirmation link generation with JWT
 
@@ -88,4 +93,26 @@ func validateRegisterRequest(req *regv1.RegisterRequest) error {
 	}
 
 	return nil
+}
+
+// ConfirmAccount is the gRPC server handler method, the top layer of the registration process.
+func (s *serverAPI) ConfirmAccount(ctx context.Context,
+	req *regv1.ConfirmRequest,
+) (*regv1.ConfirmResponse, error) {
+
+	userId, err := jwt.VerifyToken(req.Jwt, s.cfg.JWTSecret)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "invalid token")
+	}
+
+	if err := s.userCreation.ConfirmNewUser(ctx, userId); err != nil {
+		if errors.Is(err, storage.ErrUserNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &regv1.ConfirmResponse{
+		UserId: userId,
+	}, nil
 }

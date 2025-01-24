@@ -4,8 +4,9 @@ package registration;
 
 option go_package = "shapeup.registration.v1;regv1";
 
-service Registration {
+service UserCreation {
   rpc Register (RegisterRequest) returns (RegisterResponse);
+  rpc ConfrimAccount (ConfirmRequest) returns (ConfirmResponse);
 }
 
 message RegisterRequest {
@@ -17,5 +18,12 @@ message RegisterResponse {
   int64 user_id = 1; // User ID of the registered user
 }
 
+message ConfirmRequest {
+  string jwt = 1; // JWT to confirm account
+}
+
+message ConfirmResponse {
+  int64 user_id = 1; // user_id of confirmed account
+}
 
 
