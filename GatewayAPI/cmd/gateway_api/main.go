@@ -2,6 +2,7 @@ package main
 
 import (
 	"GatewayAPI/internal/config"
+	"GatewayAPI/internal/http-server/middleware/logger"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -20,15 +21,22 @@ func main() {
 
 	fmt.Printf("%+v\n", cfg)
 
+	log := setupLogger(cfg.Env)
+
 	router := chi.NewRouter()
 
 	// Adds id to requests
 	router.Use(middleware.RequestID)
 	// Logs requests
-	router.Use(middleware.Logger)
+	router.Use(mwLogger.New(log))
+	// Recovers from panic of middleware
+	router.Use(middleware.Recoverer)
+	// Middleware to write pretty URLs
+	router.Use(middleware.URLFormat)
 
 }
 
+// setupLogger initializes logger dependent on environment
 func setupLogger(env string) *slog.Logger {
 	var log *slog.Logger
 

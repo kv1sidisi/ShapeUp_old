@@ -1,4 +1,4 @@
-package logger
+package mwLogger
 
 import (
 	"log/slog"
