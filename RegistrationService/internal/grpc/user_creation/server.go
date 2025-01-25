@@ -7,6 +7,7 @@ import (
 	"RegistrationService/pkg/utils/jwt"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/asaskevich/govalidator"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -63,6 +64,8 @@ func (s *serverAPI) Register(
 
 	// Generate link for account confirmation
 	link, err := jwt.JwtLinkGeneration(userId, s.cfg.JWTSecret)
+
+	fmt.Printf(link)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "internal error")
 	}
