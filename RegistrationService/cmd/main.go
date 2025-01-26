@@ -21,17 +21,22 @@ func main() {
 	cfg := config.MustLoad()
 	log := setupLogger(cfg.Env)
 
-	log.Info("Connecting to database")
+	log.Info("starting up", slog.String("env", cfg.Env))
+
+	log.Info("connecting to database")
 	postgresqlClient, err := postgresql.NewClient(context.TODO(), 3, cfg.Storage)
 	if err != nil {
 		log.Error("Failed to connect to database", err)
 		panic(err)
 	}
-	log.Info("Connected to database")
+	log.Info("connected to database")
 
-	log.Info("starting application", slog.Any("env", cfg))
+	log.Info("starting application")
 	application := app.New(log, cfg, postgresqlClient)
+
+	log.Info("starting grpc server")
 	go application.GRPCSrv.MustRun()
+	log.Info("grpc server started")
 
 	//Graceful shutdown
 	stop := make(chan os.Signal, 1)

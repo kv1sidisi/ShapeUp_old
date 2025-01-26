@@ -23,8 +23,9 @@ func New(
 	cfg *config.Config,
 ) *App {
 	gRPCServer := grpc.NewServer()
+	log.Info("grpc server created")
 
-	// Connects handlers.
+	log.Info("registering services in grpc server")
 	reggrpc.RegisterServer(gRPCServer, registerService, cfg, log)
 
 	return &App{
@@ -53,14 +54,16 @@ func (a *App) Run() error {
 
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", a.cfg.GRPC.Port))
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		log.Error("failed to listen", err)
+		return err
 	}
 
 	log.Info("gRPC server is running", slog.String("addr", l.Addr().String()))
 
 	// Start server with listener "l".
 	if err := a.gRPCServer.Serve(l); err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		log.Error("failed to serve", err)
+		return err
 	}
 
 	return nil

@@ -61,9 +61,9 @@ func (s *serverAPI) Register(
 	if err := validateRegisterRequest(req); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
+	log.Info("register request valid")
 
-	log.Info("Request correct")
-
+	log.Info("registering new user")
 	// UserCreation the new user
 	userId, err := s.userCreation.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
@@ -73,14 +73,17 @@ func (s *serverAPI) Register(
 
 		return nil, status.Error(codes.Internal, "internal error")
 	}
+	log.Info("user registered")
 
+	log.Info("generating confirmation link")
 	// Generate link for account confirmation
 	link, err := jwt.JwtLinkGeneration(userId, s.cfg.JWTSecret)
-
-	fmt.Printf(link)
+	fmt.Printf("\n" + link + "\n")
 	if err != nil {
+		log.Error("confirmation link generation failed")
 		return nil, status.Error(codes.Internal, "internal error")
 	}
+	log.Info("confirmation link generated successfully")
 
 	// TODO: send link with email sender service
 
@@ -115,14 +118,15 @@ func (s *serverAPI) Confirm(ctx context.Context,
 	req *regv1.ConfirmRequest,
 ) (*regv1.ConfirmResponse, error) {
 
+	s.log.Info("confirming new user with token")
 	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt, s.cfg.JWTSecret)
-
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 		return nil, err
 	}
+	s.log.Info("user confirmed")
 
 	return &regv1.ConfirmResponse{
 		UserId: userId,

@@ -21,12 +21,17 @@ func New(
 	cfg *config.Config,
 	postgresqlClient *pgxpool.Pool,
 ) *App {
+	log.Info("creating postgresql service")
 	storage, err := postgresql.New(postgresqlClient, log)
 	if err != nil {
+		log.Error("error creating postgresql service: ", err)
 		panic(err)
 	}
 
+	log.Info("creating register service")
 	registerService := user_creation.New(log, storage)
+
+	log.Info("creating grpc server app")
 	grpcApp := grpcapp.New(log, registerService, cfg)
 
 	return &App{

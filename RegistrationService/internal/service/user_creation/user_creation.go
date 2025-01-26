@@ -51,16 +51,15 @@ func (r *UserCreation) RegisterNewUser(ctx context.Context, email, password stri
 		slog.String("email", email),
 	)
 
-	log.Info("registering new user")
-
 	// Generate a hashed password from the provided password.
 	passHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Error("failed to generate password hash")
-
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
+	log.Info("password hash generated")
 
+	log.Info("saving new user to database")
 	id, err := r.userSaver.SaveUser(ctx, email, passHash)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserExists) {
@@ -70,8 +69,6 @@ func (r *UserCreation) RegisterNewUser(ctx context.Context, email, password stri
 		log.Error("failed to save new user")
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
-
-	log.Info("successfully saved and registered new user")
 
 	return id, nil
 }
@@ -86,12 +83,12 @@ func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, secretK
 		slog.String("token", token),
 	)
 
+	log.Info("verifying confirmation token")
 	userId, err = jwt.VerifyToken(log, token, secretKey)
 	if err != nil {
+		log.Error("failed to verify confirmation token", err)
 		return -1, status.Error(codes.Unauthenticated, "invalid token")
 	}
-
-	log.Info("confirming new user")
 
 	if err := r.userSaver.ConfirmAccount(ctx, userId); err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
@@ -102,6 +99,5 @@ func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, secretK
 		return -1, fmt.Errorf("%s: %w", op, err)
 	}
 
-	log.Info("successfully confirmed new user")
 	return userId, nil
 }
