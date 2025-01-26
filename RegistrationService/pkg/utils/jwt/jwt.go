@@ -17,7 +17,7 @@ func JwtLinkGeneration(userId int64, secretKey string) (string, error) {
 		return "", err
 	}
 
-	link := token + "1"
+	link := "http://localhost:8082/confirm_account?token=" + token
 	return link, nil
 }
 
