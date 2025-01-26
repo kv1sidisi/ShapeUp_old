@@ -98,11 +98,10 @@ func validateRegisterRequest(req *regv1.RegisterRequest) error {
 	return nil
 }
 
-// ConfirmAccount is the gRPC server handler method, the top layer of the registration process.
-func (s *serverAPI) ConfirmAccount(ctx context.Context,
+// Confirm is the gRPC server handler method, the top layer of the registration process.
+func (s *serverAPI) Confirm(ctx context.Context,
 	req *regv1.ConfirmRequest,
 ) (*regv1.ConfirmResponse, error) {
-
 	userId, err := jwt.VerifyToken(req.Jwt, s.cfg.JWTSecret)
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, "invalid token")
