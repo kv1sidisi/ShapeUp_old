@@ -3,6 +3,7 @@ package jwt
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"log/slog"
 	"time"
 )
 
@@ -17,22 +18,28 @@ func JwtLinkGeneration(userId int64, secretKey string) (string, error) {
 		return "", err
 	}
 
-	link := token + "1"
+	link := "http://localhost:8082/confirm_account?token=" + token
 	return link, nil
 }
 
 // VerifyToken verifies jwt token and returns user ID.
-func VerifyToken(tokenString, secretKey string) (int64, error) {
+func VerifyToken(log *slog.Logger, tokenString string, secretKey string) (int64, error) {
+	op := "jwt.VerifyToken"
+
+	log.With(slog.String("op", op))
+
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(secretKey), nil
 	})
-
 	if err != nil {
+		log.Error("token is not parsed", tokenString)
 		return 0, fmt.Errorf("invalid token: %v", err)
 	}
+
+	log.Info("parsed token")
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if exp, ok := claims["exp"].(float64); ok {
@@ -43,11 +50,17 @@ func VerifyToken(tokenString, secretKey string) (int64, error) {
 			return 0, fmt.Errorf("expiration time not found in token")
 		}
 
-		if claims["operation"] == operation_type {
+		log.Info("token not expired")
+
+		if claims["operation"].(string) != operation_type {
 			return -1, fmt.Errorf("invalid operation type")
 		}
 
+		log.Info("token operation type is correct")
+
 		userId := int64(claims["user_id"].(float64))
+
+		log.Info("successfully verified, userId is ", userId)
 		return userId, nil
 	}
 

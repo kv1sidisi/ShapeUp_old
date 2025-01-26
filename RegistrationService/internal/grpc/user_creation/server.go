@@ -7,10 +7,12 @@ import (
 	"RegistrationService/pkg/utils/jwt"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/asaskevich/govalidator"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"log/slog"
 	"strings"
 )
 
@@ -24,8 +26,9 @@ type UserCreation interface {
 
 	ConfirmNewUser(
 		ctx context.Context,
-		userId int64,
-	) (err error)
+		jwt string,
+		secretKey string,
+	) (userId int64, err error)
 }
 
 // serverAPI represents the handler for the gRPC server.
@@ -33,11 +36,17 @@ type serverAPI struct {
 	regv1.UnimplementedUserCreationServer
 	userCreation UserCreation
 	cfg          *config.Config
+	log          *slog.Logger
 }
 
 // RegisterServer registers the request handler for registration in the gRPC server.
-func RegisterServer(gRPC *grpc.Server, userCreation UserCreation, cfg *config.Config) {
-	regv1.RegisterUserCreationServer(gRPC, &serverAPI{userCreation: userCreation, cfg: cfg})
+func RegisterServer(gRPC *grpc.Server, userCreation UserCreation, cfg *config.Config, log *slog.Logger) {
+	regv1.RegisterUserCreationServer(gRPC,
+		&serverAPI{
+			userCreation: userCreation,
+			cfg:          cfg,
+			log:          log,
+		})
 }
 
 // Register is the gRPC server handler method, the top layer of the registration process.
@@ -45,11 +54,15 @@ func (s *serverAPI) Register(
 	ctx context.Context,
 	req *regv1.RegisterRequest,
 ) (*regv1.RegisterResponse, error) {
+	op := "server.Register"
+	log := s.log.With(slog.String("op", op))
 
 	// Validate request in regex
 	if err := validateRegisterRequest(req); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
+
+	log.Info("Request correct")
 
 	// UserCreation the new user
 	userId, err := s.userCreation.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
@@ -63,6 +76,8 @@ func (s *serverAPI) Register(
 
 	// Generate link for account confirmation
 	link, err := jwt.JwtLinkGeneration(userId, s.cfg.JWTSecret)
+
+	fmt.Printf(link)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "internal error")
 	}
@@ -95,21 +110,18 @@ func validateRegisterRequest(req *regv1.RegisterRequest) error {
 	return nil
 }
 
-// ConfirmAccount is the gRPC server handler method, the top layer of the registration process.
-func (s *serverAPI) ConfirmAccount(ctx context.Context,
+// Confirm is the gRPC server handler method, the top layer of the registration process.
+func (s *serverAPI) Confirm(ctx context.Context,
 	req *regv1.ConfirmRequest,
 ) (*regv1.ConfirmResponse, error) {
 
-	userId, err := jwt.VerifyToken(req.Jwt, s.cfg.JWTSecret)
-	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "invalid token")
-	}
+	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt, s.cfg.JWTSecret)
 
-	if err := s.userCreation.ConfirmNewUser(ctx, userId); err != nil {
+	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
-		return nil, status.Error(codes.Internal, "internal error")
+		return nil, err
 	}
 
 	return &regv1.ConfirmResponse{

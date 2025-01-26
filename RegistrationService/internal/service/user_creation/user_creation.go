@@ -2,10 +2,13 @@ package user_creation
 
 import (
 	"RegistrationService/internal/storage"
+	"RegistrationService/pkg/utils/jwt"
 	"context"
 	"errors"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"log/slog"
 )
 
@@ -75,25 +78,30 @@ func (r *UserCreation) RegisterNewUser(ctx context.Context, email, password stri
 
 // ConfirmNewUser confirms account
 // If user does not exist returns error
-func (r *UserCreation) ConfirmNewUser(ctx context.Context, userId int64) (err error) {
+func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, secretKey string) (userId int64, err error) {
 	const op = "register.ConfirmAccount"
 
 	log := r.log.With(
 		slog.String("op", op),
-		slog.Int64("userId", userId),
+		slog.String("token", token),
 	)
+
+	userId, err = jwt.VerifyToken(log, token, secretKey)
+	if err != nil {
+		return -1, status.Error(codes.Unauthenticated, "invalid token")
+	}
 
 	log.Info("confirming new user")
 
 	if err := r.userSaver.ConfirmAccount(ctx, userId); err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
 			r.log.Warn("user does not exist")
-			return fmt.Errorf("%s: %w", op, err)
+			return -1, fmt.Errorf("%s: %w", op, err)
 		}
 		log.Error("failed to confirm new user")
-		return fmt.Errorf("%s: %w", op, err)
+		return -1, fmt.Errorf("%s: %w", op, err)
 	}
 
 	log.Info("successfully confirmed new user")
-	return nil
+	return userId, nil
 }

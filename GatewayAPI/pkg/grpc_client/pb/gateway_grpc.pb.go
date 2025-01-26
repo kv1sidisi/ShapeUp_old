@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: user_creation.proto
+// source: gateway.proto
 
 package regv1
 
@@ -155,5 +155,5 @@ var UserCreation_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "user_creation.proto",
+	Metadata: "gateway.proto",
 }

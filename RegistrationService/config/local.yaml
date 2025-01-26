@@ -1,5 +1,4 @@
 env: "local" #dev, prod
-storage_path: "./storage/db.db"
 jwt_secret_key: "isfniuevouensviueniuvbeouvnsoinvosnvbosnoierbonsonvoisnvosnvodnbobvfndo"
 grpc:
   port: 44044
