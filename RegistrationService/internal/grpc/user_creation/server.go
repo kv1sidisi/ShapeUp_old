@@ -25,8 +25,9 @@ type UserCreation interface {
 
 	ConfirmNewUser(
 		ctx context.Context,
-		userId int64,
-	) (err error)
+		jwt string,
+		secretKey string,
+	) (userId int64, err error)
 }
 
 // serverAPI represents the handler for the gRPC server.
@@ -102,16 +103,14 @@ func validateRegisterRequest(req *regv1.RegisterRequest) error {
 func (s *serverAPI) Confirm(ctx context.Context,
 	req *regv1.ConfirmRequest,
 ) (*regv1.ConfirmResponse, error) {
-	userId, err := jwt.VerifyToken(req.Jwt, s.cfg.JWTSecret)
-	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "invalid token")
-	}
 
-	if err := s.userCreation.ConfirmNewUser(ctx, userId); err != nil {
+	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt, s.cfg.JWTSecret)
+
+	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
-		return nil, status.Error(codes.Internal, "internal error")
+		return nil, err
 	}
 
 	return &regv1.ConfirmResponse{
