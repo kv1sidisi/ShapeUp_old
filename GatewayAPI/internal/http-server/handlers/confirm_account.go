@@ -25,11 +25,10 @@ func New(log *slog.Logger, confirmAccount ConfirmAccount) http.HandlerFunc {
 			return
 		}
 
-		log.Info("got token", slog.String("token", tokenString))
+		log.Info("got token: ", tokenString)
 
 		if err := confirmAccount.ConfirmAccount(tokenString); err != nil {
 			log.Error("Failed confirming account: ", err)
 		}
-
 	}
 }
