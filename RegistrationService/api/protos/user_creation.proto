@@ -6,7 +6,7 @@ option go_package = "shapeup.registration.v1;regv1";
 
 service UserCreation {
   rpc Register (RegisterRequest) returns (RegisterResponse);
-  rpc ConfrimAccount (ConfirmRequest) returns (ConfirmResponse);
+  rpc Confirm (ConfirmRequest) returns (ConfirmResponse);
 }
 
 message RegisterRequest {
