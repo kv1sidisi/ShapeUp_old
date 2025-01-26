@@ -83,9 +83,10 @@ func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, secretK
 
 	log := r.log.With(
 		slog.String("op", op),
+		slog.String("token", token),
 	)
 
-	userId, err = jwt.VerifyToken(token, secretKey)
+	userId, err = jwt.VerifyToken(log, token, secretKey)
 	if err != nil {
 		return -1, status.Error(codes.Unauthenticated, "invalid token")
 	}

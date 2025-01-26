@@ -25,7 +25,7 @@ func New(
 	gRPCServer := grpc.NewServer()
 
 	// Connects handlers.
-	reggrpc.RegisterServer(gRPCServer, registerService, cfg)
+	reggrpc.RegisterServer(gRPCServer, registerService, cfg, log)
 
 	return &App{
 		log:        log,

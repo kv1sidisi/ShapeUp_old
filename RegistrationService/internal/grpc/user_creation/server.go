@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"log/slog"
 	"strings"
 )
 
@@ -35,11 +36,17 @@ type serverAPI struct {
 	regv1.UnimplementedUserCreationServer
 	userCreation UserCreation
 	cfg          *config.Config
+	log          *slog.Logger
 }
 
 // RegisterServer registers the request handler for registration in the gRPC server.
-func RegisterServer(gRPC *grpc.Server, userCreation UserCreation, cfg *config.Config) {
-	regv1.RegisterUserCreationServer(gRPC, &serverAPI{userCreation: userCreation, cfg: cfg})
+func RegisterServer(gRPC *grpc.Server, userCreation UserCreation, cfg *config.Config, log *slog.Logger) {
+	regv1.RegisterUserCreationServer(gRPC,
+		&serverAPI{
+			userCreation: userCreation,
+			cfg:          cfg,
+			log:          log,
+		})
 }
 
 // Register is the gRPC server handler method, the top layer of the registration process.
@@ -47,11 +54,15 @@ func (s *serverAPI) Register(
 	ctx context.Context,
 	req *regv1.RegisterRequest,
 ) (*regv1.RegisterResponse, error) {
+	op := "server.Register"
+	log := s.log.With(slog.String("op", op))
 
 	// Validate request in regex
 	if err := validateRegisterRequest(req); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
+
+	log.Info("Request correct")
 
 	// UserCreation the new user
 	userId, err := s.userCreation.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
