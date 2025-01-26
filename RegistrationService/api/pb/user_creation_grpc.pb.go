@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserCreation_Register_FullMethodName       = "/registration.UserCreation/Register"
-	UserCreation_ConfrimAccount_FullMethodName = "/registration.UserCreation/ConfrimAccount"
+	UserCreation_Register_FullMethodName = "/registration.UserCreation/Register"
+	UserCreation_Confirm_FullMethodName  = "/registration.UserCreation/Confirm"
 )
 
 // UserCreationClient is the client API for UserCreation service.
@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserCreationClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
-	ConfrimAccount(ctx context.Context, in *ConfirmRequest, opts ...grpc.CallOption) (*ConfirmResponse, error)
+	Confirm(ctx context.Context, in *ConfirmRequest, opts ...grpc.CallOption) (*ConfirmResponse, error)
 }
 
 type userCreationClient struct {
@@ -49,10 +49,10 @@ func (c *userCreationClient) Register(ctx context.Context, in *RegisterRequest, 
 	return out, nil
 }
 
-func (c *userCreationClient) ConfrimAccount(ctx context.Context, in *ConfirmRequest, opts ...grpc.CallOption) (*ConfirmResponse, error) {
+func (c *userCreationClient) Confirm(ctx context.Context, in *ConfirmRequest, opts ...grpc.CallOption) (*ConfirmResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ConfirmResponse)
-	err := c.cc.Invoke(ctx, UserCreation_ConfrimAccount_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, UserCreation_Confirm_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (c *userCreationClient) ConfrimAccount(ctx context.Context, in *ConfirmRequ
 // for forward compatibility.
 type UserCreationServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
-	ConfrimAccount(context.Context, *ConfirmRequest) (*ConfirmResponse, error)
+	Confirm(context.Context, *ConfirmRequest) (*ConfirmResponse, error)
 	mustEmbedUnimplementedUserCreationServer()
 }
 
@@ -78,8 +78,8 @@ type UnimplementedUserCreationServer struct{}
 func (UnimplementedUserCreationServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedUserCreationServer) ConfrimAccount(context.Context, *ConfirmRequest) (*ConfirmResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ConfrimAccount not implemented")
+func (UnimplementedUserCreationServer) Confirm(context.Context, *ConfirmRequest) (*ConfirmResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Confirm not implemented")
 }
 func (UnimplementedUserCreationServer) mustEmbedUnimplementedUserCreationServer() {}
 func (UnimplementedUserCreationServer) testEmbeddedByValue()                      {}
@@ -120,20 +120,20 @@ func _UserCreation_Register_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserCreation_ConfrimAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _UserCreation_Confirm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ConfirmRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserCreationServer).ConfrimAccount(ctx, in)
+		return srv.(UserCreationServer).Confirm(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserCreation_ConfrimAccount_FullMethodName,
+		FullMethod: UserCreation_Confirm_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserCreationServer).ConfrimAccount(ctx, req.(*ConfirmRequest))
+		return srv.(UserCreationServer).Confirm(ctx, req.(*ConfirmRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -150,8 +150,8 @@ var UserCreation_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserCreation_Register_Handler,
 		},
 		{
-			MethodName: "ConfrimAccount",
-			Handler:    _UserCreation_ConfrimAccount_Handler,
+			MethodName: "Confirm",
+			Handler:    _UserCreation_Confirm_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
