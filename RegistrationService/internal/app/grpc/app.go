@@ -1,6 +1,7 @@
 package grpcapp
 
 import (
+	"RegistrationService/api/pb/sending_service"
 	"RegistrationService/internal/config"
 	reggrpc "RegistrationService/internal/grpc/user_creation"
 	"fmt"
@@ -21,12 +22,13 @@ func New(
 	log *slog.Logger,
 	registerService reggrpc.UserCreation,
 	cfg *config.Config,
+	sendingClient sending_service.SendingClient,
 ) *App {
 	gRPCServer := grpc.NewServer()
 	log.Info("grpc server created")
 
 	log.Info("registering services in grpc server")
-	reggrpc.RegisterServer(gRPCServer, registerService, cfg, log)
+	reggrpc.RegisterServer(gRPCServer, registerService, cfg, log, sendingClient)
 
 	return &App{
 		log:        log,

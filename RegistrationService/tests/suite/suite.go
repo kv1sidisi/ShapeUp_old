@@ -1,7 +1,7 @@
 package suite
 
 import (
-	regv1 "RegistrationService/api/pb"
+	regv1 "RegistrationService/api/pb/user_creation"
 	"RegistrationService/internal/config"
 	"context"
 	"google.golang.org/grpc"
