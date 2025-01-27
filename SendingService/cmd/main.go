@@ -18,6 +18,9 @@ func main() {
 	log := setupLogger(cfg.Env)
 
 	log.Info("starting up", slog.String("env", cfg.Env))
+
+	log.Info("starting application")
+
 }
 
 // setupLogger sets up logger dependent on environment type.
