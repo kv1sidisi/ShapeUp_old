@@ -24,7 +24,7 @@ type SMTPConfig struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	Host     string `yaml:"host"`
-	HostPort string `yaml:"host_port"`
+	Port     int64  `yaml:"port"`
 }
 
 // MustLoad gets config path and panics if there is any errors in parsing config.

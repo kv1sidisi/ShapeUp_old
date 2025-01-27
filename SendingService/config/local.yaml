@@ -6,4 +6,4 @@ smtp:
   username: "shapeup@yandex.ru"
   password: "vwyhwpjrcsaylaaw"
   host: "smtp.yandex.ru"
-  host_port: "smtp.yandex.ru:465"
+  port: 465
