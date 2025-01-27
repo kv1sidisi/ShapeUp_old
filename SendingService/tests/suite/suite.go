@@ -1,8 +1,8 @@
 package suite
 
 import (
-	regv1 "RegistrationService/api/pb/user_creation"
-	"RegistrationService/internal/config"
+	sendv1 "SendingService/api/pb"
+	"SendingService/internal/config"
 	"context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -13,8 +13,8 @@ import (
 
 type Suite struct {
 	*testing.T
-	Cfg       *config.Config
-	RegClient regv1.UserCreationClient
+	Cfg        *config.Config
+	SendClient sendv1.SendingClient
 }
 
 const (
@@ -44,7 +44,7 @@ func New(t *testing.T) (context.Context, *Suite) {
 	return ctx, &Suite{
 		t,
 		cfg,
-		regv1.NewUserCreationClient(cc),
+		sendv1.NewSendingClient(cc),
 	}
 }
 

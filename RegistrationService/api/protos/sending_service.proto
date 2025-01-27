@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package registration;
+
+option go_package = "shapeup.sending.v1;sendv1";
+
+service Sending {
+  rpc SendEmail(EmailRequest) returns (EmailResponse);
+}
+
+message EmailRequest {
+  string message = 1;
+  string email = 2;
+}
+
+message EmailResponse {
+  string email = 1;
+}

@@ -1,13 +1,13 @@
 package register
 
 import (
-	regv1 "RegistrationService/api/pb"
+	"RegistrationService/api/pb/sending_service"
+	regv1 "RegistrationService/api/pb/user_creation"
 	"RegistrationService/internal/config"
 	"RegistrationService/internal/storage"
 	"RegistrationService/pkg/utils/jwt"
 	"context"
 	"errors"
-	"fmt"
 	"github.com/asaskevich/govalidator"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -34,18 +34,20 @@ type UserCreation interface {
 // serverAPI represents the handler for the gRPC server.
 type serverAPI struct {
 	regv1.UnimplementedUserCreationServer
-	userCreation UserCreation
-	cfg          *config.Config
-	log          *slog.Logger
+	userCreation  UserCreation
+	cfg           *config.Config
+	log           *slog.Logger
+	sendingClient sending_service.SendingClient
 }
 
-// RegisterServer registers the request handler for registration in the gRPC server.
-func RegisterServer(gRPC *grpc.Server, userCreation UserCreation, cfg *config.Config, log *slog.Logger) {
+// RegisterServer registers the request handler in the gRPC server.
+func RegisterServer(gRPC *grpc.Server, userCreation UserCreation, cfg *config.Config, log *slog.Logger, sendingClient sending_service.SendingClient) {
 	regv1.RegisterUserCreationServer(gRPC,
 		&serverAPI{
-			userCreation: userCreation,
-			cfg:          cfg,
-			log:          log,
+			userCreation:  userCreation,
+			cfg:           cfg,
+			log:           log,
+			sendingClient: sendingClient,
 		})
 }
 
@@ -78,14 +80,22 @@ func (s *serverAPI) Register(
 	log.Info("generating confirmation link")
 	// Generate link for account confirmation
 	link, err := jwt.JwtLinkGeneration(userId, s.cfg.JWTSecret)
-	fmt.Printf("\n" + link + "\n")
 	if err != nil {
 		log.Error("confirmation link generation failed")
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 	log.Info("confirmation link generated successfully")
 
-	// TODO: send link with email sender service
+	log.Info("sending user confirmation link")
+	resp, err := s.sendingClient.SendEmail(ctx, &sending_service.EmailRequest{
+		Message: link,
+		Email:   req.GetEmail(),
+	})
+	if err != nil {
+		log.Error("failed to send confirmation link")
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+	log.Info("user confirmation link sent successfully to:" + resp.GetEmail())
 
 	// Return the response with the user ID
 	return &regv1.RegisterResponse{

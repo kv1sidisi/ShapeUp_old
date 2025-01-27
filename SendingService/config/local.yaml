@@ -1,0 +1,15 @@
+env: "local" #dev, prod
+grpc:
+  port: 33033
+  timeout: 10h
+smtp:
+  yandex:
+    username: "shapeup@yandex.ru"
+    password: "mcvhzbuntshdfeph"
+    host: "smtp.yandex.ru"
+    port: 587
+  mail_ru:
+    username: "shapeup27@mail.ru"
+    password: "5HRVq3qjMzmQx6X6kDFh"
+    host: "smtp.mail.ru"
+    port: 465

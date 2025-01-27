@@ -8,19 +8,37 @@ import (
 )
 
 type Config struct {
-	Env        string `yaml:"env" env-default:"local"`
-	HTTPServer `yaml:"http_server"`
-	GRPC       `yaml:"grpc_client"`
+	Env  string     `yaml:"env" env-default:"local"`
+	GRPC GRPCConfig `yaml:"grpc"`
+	SMTP SMTPConfig `yaml:"smtp"`
 }
 
-type HTTPServer struct {
-	Address     string        `yaml:"address" env-default:"localhost:8080"`
-	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
-	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
+// GRPCConfig structure represents information from config to configure grpc server.
+type GRPCConfig struct {
+	Port    int64         `yaml:"port"`
+	Timeout time.Duration `yaml:"timeout"`
 }
 
-type GRPC struct {
-	ConfirmAccountAddress string `yaml:"confirm_account_address" env-required:"true"`
+// SMTPConfig structure represents information from config to configure smtp client
+type SMTPConfig struct {
+	MailRu MailRuConfig `yaml:"mail_ru"`
+	YDX    YandexConfig `yaml:"yandex"`
+}
+
+// MailRuConfig structure represents information from config to configure mail.ru smtp client
+type MailRuConfig struct {
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     int64  `yaml:"port"`
+}
+
+// MailRuConfig structure represents information from config to configure yandex.ru smtp client
+type YandexConfig struct {
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     int64  `yaml:"port"`
 }
 
 // MustLoad gets config path and panics if there is any errors in parsing config.

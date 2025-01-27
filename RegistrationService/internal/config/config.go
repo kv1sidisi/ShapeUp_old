@@ -8,16 +8,21 @@ import (
 )
 
 type Config struct {
-	Env       string        `yaml:"env" env-default:"local"`
-	JWTSecret string        `yaml:"jwt_secret_key" env-required:"true"`
-	GRPC      GRPCConfig    `yaml:"grpc"`
-	Storage   StorageConfig `yaml:"storage"`
+	Env        string           `yaml:"env" env-default:"local"`
+	JWTSecret  string           `yaml:"jwt_secret_key" env-required:"true"`
+	GRPC       GRPCConfig       `yaml:"grpc"`
+	Storage    StorageConfig    `yaml:"storage"`
+	GRPCClient GRPCClientConfig `yaml:"grpc_client"`
 }
 
 // GRPCConfig structure represents information from config to configure grpc server.
 type GRPCConfig struct {
 	Port    int64         `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
+}
+
+type GRPCClientConfig struct {
+	SendingServiceAddress string `yaml:"sending_service_address" env-required:"true"`
 }
 
 // StorageConfig structure represents information from config to connect to database.

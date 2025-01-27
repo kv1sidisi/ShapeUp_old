@@ -1,38 +1,34 @@
 package grpcapp
 
 import (
-	"RegistrationService/api/pb/sending_service"
-	"RegistrationService/internal/config"
-	reggrpc "RegistrationService/internal/grpc/user_creation"
+	"SendingService/internal/config"
+	grpc_server "SendingService/internal/grpc"
+	sendserv "SendingService/internal/service"
 	"fmt"
 	"google.golang.org/grpc"
 	"log/slog"
 	"net"
 )
 
-// App structure represents bottom layer of application and contains grpc server.
 type App struct {
 	log        *slog.Logger
 	gRPCServer *grpc.Server
 	cfg        *config.Config
 }
 
-// New creates new gRPC server app.
 func New(
 	log *slog.Logger,
-	registerService reggrpc.UserCreation,
+	sendingService *sendserv.SendingService,
 	cfg *config.Config,
-	sendingClient sending_service.SendingClient,
 ) *App {
-	gRPCServer := grpc.NewServer()
+	grpcServer := grpc.NewServer()
 	log.Info("grpc server created")
 
 	log.Info("registering services in grpc server")
-	reggrpc.RegisterServer(gRPCServer, registerService, cfg, log, sendingClient)
-
+	grpc_server.RegisterServer(grpcServer, sendingService, cfg, log)
 	return &App{
 		log:        log,
-		gRPCServer: gRPCServer,
+		gRPCServer: grpcServer,
 		cfg:        cfg,
 	}
 }

@@ -4,7 +4,7 @@
 // 	protoc        v5.29.3
 // source: user_creation.proto
 
-package regv1
+package user_creation
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
