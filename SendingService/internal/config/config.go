@@ -10,12 +10,20 @@ import (
 type Config struct {
 	Env  string     `yaml:"env" env-default:"local"`
 	GRPC GRPCConfig `yaml:"grpc"`
+	SMTP SMTPConfig `yaml:"smtp"`
 }
 
 // GRPCConfig structure represents information from config to configure grpc server.
 type GRPCConfig struct {
 	Port    int64         `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
+}
+
+// SMTPConfig structure represents information from config to configure smtp client
+type SMTPConfig struct {
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
 }
 
 // MustLoad gets config path and panics if there is any errors in parsing config.
