@@ -1,0 +1,4 @@
+env: "local" #dev, prod
+grpc:
+  port: 33033
+  timeout: 10h
