@@ -21,6 +21,20 @@ type GRPCConfig struct {
 
 // SMTPConfig structure represents information from config to configure smtp client
 type SMTPConfig struct {
+	MailRu MailRuConfig `yaml:"mail_ru"`
+	YDX    YandexConfig `yaml:"yandex"`
+}
+
+// MailRuConfig structure represents information from config to configure mail.ru smtp client
+type MailRuConfig struct {
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     int64  `yaml:"port"`
+}
+
+// MailRuConfig structure represents information from config to configure yandex.ru smtp client
+type YandexConfig struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	Host     string `yaml:"host"`

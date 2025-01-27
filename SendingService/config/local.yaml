@@ -3,7 +3,13 @@ grpc:
   port: 33033
   timeout: 10h
 smtp:
-  username: "shapeup@yandex.ru"
-  password: "vwyhwpjrcsaylaaw"
-  host: "smtp.yandex.ru"
-  port: 465
+  yandex:
+    username: "shapeup@yandex.ru"
+    password: "mcvhzbuntshdfeph"
+    host: "smtp.yandex.ru"
+    port: 587
+  mail_ru:
+    username: "shapeup27@mail.ru"
+    password: "e74p49bbFrJGighp1cw2"
+    host: "smtp.mail.ru"
+    port: 465
