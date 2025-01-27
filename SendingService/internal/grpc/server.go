@@ -7,11 +7,13 @@ import (
 	"errors"
 	"github.com/asaskevich/govalidator"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"log/slog"
 )
 
 type SendingService interface {
-	SendEmail(
+	SendNewEmail(
 		ctx context.Context,
 		email string,
 		message string,
@@ -40,7 +42,7 @@ func (s *serverAPI) SendEmail(
 	ctx context.Context,
 	req *sendv1.EmailRequest,
 ) (*sendv1.EmailResponse, error) {
-	op := "server.SendEmail"
+	const op = "server.SendEmail"
 
 	log := s.log.With(slog.String("op", op))
 
@@ -51,7 +53,10 @@ func (s *serverAPI) SendEmail(
 	log.Info("email valid")
 
 	log.Info("sending email")
-	//TODO: send email service initialization
+	if err := s.sendingService.SendNewEmail(ctx, req.GetEmail(), req.GetMessage()); err != nil {
+		log.Error("sending email error:", err.Error())
+		return nil, status.Error(codes.Internal, "internal error")
+	}
 	log.Info("email sent")
 
 	return &sendv1.EmailResponse{

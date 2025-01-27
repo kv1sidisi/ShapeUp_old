@@ -3,6 +3,7 @@ package app
 import (
 	grpcapp "SendingService/internal/app/grpc"
 	"SendingService/internal/config"
+	"SendingService/internal/service"
 	"log/slog"
 )
 
@@ -18,10 +19,10 @@ func New(
 	cfg *config.Config,
 ) *App {
 	log.Info("creating email sending service")
-	//TODO: create email sending service
+	sendingService := service.New(log, cfg)
 
 	log.Info("creating grpc server app")
-	grpcApp := grpcapp.New(log, registerService, cfg)
+	grpcApp := grpcapp.New(log, sendingService, cfg)
 
 	return &App{
 		GRPCSrv: grpcApp,
