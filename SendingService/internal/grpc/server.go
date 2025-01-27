@@ -13,7 +13,12 @@ import (
 )
 
 type SendingService interface {
-	SendNewEmail(
+	SMTPSendNewEmail(
+		ctx context.Context,
+		email string,
+		message string,
+	) error
+	GoGetSendNewEmail(
 		ctx context.Context,
 		email string,
 		message string,
@@ -53,7 +58,7 @@ func (s *serverAPI) SendEmail(
 	log.Info("email valid")
 
 	log.Info("sending email")
-	if err := s.sendingService.SendNewEmail(ctx, req.GetEmail(), req.GetMessage()); err != nil {
+	if err := s.sendingService.GoGetSendNewEmail(ctx, req.GetEmail(), req.GetMessage()); err != nil {
 		log.Error("sending email error:", err.Error())
 		return nil, status.Error(codes.Internal, "internal error")
 	}

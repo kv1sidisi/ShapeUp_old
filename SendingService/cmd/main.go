@@ -1,9 +1,12 @@
-package cmd
+package main
 
 import (
+	"SendingService/internal/app"
 	"SendingService/internal/config"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 const (
@@ -20,7 +23,19 @@ func main() {
 	log.Info("starting up", slog.String("env", cfg.Env))
 
 	log.Info("starting application")
+	application := app.New(log, cfg)
 
+	log.Info("starting grpc server")
+	go application.GRPCSrv.MustRun()
+	log.Info("grpc server started")
+
+	//Graceful shutdown
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+	sign := <-stop
+	log.Info("received shutdown signal", slog.Any("signal", sign))
+	application.GRPCSrv.Stop()
+	log.Info("application stopped")
 }
 
 // setupLogger sets up logger dependent on environment type.
