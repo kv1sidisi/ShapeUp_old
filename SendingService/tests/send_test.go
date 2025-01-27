@@ -1,0 +1,23 @@
+package tests
+
+import (
+	sendv1 "SendingService/api/pb"
+	"SendingService/tests/suite"
+	"github.com/stretchr/testify/require"
+	"testing"
+)
+
+func TestSendEmail_HappyPath(t *testing.T) {
+	ctx, st := suite.New(t)
+
+	email := "lapunovvadim34@gmail.com"
+	message := "Test message\nPlease confirm your account:\n link"
+
+	resp, err := st.SendClient.SendEmail(ctx, &sendv1.EmailRequest{
+		Email:   email,
+		Message: message,
+	})
+
+	require.NoError(t, err)
+	require.NotEmpty(t, resp)
+}

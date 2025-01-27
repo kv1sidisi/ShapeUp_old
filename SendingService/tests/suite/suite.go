@@ -13,8 +13,8 @@ import (
 
 type Suite struct {
 	*testing.T
-	Cfg       *config.Config
-	RegClient sendv1.SendingClient
+	Cfg        *config.Config
+	SendClient sendv1.SendingClient
 }
 
 const (
