@@ -39,7 +39,7 @@ type serverAPI struct {
 	log          *slog.Logger
 }
 
-// RegisterServer registers the request handler for registration in the gRPC server.
+// RegisterServer registers the request handler in the gRPC server.
 func RegisterServer(gRPC *grpc.Server, userCreation UserCreation, cfg *config.Config, log *slog.Logger) {
 	regv1.RegisterUserCreationServer(gRPC,
 		&serverAPI{
