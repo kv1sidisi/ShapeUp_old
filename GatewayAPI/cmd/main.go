@@ -30,30 +30,29 @@ func main() {
 	log.Info("starting up", slog.String("env", cfg.Env))
 
 	router := chi.NewRouter()
-
 	router.Use(middleware.RequestID)
 	router.Use(logger.New(log))
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	//Connection to registration microservice with gRPC
+	log.Info("connecting to grpc RegistrationService", slog.String("address", cfg.GRPC.ConfirmAccountAddress))
 	conn, err := grpc.NewClient(cfg.GRPC.ConfirmAccountAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Error("failed to create grpc client connection to confirm account service: ", err)
 		panic(err)
 	}
 	defer conn.Close()
-
-	log.Info("grpc client connected to", cfg.GRPC.ConfirmAccountAddress)
+	log.Info("grpc client connected")
 
 	client := pb.NewUserCreationClient(conn)
 
 	confirmAccountService := service.New(log, client)
+	log.Info("confirm account service registered")
 
 	router.Get("/confirm_account", handlers.New(log, confirmAccountService))
+	log.Info("confirm_account endpoint registered")
 
 	log.Info("starting server", slog.String("address", cfg.Address))
-
 	srv := &http.Server{
 		Addr:         cfg.Address,
 		Handler:      router,

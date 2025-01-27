@@ -20,17 +20,16 @@ func New(log *slog.Logger, client regv1.UserCreationClient) *ConfirmAccount {
 }
 
 func (ca *ConfirmAccount) ConfirmAccount(token string) error {
-	ca.log.Info("Sending token for confirmation", slog.String("token", token))
+	ca.log.Info("sending token for confirmation", slog.String("token", token))
 
 	resp, err := ca.client.Confirm(context.Background(), &regv1.ConfirmRequest{Jwt: token})
 	if err != nil {
-		ca.log.Error("Confirm error", slog.String("error", err.Error()))
+		ca.log.Error("confirm error", slog.String("error", err.Error()))
 		return err
 	}
 
 	fmt.Println(resp.UserId)
 
-	ca.log.Info("ConfirmAccount response: ", resp.UserId)
-	ca.log.Info("ConfirmAccount success")
+	ca.log.Info("confirmed account ", slog.Int64("userId", resp.UserId))
 	return nil
 }
