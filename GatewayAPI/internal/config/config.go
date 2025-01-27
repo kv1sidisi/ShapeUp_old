@@ -10,7 +10,7 @@ import (
 type Config struct {
 	Env        string `yaml:"env" env-default:"local"`
 	HTTPServer `yaml:"http_server"`
-	GRPC       `yaml:"grpc"`
+	GRPC       `yaml:"grpc_client"`
 }
 
 type HTTPServer struct {
