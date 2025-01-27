@@ -1,7 +1,7 @@
 package tests
 
 import (
-	regv1 "RegistrationService/api/pb"
+	regv1 "RegistrationService/api/pb/user_creation"
 	"RegistrationService/tests/suite"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"

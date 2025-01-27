@@ -53,7 +53,7 @@ func (ss *SendingService) SMTPSendNewEmail(ctx context.Context, email string, me
 }
 
 func smtpAddress(cfg *config.Config) string {
-	return net.JoinHostPort(cfg.SMTP.MailRu.Host, strconv.Itoa(int(cfg.SMTP.MailRu.Port)))
+	return net.JoinHostPort(cfg.SMTP.YDX.Host, strconv.Itoa(int(cfg.SMTP.YDX.Port)))
 }
 
 func (ss *SendingService) GoGetSendNewEmail(ctx context.Context, email string, message string) error {
@@ -65,11 +65,11 @@ func (ss *SendingService) GoGetSendNewEmail(ctx context.Context, email string, m
 
 	log.Info("sending email through SMTP")
 	m := gomail.NewMessage()
-	m.SetHeader("From", ss.cfg.SMTP.YDX.Username)
+	m.SetHeader("From", ss.cfg.SMTP.MailRu.Username)
 	m.SetHeader("To", email)
 	m.SetBody("Body", message)
 
-	d := gomail.NewDialer(ss.cfg.SMTP.YDX.Host, int(ss.cfg.SMTP.YDX.Port), ss.cfg.SMTP.YDX.Username, ss.cfg.SMTP.YDX.Password)
+	d := gomail.NewDialer(ss.cfg.SMTP.MailRu.Host, int(ss.cfg.SMTP.MailRu.Port), ss.cfg.SMTP.MailRu.Username, ss.cfg.SMTP.MailRu.Password)
 
 	if err := d.DialAndSend(m); err != nil {
 		return err
