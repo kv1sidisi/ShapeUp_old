@@ -10,6 +10,6 @@ smtp:
     port: 587
   mail_ru:
     username: "shapeup27@mail.ru"
-    password: "e74p49bbFrJGighp1cw2"
+    password: "5HRVq3qjMzmQx6X6kDFh"
     host: "smtp.mail.ru"
     port: 465
