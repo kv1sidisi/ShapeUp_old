@@ -11,7 +11,6 @@ service Sending {
 message EmailRequest {
   string message = 1;
   string email = 2;
-  string theme = 3;
 }
 
 message EmailResponse {
