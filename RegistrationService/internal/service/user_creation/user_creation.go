@@ -12,7 +12,7 @@ import (
 	"log/slog"
 )
 
-// UserCreation struct represents the registration service and it is implementation of upper layer of register method of application.
+// UserCreation struct represents the registration service and it is implementation of bottom layer of register method of application.
 type UserCreation struct {
 	log       *slog.Logger
 	userSaver UserManager
