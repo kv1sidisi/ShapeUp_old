@@ -12,6 +12,5 @@ func DoWithTries(fn func() error, attempts int, delay time.Duration) (err error)
 		}
 		return nil
 	}
-
 	return
 }

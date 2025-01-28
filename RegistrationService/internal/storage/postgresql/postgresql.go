@@ -9,6 +9,10 @@ import (
 	"log/slog"
 )
 
+const (
+	codeEmailAreadyExists = "23505"
+)
+
 type Storage struct {
 	client postgresql.Client
 	log    *slog.Logger
@@ -42,7 +46,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 			log.Error(newErr.Error())
 
 			// Error when user with given email already exists
-			if pgErr.Code == "23505" {
+			if pgErr.Code == codeEmailAreadyExists {
 				return 0, storage.ErrUserExists
 			}
 
