@@ -12,6 +12,7 @@ import (
 	"log/slog"
 )
 
+// SendingService represent service for sending, bottom layer.
 type SendingService interface {
 	SMTPSendNewEmail(
 		ctx context.Context,
@@ -43,6 +44,7 @@ func RegisterServer(gRPC *grpc.Server, sendingService SendingService, cfg *confi
 		})
 }
 
+// SendEmail is the gRPC server handler method, the top layer of the sending process.
 func (s *serverAPI) SendEmail(
 	ctx context.Context,
 	req *sendv1.EmailRequest,

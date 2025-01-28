@@ -10,12 +10,14 @@ import (
 	"net"
 )
 
+// App structure represents bottom layer of application and contains grpc server.
 type App struct {
 	log        *slog.Logger
 	gRPCServer *grpc.Server
 	cfg        *config.Config
 }
 
+// New creates new gRPC server app.
 func New(
 	log *slog.Logger,
 	sendingService *sendserv.SendingService,
