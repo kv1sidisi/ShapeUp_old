@@ -1,4 +1,4 @@
-package service
+package service_confirm_account
 
 import (
 	regv1 "GatewayAPI/pkg/grpc_client/pb"

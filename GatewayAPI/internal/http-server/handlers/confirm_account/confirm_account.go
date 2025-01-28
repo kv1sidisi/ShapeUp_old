@@ -1,4 +1,4 @@
-package handlers
+package handler_confirm_account
 
 import (
 	"github.com/go-chi/chi/middleware"
