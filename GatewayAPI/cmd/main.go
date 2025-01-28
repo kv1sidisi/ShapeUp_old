@@ -45,7 +45,6 @@ func main() {
 	}
 	defer conn.Close()
 	log.Info("grpc client connected")
-
 	client := pb.NewUserCreationClient(conn)
 
 	confirmAccountService := service_confirm_account.New(log, client)
@@ -56,6 +55,7 @@ func main() {
 	registerUserService := service_register_user.New(log, client)
 	log.Info("register user service registered")
 	router.Get("/register_user", handler_register_user.New(log, registerUserService))
+	log.Info("register user endpoint registered")
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 	srv := &http.Server{

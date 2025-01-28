@@ -6,10 +6,12 @@ import (
 	"net/http"
 )
 
+// RegisterUser interface represents service for register user endpoint.
 type RegisterUser interface {
 	RegisterUser(email, password string) error
 }
 
+// New creates endpoint for register user service.
 func New(log *slog.Logger, registerUser RegisterUser) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.register_user"

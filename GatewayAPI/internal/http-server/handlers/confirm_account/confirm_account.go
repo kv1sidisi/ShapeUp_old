@@ -6,10 +6,12 @@ import (
 	"net/http"
 )
 
+// ConfirmAccount interface represents service for confirm account endpoint.
 type ConfirmAccount interface {
 	ConfirmAccount(token string) error
 }
 
+// New creates endpoint for confirm account service.
 func New(log *slog.Logger, confirmAccount ConfirmAccount) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.confirm_account"

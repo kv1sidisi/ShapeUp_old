@@ -12,6 +12,7 @@ type RegisterUser struct {
 	client regv1.UserCreationClient
 }
 
+// New creates RegisterUser service.
 func New(log *slog.Logger, client regv1.UserCreationClient) *RegisterUser {
 	return &RegisterUser{
 		log:    log,
@@ -19,6 +20,7 @@ func New(log *slog.Logger, client regv1.UserCreationClient) *RegisterUser {
 	}
 }
 
+// RegisterUser method invokes grpc client of RegisterService to register new user.
 func (ru *RegisterUser) RegisterUser(email string, password string) error {
 
 	ru.log.Info("registering user: ", email, password)

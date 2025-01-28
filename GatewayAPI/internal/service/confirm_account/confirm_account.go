@@ -12,6 +12,7 @@ type ConfirmAccount struct {
 	client regv1.UserCreationClient
 }
 
+// New creates ConfirmAccount service
 func New(log *slog.Logger, client regv1.UserCreationClient) *ConfirmAccount {
 	return &ConfirmAccount{
 		log:    log,
@@ -19,6 +20,7 @@ func New(log *slog.Logger, client regv1.UserCreationClient) *ConfirmAccount {
 	}
 }
 
+// ConfirmAccount method invokes grpc client of RegistrationService to confirm account
 func (ca *ConfirmAccount) ConfirmAccount(token string) error {
 	ca.log.Info("sending token for confirmation", slog.String("token", token))
 
