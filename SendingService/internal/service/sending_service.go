@@ -10,17 +10,20 @@ import (
 	"strconv"
 )
 
+// SendingService struct represents the sending service and it is implementation of bottom layer of sending method of application.
 type SendingService struct {
 	log *slog.Logger
 	cfg *config.Config
 }
 
+// New returns a new instance of SendingService service.
 func New(log *slog.Logger, cfg *config.Config) *SendingService {
 	return &SendingService{
 		log: log,
 		cfg: cfg}
 }
 
+// SMTPSendNewEmail sends email through SMTP with smtp package.
 func (ss *SendingService) SMTPSendNewEmail(ctx context.Context, email string, message string) error {
 	const op = "service.SendEmail"
 
@@ -38,7 +41,7 @@ func (ss *SendingService) SMTPSendNewEmail(ctx context.Context, email string, me
 	smtpAddress := smtpAddress(ss.cfg)
 	log.Info("smtp sets up on: " + smtpAddress)
 
-	log.Info("sending email through SMTP")
+	log.Info("sending email through SMTP smtp package")
 	err := smtp.SendMail(
 		smtpAddress,
 		auth,
@@ -52,10 +55,12 @@ func (ss *SendingService) SMTPSendNewEmail(ctx context.Context, email string, me
 	return nil
 }
 
+// smtpAddress merges host and port from config.
 func smtpAddress(cfg *config.Config) string {
 	return net.JoinHostPort(cfg.SMTP.YDX.Host, strconv.Itoa(int(cfg.SMTP.YDX.Port)))
 }
 
+// GoGetSendNewEmail sends email through SMTP with GoGet package.
 func (ss *SendingService) GoGetSendNewEmail(ctx context.Context, email string, message string) error {
 	const op = "service.GoGetSendNewEmail"
 	log := ss.log.With(
@@ -63,7 +68,8 @@ func (ss *SendingService) GoGetSendNewEmail(ctx context.Context, email string, m
 		slog.String("email", email),
 	)
 
-	log.Info("sending email through SMTP")
+	log.Info("sending email through SMTP GoGetPackage")
+	log.Info("message is: " + message)
 	m := gomail.NewMessage()
 	m.SetHeader("From", ss.cfg.SMTP.MailRu.Username)
 	m.SetHeader("To", email)

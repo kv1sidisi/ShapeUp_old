@@ -6,6 +6,7 @@ import (
 	"RegistrationService/internal/config"
 	"RegistrationService/pkg/client/postgresql"
 	"context"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log/slog"
@@ -27,11 +28,7 @@ func main() {
 	log.Info("starting up", slog.String("env", cfg.Env))
 
 	log.Info("connecting to database")
-	postgresqlClient, err := postgresql.NewClient(context.TODO(), 3, cfg.Storage)
-	if err != nil {
-		log.Error("Failed to connect to database", err)
-		panic(err)
-	}
+	postgresqlClient := mustLoadDatabaseConnection(cfg, log)
 	log.Info("connected to database")
 
 	log.Info("connecting to grpc SendingService", slog.String("address", cfg.GRPCClient.SendingServiceAddress))
@@ -42,7 +39,6 @@ func main() {
 	}
 	defer conn.Close()
 	log.Info("grpc client connected")
-
 	client := pb.NewSendingClient(conn)
 
 	log.Info("starting application")
@@ -78,4 +74,23 @@ func setupLogger(env string) *slog.Logger {
 	}
 
 	return log
+}
+
+// mustLoadDatabaseConnection panics if setupDatabaseConnection fails
+func mustLoadDatabaseConnection(cfg *config.Config, log *slog.Logger) *pgxpool.Pool {
+	postgresqlClient, err := setupDatabaseConnection(cfg, log)
+	if err != nil {
+		panic(err)
+	}
+	return postgresqlClient
+}
+
+// setupDatabaseConnection connect to database.
+func setupDatabaseConnection(cfg *config.Config, log *slog.Logger) (*pgxpool.Pool, error) {
+	postgresqlClient, err := postgresql.NewClient(context.TODO(), 3, cfg.Storage)
+	if err != nil {
+		log.Error("Failed to connect to database", err)
+		return nil, err
+	}
+	return postgresqlClient, nil
 }

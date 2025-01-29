@@ -84,7 +84,7 @@ func (s *serverAPI) Register(
 		log.Error("confirmation link generation failed")
 		return nil, status.Error(codes.Internal, "internal error")
 	}
-	log.Info("confirmation link generated successfully")
+	log.Info("confirmation link generated successfully: ", link)
 
 	log.Info("sending user confirmation link")
 	resp, err := s.sendingClient.SendEmail(ctx, &sending_service.EmailRequest{

@@ -86,3 +86,6 @@ func generateToken(userId int64, secretKey string) (string, error) {
 
 	return tokenString, nil
 }
+
+// TODO: support token generation for different operations
+func verifyOperationType() {}
