@@ -6,7 +6,7 @@
 
 //TODO: rename package
 
-package authv1
+package authentication
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"

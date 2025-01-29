@@ -2,6 +2,9 @@ package main
 
 import (
 	"AuthenticationService/internal/config"
+	"AuthenticationService/pkg/client/postgresql"
+	"context"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"log/slog"
 	"os"
 )
@@ -19,7 +22,9 @@ func main() {
 
 	log.Info("starting up", slog.String("env", cfg.Env))
 
-	//TODO: setup db connection
+	log.Info("connecting to database")
+	postgresqlClient := mustLoadDatabaseConnection(cfg, log)
+	log.Info("connected to postgresql")
 
 	//TODO: connect SendingService grpc client
 
@@ -40,4 +45,23 @@ func setupLogger(env string) *slog.Logger {
 	}
 
 	return log
+}
+
+// mustLoadDatabaseConnection panics if setupDatabaseConnection fails
+func mustLoadDatabaseConnection(cfg *config.Config, log *slog.Logger) *pgxpool.Pool {
+	postgresqlClient, err := setupDatabaseConnection(cfg, log)
+	if err != nil {
+		panic(err)
+	}
+	return postgresqlClient
+}
+
+// setupDatabaseConnection connect to database.
+func setupDatabaseConnection(cfg *config.Config, log *slog.Logger) (*pgxpool.Pool, error) {
+	postgresqlClient, err := postgresql.NewClient(context.TODO(), 3, cfg.Storage)
+	if err != nil {
+		log.Error("Failed to connect to database", err)
+		return nil, err
+	}
+	return postgresqlClient, nil
 }
