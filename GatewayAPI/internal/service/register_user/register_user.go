@@ -21,20 +21,20 @@ func New(log *slog.Logger, client regv1.UserCreationClient) *RegisterUser {
 }
 
 // RegisterUser method invokes grpc client of RegisterService to register new user.
-func (ru *RegisterUser) RegisterUser(email string, password string) error {
+func (ru *RegisterUser) RegisterUser(email string, password string) (resp *regv1.RegisterResponse, err error) {
 
 	ru.log.Info("registering user: ", email, password)
-	resp, err := ru.client.Register(context.Background(), &regv1.RegisterRequest{
+	resp, err = ru.client.Register(context.Background(), &regv1.RegisterRequest{
 		Email:    email,
 		Password: password,
 	})
 	if err != nil {
 		ru.log.Error("register error", slog.String("error", err.Error()))
-		return err
+		return nil, err
 	}
 
 	fmt.Println(resp.UserId)
 
 	ru.log.Info("registered account ", slog.Int64("userId", resp.UserId))
-	return nil
+	return resp, nil
 }

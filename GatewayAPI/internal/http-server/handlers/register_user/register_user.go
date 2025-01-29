@@ -1,6 +1,8 @@
 package handler_register_user
 
 import (
+	regv1 "GatewayAPI/pkg/grpc_client/pb"
+	"encoding/json"
 	"github.com/go-chi/chi/middleware"
 	"log/slog"
 	"net/http"
@@ -8,7 +10,12 @@ import (
 
 // RegisterUser interface represents service for register user endpoint.
 type RegisterUser interface {
-	RegisterUser(email, password string) error
+	RegisterUser(email, password string) (resp *regv1.RegisterResponse, err error)
+}
+
+type JSONRegisterRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 // New creates endpoint for register user service.
@@ -21,13 +28,24 @@ func New(log *slog.Logger, registerUser RegisterUser) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		//TODO: parse request
+		var req JSONRegisterRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		}
 
-		log.Info("got email: ", email)
-		log.Info("got password: ", password)
+		log.Info("got email: ", req.Email)
+		log.Info("got password: ", req.Password)
 
-		if err := registerUser.RegisterUser(email, password); err != nil {
+		resp, err := registerUser.RegisterUser(req.Email, req.Password)
+		if err != nil {
 			log.Error("Failed confirming account: ", err)
+		}
+		log.Info("user registered successfully")
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode(resp)
+		//TODO: handle errors. look for better practice
+		if err != nil {
+			return
 		}
 	}
 }
