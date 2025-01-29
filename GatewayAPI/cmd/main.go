@@ -49,12 +49,12 @@ func main() {
 
 	confirmAccountService := service_confirm_account.New(log, client)
 	log.Info("confirm account service registered")
-	router.Get("/confirm_account", handler_confirm_account.New(log, confirmAccountService))
+	router.Post("/confirm_account", handler_confirm_account.New(log, confirmAccountService))
 	log.Info("confirm_account endpoint registered")
 
 	registerUserService := service_register_user.New(log, client)
 	log.Info("register user service registered")
-	router.Get("/register_user", handler_register_user.New(log, registerUserService))
+	router.Post("/register_user", handler_register_user.New(log, registerUserService))
 	log.Info("register user endpoint registered")
 
 	log.Info("starting server", slog.String("address", cfg.Address))
