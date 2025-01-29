@@ -2,6 +2,7 @@ package main
 
 import (
 	pb "AuthenticationService/api/pb/sending"
+	external_app "AuthenticationService/internal/app"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/pkg/client/postgresql"
 	"context"
@@ -10,6 +11,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 const (
@@ -37,10 +40,21 @@ func main() {
 	}
 	defer conn.Close()
 	log.Info("grpc client connected")
-	client := pb.NewSendingClient(conn)
+	sendingClient := pb.NewSendingClient(conn)
 
-	//TODO: set up grpc server
+	application := external_app.New(log, cfg, postgresqlClient, sendingClient)
 
+	log.Info("starting grpc server")
+	go application.GRPCSrv.MustRun()
+	log.Info("grpc server started")
+
+	//Graceful shutdown
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+	sign := <-stop
+	log.Info("received shutdown signal", slog.Any("signal", sign))
+	application.GRPCSrv.Stop()
+	log.Info("application stopped")
 }
 
 func setupLogger(env string) *slog.Logger {

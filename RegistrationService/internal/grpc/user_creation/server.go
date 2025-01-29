@@ -16,7 +16,7 @@ import (
 	"strings"
 )
 
-// UserCreation interface represents upper layer of userCreation method of application.
+// UserCreation interface represents upper layer of userCreation methods of application.
 type UserCreation interface {
 	RegisterNewUser(
 		ctx context.Context,
