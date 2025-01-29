@@ -46,5 +46,10 @@ func (s *serverAPI) Login(
 	log := s.log.With(slog.String("op", op))
 
 	log.Info("logging user: ")
-	return nil, nil
+
+	//TODO: validate request
+
+	//TODO: invoke service
+
+	//TODO: return response
 }

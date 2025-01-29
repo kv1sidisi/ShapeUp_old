@@ -22,4 +22,5 @@ func (s *Storage) FindUser(ctx context.Context,
 	username string,
 	password string,
 ) (uid int64, err error) {
+	return 1, nil
 }

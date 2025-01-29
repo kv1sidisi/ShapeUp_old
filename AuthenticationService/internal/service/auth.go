@@ -28,5 +28,8 @@ func (as *AuthService) LoginUser(
 	username string,
 	password string,
 ) (userId int64, err error) {
+	//TODO: try to find user in db
+	//TODO: generate jwt and refresh tokens
+	//TODO: return jwt and refresh tokens
 	return 1, nil
 }
