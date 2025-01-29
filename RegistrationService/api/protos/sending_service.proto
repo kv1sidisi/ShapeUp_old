@@ -1,5 +1,6 @@
 syntax = "proto3";
 
+//TODO: rename package
 package registration;
 
 option go_package = "shapeup.sending.v1;sendv1";

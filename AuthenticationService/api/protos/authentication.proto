@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+//TODO: rename package
+package registration;
+
+option go_package = "shapeup.auth.v1;authv1";
+
+service Auth {
+  rpc Auth(AuthRequest) returns (AuthResponse);
+}
+
+message AuthRequest {
+  string username = 1; // User email or login
+  string password = 2; // User password
+}
+
+message AuthResponse {
+  string user_id = 1;
+}
