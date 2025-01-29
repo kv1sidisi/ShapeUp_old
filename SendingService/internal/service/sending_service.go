@@ -69,6 +69,7 @@ func (ss *SendingService) GoGetSendNewEmail(ctx context.Context, email string, m
 	)
 
 	log.Info("sending email through SMTP GoGetPackage")
+	log.Info("message is: " + message)
 	m := gomail.NewMessage()
 	m.SetHeader("From", ss.cfg.SMTP.MailRu.Username)
 	m.SetHeader("To", email)
