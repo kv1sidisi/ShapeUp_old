@@ -1,10 +1,13 @@
 package main
 
 import (
+	pb "AuthenticationService/api/pb/sending"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/pkg/client/postgresql"
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log/slog"
 	"os"
 )
@@ -26,7 +29,15 @@ func main() {
 	postgresqlClient := mustLoadDatabaseConnection(cfg, log)
 	log.Info("connected to postgresql")
 
-	//TODO: connect SendingService grpc client
+	log.Info("connecting to grpc SendingService", slog.String("address", cfg.GRPCClient.SendingServiceAddress))
+	conn, err := grpc.NewClient(cfg.GRPCClient.SendingServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Error("failed to create grpc client connection to sending service: ", err)
+		panic(err)
+	}
+	defer conn.Close()
+	log.Info("grpc client connected")
+	client := pb.NewSendingClient(conn)
 
 	//TODO: set up grpc server
 

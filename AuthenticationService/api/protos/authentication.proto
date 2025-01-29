@@ -1,7 +1,6 @@
 syntax = "proto3";
 
-//TODO: rename package
-package registration;
+package auth;
 
 option go_package = "shapeup.auth.v1;authv1";
 
