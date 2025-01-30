@@ -14,7 +14,7 @@ message LoginRequest {
 }
 
 message LoginResponse {
-  string user_id = 1; // Logged in user id
+  int64 user_id = 1; // Logged in user id
   string jwt_token = 2; // Logged in user jwt token
   string refresh_token = 3; // Logged in user refresh token
 }
