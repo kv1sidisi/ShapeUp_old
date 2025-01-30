@@ -15,7 +15,7 @@ type Auth interface {
 		ctx context.Context,
 		username string,
 		password string,
-	) (userId int64, err error)
+	) (userId int64, accessToken string, refreshToken string, err error)
 }
 
 // serverAPI represents the handler for the gRPC server.
@@ -46,10 +46,16 @@ func (s *serverAPI) Login(
 	log := s.log.With(slog.String("op", op))
 
 	log.Info("logging user: ")
+	userId, jwt, refresh, err := s.auth.LoginUser(ctx, req.GetUsername(), req.GetPassword())
+	if err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+	log.Info("logged successfully userId: ", userId)
 
-	//TODO: validate request
-
-	//TODO: invoke service
-
-	//TODO: return response
+	return &authv1.LoginResponse{
+		UserId:       userId,
+		JwtToken:     jwt,
+		RefreshToken: refresh,
+	}, nil
 }
