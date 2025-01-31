@@ -1,0 +1,15 @@
+env: "local" #dev, prod
+jwt:
+  access_token_secret_key: "isfniuevouensviueniuvbeouvnsoinvosnvbosnoierbonsonvoisnvosnvodnbobvfndo"
+  refresh_token_secret_key: "ekfokenvoinsvfokndvfondovnodkvnodnvojdnvojdnvojndbojndobndbondobnodbnof"
+grpc:
+  port: 22022
+  timeout: 10h
+grpc_client:
+  sending_service_address: "localhost:33033"
+storage:
+  host: localhost
+  port: 5432
+  database: postgres
+  username: postgres
+  password: postgres

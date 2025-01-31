@@ -11,7 +11,7 @@ const (
 	operation_type = "confirmation"
 )
 
-// JwtLinkGeneration generates link from jwt token to confirm account.
+// JwtLinkGeneration generates link from jwt_service token to confirm account.
 func JwtLinkGeneration(userId int64, secretKey string) (string, error) {
 	token, err := generateToken(userId, secretKey)
 	if err != nil {
@@ -22,9 +22,9 @@ func JwtLinkGeneration(userId int64, secretKey string) (string, error) {
 	return link, nil
 }
 
-// VerifyToken verifies jwt token and returns user ID.
+// VerifyToken verifies jwt_service token and returns user ID.
 func VerifyToken(log *slog.Logger, tokenString string, secretKey string) (int64, error) {
-	op := "jwt.VerifyToken"
+	op := "jwt_service.VerifyToken"
 
 	log.With(slog.String("op", op))
 

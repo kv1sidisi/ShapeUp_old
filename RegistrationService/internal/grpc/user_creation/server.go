@@ -16,7 +16,7 @@ import (
 	"strings"
 )
 
-// UserCreation interface represents upper layer of userCreation method of application.
+// UserCreation interface represents upper layer of userCreation methods of application.
 type UserCreation interface {
 	RegisterNewUser(
 		ctx context.Context,
@@ -79,6 +79,7 @@ func (s *serverAPI) Register(
 
 	log.Info("generating confirmation link")
 	// Generate link for account confirmation
+	//TODO: invoke authenticationService to generate link
 	link, err := jwt.JwtLinkGeneration(userId, s.cfg.JWTSecret)
 	if err != nil {
 		log.Error("confirmation link generation failed")
