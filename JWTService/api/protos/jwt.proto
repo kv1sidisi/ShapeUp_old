@@ -7,7 +7,7 @@ option go_package = "shapeup.jwt.v1;jwtv1";
 service JWT {
   rpc GenerateAccessToken (AccessTokenRequest) returns (AccessTokenResponse);
   rpc GenerateRefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
-  rpc ValidateAccessToken (ValidateAccessTokenRequest) returns (ValidateRefreshTokenResponse);
+  rpc ValidateAccessToken (ValidateAccessTokenRequest) returns (ValidateAccessTokenResponse);
   rpc ValidateRefreshToken (ValidateRefreshTokenRequest) returns (ValidateRefreshTokenResponse);
   rpc GenerateLink (GenerateLinkRequest) returns (GenerateLinkResponse);
 }

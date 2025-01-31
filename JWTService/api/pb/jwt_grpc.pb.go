@@ -32,7 +32,7 @@ const (
 type JWTClient interface {
 	GenerateAccessToken(ctx context.Context, in *AccessTokenRequest, opts ...grpc.CallOption) (*AccessTokenResponse, error)
 	GenerateRefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
-	ValidateAccessToken(ctx context.Context, in *ValidateAccessTokenRequest, opts ...grpc.CallOption) (*ValidateRefreshTokenResponse, error)
+	ValidateAccessToken(ctx context.Context, in *ValidateAccessTokenRequest, opts ...grpc.CallOption) (*ValidateAccessTokenResponse, error)
 	ValidateRefreshToken(ctx context.Context, in *ValidateRefreshTokenRequest, opts ...grpc.CallOption) (*ValidateRefreshTokenResponse, error)
 	GenerateLink(ctx context.Context, in *GenerateLinkRequest, opts ...grpc.CallOption) (*GenerateLinkResponse, error)
 }
@@ -65,9 +65,9 @@ func (c *jWTClient) GenerateRefreshToken(ctx context.Context, in *RefreshTokenRe
 	return out, nil
 }
 
-func (c *jWTClient) ValidateAccessToken(ctx context.Context, in *ValidateAccessTokenRequest, opts ...grpc.CallOption) (*ValidateRefreshTokenResponse, error) {
+func (c *jWTClient) ValidateAccessToken(ctx context.Context, in *ValidateAccessTokenRequest, opts ...grpc.CallOption) (*ValidateAccessTokenResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ValidateRefreshTokenResponse)
+	out := new(ValidateAccessTokenResponse)
 	err := c.cc.Invoke(ctx, JWT_ValidateAccessToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func (c *jWTClient) GenerateLink(ctx context.Context, in *GenerateLinkRequest, o
 type JWTServer interface {
 	GenerateAccessToken(context.Context, *AccessTokenRequest) (*AccessTokenResponse, error)
 	GenerateRefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
-	ValidateAccessToken(context.Context, *ValidateAccessTokenRequest) (*ValidateRefreshTokenResponse, error)
+	ValidateAccessToken(context.Context, *ValidateAccessTokenRequest) (*ValidateAccessTokenResponse, error)
 	ValidateRefreshToken(context.Context, *ValidateRefreshTokenRequest) (*ValidateRefreshTokenResponse, error)
 	GenerateLink(context.Context, *GenerateLinkRequest) (*GenerateLinkResponse, error)
 	mustEmbedUnimplementedJWTServer()
@@ -120,7 +120,7 @@ func (UnimplementedJWTServer) GenerateAccessToken(context.Context, *AccessTokenR
 func (UnimplementedJWTServer) GenerateRefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateRefreshToken not implemented")
 }
-func (UnimplementedJWTServer) ValidateAccessToken(context.Context, *ValidateAccessTokenRequest) (*ValidateRefreshTokenResponse, error) {
+func (UnimplementedJWTServer) ValidateAccessToken(context.Context, *ValidateAccessTokenRequest) (*ValidateAccessTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ValidateAccessToken not implemented")
 }
 func (UnimplementedJWTServer) ValidateRefreshToken(context.Context, *ValidateRefreshTokenRequest) (*ValidateRefreshTokenResponse, error) {
