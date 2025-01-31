@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	Env  string     `yaml:"env"`
 	GRPC GRPCConfig `yaml:"grpc"`
 	JWT  JWTConfig  `yaml:"jwt"`
 }
