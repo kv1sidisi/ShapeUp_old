@@ -9,10 +9,16 @@ import (
 
 type Config struct {
 	Env        string           `yaml:"env" env-default:"local"`
-	JWTSecret  string           `yaml:"jwt_secret_key" env-required:"true"`
+	JWT        JWTConfig        `yaml:"jwt"`
 	GRPC       GRPCConfig       `yaml:"grpc"`
 	Storage    StorageConfig    `yaml:"storage"`
 	GRPCClient GRPCClientConfig `yaml:"grpc_client"`
+}
+
+// JWTConfig structure represents information from config about jwt
+type JWTConfig struct {
+	AccessSecret  string `yaml:"access_token_secret_key" env-required:"true"`
+	RefreshSecret string `yaml:"refresh_token_secret_key" env-required:"true"`
 }
 
 // GRPCConfig structure represents information from config to configure grpc server.

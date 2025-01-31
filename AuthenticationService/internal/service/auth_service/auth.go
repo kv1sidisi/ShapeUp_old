@@ -1,10 +1,12 @@
-package service
+package auth_service
 
 import (
 	"AuthenticationService/internal/config"
-	"AuthenticationService/internal/service/helpers"
+	"AuthenticationService/internal/domain/models"
+	"AuthenticationService/internal/service/jwt_service"
 	"context"
-	"github.com/asaskevich/govalidator"
+	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 )
 
@@ -16,14 +18,9 @@ type AuthService struct {
 }
 
 type AuthManager interface {
-	FindUserByName(ctx context.Context,
-		username string,
-		password string,
-	) (uid int64, err error)
 	FindUserByEmail(ctx context.Context,
-		username string,
-		password string,
-	) (uid int64, err error)
+		email string,
+	) (user models.User, err error)
 	AddSession(ctx context.Context,
 		uid int64,
 		accessToken string,
@@ -43,30 +40,31 @@ func (as *AuthService) LoginUser(
 	username string,
 	password string,
 ) (userId int64, accessToken string, refreshToken string, err error) {
-	// TODO: try pattern chain of responsibility
-	if govalidator.IsEmail(username) {
-		// if username is email
-		userId, err = as.storage.FindUserByEmail(ctx, username, password)
-	} else {
-		// if username is login
-		userId, err = as.storage.FindUserByName(ctx, username, password)
-	}
+	//TODO: check user confirmed or not
 
+	user, err := as.storage.FindUserByEmail(ctx, username)
 	if err != nil {
 		return 0, "", "", err
 	}
 
-	accessToken, err = jwt.GenerateAccessToken(userId, as.cfg.JWTSecret)
+	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
+		return 0, "", "", fmt.Errorf("invalid credentials")
+	}
+
+	accessToken, err = jwt_service.GenerateAccessToken(user.ID, as.cfg.JWT.AccessSecret)
 	if err != nil {
 		return 0, "", "", err
 	}
-	refreshToken, err = jwt.GenerateRefreshToken(userId, as.cfg.JWTSecret)
+	refreshToken, err = jwt_service.GenerateRefreshToken(user.ID, as.cfg.JWT.RefreshSecret)
 	if err != nil {
 		return 0, "", "", err
 	}
 
-	if err := as.storage.AddSession(ctx, userId, accessToken, refreshToken); err != nil {
+	fmt.Println(userId, accessToken, refreshToken)
+
+	if err := as.storage.AddSession(ctx, user.ID, accessToken, refreshToken); err != nil {
 		return 0, "", "", err
 	}
-	return userId, accessToken, refreshToken, nil
+
+	return user.ID, accessToken, refreshToken, nil
 }

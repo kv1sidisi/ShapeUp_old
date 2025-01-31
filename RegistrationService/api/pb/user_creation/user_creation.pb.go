@@ -118,7 +118,7 @@ func (x *RegisterResponse) GetUserId() int64 {
 
 type ConfirmRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Jwt           string                 `protobuf:"bytes,1,opt,name=jwt,proto3" json:"jwt,omitempty"` // JWT to confirm account
+	Jwt           string                 `protobuf:"bytes,1,opt,name=jwt_service,proto3" json:"jwt_service,omitempty"` // JWT to confirm account
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

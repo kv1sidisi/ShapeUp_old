@@ -4,6 +4,7 @@ import (
 	"RegistrationService/internal/storage"
 	"RegistrationService/pkg/client/postgresql"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/jackc/pgconn"
 	"log/slog"
@@ -34,14 +35,15 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 		slog.String("op", op),
 	)
 
-	q := `insert into users (email, password_hash)
-			values ($1, $2)
-			returning id`
+	q := `INSERT INTO users (email, password_hash)
+			VALUES ($1, $2)
+			RETURNING id`
 
 	log.Info(fmt.Sprintf("SQL Query: %s", q))
 
 	if err := s.client.QueryRow(ctx, q, email, passHash).Scan(&uid); err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
 			newErr := fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where %s, Code: %s, SQLState: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
 			log.Error(newErr.Error())
 

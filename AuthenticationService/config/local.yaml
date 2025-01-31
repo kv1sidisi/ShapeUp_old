@@ -1,5 +1,7 @@
 env: "local" #dev, prod
-jwt_secret_key: "isfniuevouensviueniuvbeouvnsoinvosnvbosnoierbonsonvoisnvosnvodnbobvfndo"
+jwt:
+  access_token_secret_key: "isfniuevouensviueniuvbeouvnsoinvosnvbosnoierbonsonvoisnvosnvodnbobvfndo"
+  refresh_token_secret_key: "ekfokenvoinsvfokndvfondovnodkvnodnvojdnvojdnvojndbojndobndbondobnodbnof"
 grpc:
   port: 22022
   timeout: 10h

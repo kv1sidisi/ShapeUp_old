@@ -4,7 +4,7 @@ import (
 	"AuthenticationService/api/pb/sending"
 	internal "AuthenticationService/internal/app/grpc"
 	"AuthenticationService/internal/config"
-	"AuthenticationService/internal/service"
+	"AuthenticationService/internal/service/auth_service"
 	"AuthenticationService/internal/storage/postgresql"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"log/slog"
@@ -31,7 +31,7 @@ func New(
 	}
 
 	log.Info("creating auth service")
-	authService := service.New(log, storage)
+	authService := auth_service.New(log, cfg, storage)
 
 	log.Info("creating grpc server app")
 	grpcApp := internal.New(log, cfg, authService, sendingClient)
