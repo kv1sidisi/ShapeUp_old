@@ -19,7 +19,7 @@ type JWTConfig struct {
 }
 
 type GRPCConfig struct {
-	Port    string        `yaml:"port"`
+	Port    int64         `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
 }
 
