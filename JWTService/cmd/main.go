@@ -1,9 +1,12 @@
 package main
 
 import (
+	external_app "JWTService/internal/app"
 	"JWTService/internal/config"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 const (
@@ -17,6 +20,19 @@ func main() {
 
 	log := setupLogger(cfg.Env)
 
+	application := external_app.New(log, cfg)
+
+	log.Info("starting grpc server")
+	go application.GRPCSrv.MustRun()
+	log.Info("grpc server started")
+
+	//Graceful shutdown
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+	sign := <-stop
+	log.Info("received shutdown signal", slog.Any("signal", sign))
+	application.GRPCSrv.Stop()
+	log.Info("application stopped")
 }
 
 func setupLogger(env string) *slog.Logger {
