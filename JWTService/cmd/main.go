@@ -6,6 +6,12 @@ import (
 	"os"
 )
 
+const (
+	local = "local"
+	dev   = "dev"
+	prod  = "prod"
+)
+
 func main() {
 	cfg := config.MustLoad()
 
@@ -17,11 +23,11 @@ func setupLogger(env string) *slog.Logger {
 	var log *slog.Logger
 
 	switch env {
-	case "prod":
+	case prod:
 		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
-	case "local":
+	case local:
 		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case "dev":
+	case dev:
 		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	}
 
