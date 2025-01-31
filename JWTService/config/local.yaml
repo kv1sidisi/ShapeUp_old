@@ -1,0 +1,7 @@
+env: "local" #dev, prod
+jwt:
+  access_token_secret_key: "oosndoiebovubovnosnvojsnvoevoneokvnoskmokcsgoenovneovnsojnsojvnosjvnosjvojsoienogineoinodivndoiv",
+  refresh_token_secret_key: "oignoievnoienvoienvoinwoignwoisfnpisnfinsoneovnoisfnvoiensvoiwnsofinsoifneoisnvoiesnvoisnoisgnovi",
+grpc:
+  port: 11011
+  timeout: 10h
