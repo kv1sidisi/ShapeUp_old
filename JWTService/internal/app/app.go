@@ -3,7 +3,7 @@ package external_app
 import (
 	internal_app "JWTService/internal/app/grpc"
 	"JWTService/internal/config"
-	jwt_servic
+	jwt_service "JWTService/internal/service"
 	"log/slog"
 )
 

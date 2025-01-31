@@ -9,8 +9,8 @@ import (
 
 type Config struct {
 	Env  string     `yaml:"env"`
-	GRPC GRPCConfig `yaml:"grpc"`
 	JWT  JWTConfig  `yaml:"jwt"`
+	GRPC GRPCConfig `yaml:"grpc"`
 }
 
 type JWTConfig struct {
@@ -34,15 +34,16 @@ func MustLoad() *Config {
 }
 
 // MustLoadByPath gets config path from arguments and panics if there is any errors in parsing config.
-func MustLoadByPath(path string) *Config {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		panic("config file not found: " + path)
+func MustLoadByPath(configPath string) *Config {
+	//check if file exists
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		panic("config file does not exist" + configPath)
 	}
 
 	var cfg Config
 
-	if err := cleanenv.ReadConfig(path, &cfg); err != nil {
-		panic(err)
+	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
+		panic("failed to read config: " + err.Error())
 	}
 
 	return &cfg
@@ -55,11 +56,12 @@ func fetchConfigPath() string {
 	var res string
 
 	// --config="path/to/config.yaml"
-	flag.StringVar(&res, "config", "", "config file path")
+	flag.StringVar(&res, "config", "", "path to config file")
 	flag.Parse()
 
 	if res == "" {
 		res = os.Getenv("CONFIG_PATH")
 	}
+
 	return res
 }

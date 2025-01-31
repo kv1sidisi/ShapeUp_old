@@ -25,7 +25,9 @@ func New(log *slog.Logger,
 	log.Info("registering services in grpc server")
 	grpc_server.RegisterServer(gRPCServer, jwtService, cfg, log)
 
-	return &App{log: log, cfg: cfg}
+	return &App{log: log,
+		cfg:        cfg,
+		grpcServer: gRPCServer}
 }
 
 // MustRun runs gRPC server and panics if any errors occurs.
