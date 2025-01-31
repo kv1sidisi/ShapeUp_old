@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package jwt;
+
+option go_package = "shapeup.jwt.v1;jwtv1";
+
+service JWT {
+  rpc GenerateAccessToken (AccessTokenRequest) returns (AccessTokenResponse);
+  rpc GenerateRefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
+  rpc ValidateAccessToken (ValidateAccessTokenRequest) returns (ValidateRefreshTokenResponse);
+  rpc ValidateRefreshToken (ValidateRefreshTokenRequest) returns (ValidateRefreshTokenResponse);
+  rpc GenerateLink (GenerateLinkRequest) returns (GenerateLinkResponse);
+}
+
+message AccessTokenRequest {
+  int64 uid = 1;
+  string operation = 2;
+
+}
+message AccessTokenResponse {
+  string token = 1;
+}
+
+message RefreshTokenRequest {
+  int64 uid = 1;
+  string operation = 2;
+}
+message RefreshTokenResponse {
+  string token = 1;
+}
+
+message ValidateAccessTokenRequest {
+  string token = 1;
+}
+message ValidateAccessTokenResponse {
+  int64 uid = 1;
+  string operation = 2;
+}
+
+message ValidateRefreshTokenRequest {
+  string token = 1;
+
+}
+message ValidateRefreshTokenResponse {
+  int64 uid = 1;
+  string operation = 2;
+}
+
+message GenerateLinkRequest {
+  string link_base = 1;
+  int64 uid = 2;
+  string operation = 3;
+
+}
+message GenerateLinkResponse {
+  string link = 1;
+}
