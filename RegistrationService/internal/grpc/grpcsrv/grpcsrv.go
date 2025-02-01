@@ -1,9 +1,9 @@
 package grpcsrv
 
 import (
-	pbjwt "RegistrationService/api/pb/jwt_service"
-	pbsendsvc "RegistrationService/api/pb/sending_service"
-	pbusrcreate "RegistrationService/api/pb/user_creation"
+	pbjwtsvc "RegistrationService/api/pb/jwtsvc"
+	pbsendsvc "RegistrationService/api/pb/sendsvc"
+	pbusrcreate "RegistrationService/api/pb/usrcreatesvc"
 	"RegistrationService/internal/config"
 	"RegistrationService/internal/storage"
 	"context"
@@ -32,7 +32,7 @@ type UsrCreationSvc interface {
 	ConfirmNewUser(
 		ctx context.Context,
 		jwt string,
-		jwtClient pbjwt.JWTClient,
+		jwtClient pbjwtsvc.JWTClient,
 	) (userId int64, err error)
 }
 
@@ -43,7 +43,7 @@ type serverAPI struct {
 	cfg           *config.Config
 	log           *slog.Logger
 	sendingClient pbsendsvc.SendingClient
-	jwtClient     pbjwt.JWTClient
+	jwtClient     pbjwtsvc.JWTClient
 }
 
 // RegisterServer registers the request handler in the gRPC server.
@@ -52,7 +52,7 @@ func RegisterServer(gRPC *grpc.Server,
 	cfg *config.Config,
 	log *slog.Logger,
 	sendingClient pbsendsvc.SendingClient,
-	jwtClient pbjwt.JWTClient,
+	jwtClient pbjwtsvc.JWTClient,
 ) {
 	pbusrcreate.RegisterUserCreationServer(
 		gRPC,
@@ -92,7 +92,7 @@ func (s *serverAPI) Register(
 	log.Info("user registered")
 
 	log.Info("generating confirmation link")
-	linkGenResp, err := s.jwtClient.GenerateLink(ctx, &pbjwt.GenerateLinkRequest{
+	linkGenResp, err := s.jwtClient.GenerateLink(ctx, &pbjwtsvc.GenerateLinkRequest{
 		LinkBase:  confirmAccountLinkBase,
 		Uid:       userId,
 		Operation: confirmationOperationType,

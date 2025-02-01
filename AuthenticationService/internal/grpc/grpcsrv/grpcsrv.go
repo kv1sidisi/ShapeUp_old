@@ -1,9 +1,9 @@
 package grpcsrv
 
 import (
-	pbauthsvc "AuthenticationService/api/pb/authentication_service"
-	"AuthenticationService/api/pb/jwt_service"
-	"AuthenticationService/api/pb/sending_service"
+	pbauthsvc "AuthenticationService/api/pb/authsvc"
+	pbjwtsvc "AuthenticationService/api/pb/jwtsvc"
+	pbsendsvc "AuthenticationService/api/pb/sendsvc"
 	"AuthenticationService/internal/config"
 	"context"
 	"google.golang.org/grpc"
@@ -16,7 +16,7 @@ type Auth interface {
 		ctx context.Context,
 		username string,
 		password string,
-		jwtClient jwt_service.JWTClient,
+		jwtClient pbjwtsvc.JWTClient,
 	) (userId int64, accessToken string, refreshToken string, err error)
 }
 
@@ -26,12 +26,12 @@ type serverAPI struct {
 	auth          Auth
 	cfg           *config.Config
 	log           *slog.Logger
-	sendingClient sending_service.SendingClient
-	jwtClient     jwt_service.JWTClient
+	sendingClient pbsendsvc.SendingClient
+	jwtClient     pbjwtsvc.JWTClient
 }
 
 // RegisterServer registers the request handler in the gRPC server.
-func RegisterServer(gRPC *grpc.Server, auth Auth, cfg *config.Config, log *slog.Logger, sendingClient sending_service.SendingClient, jwtClient jwt_service.JWTClient) {
+func RegisterServer(gRPC *grpc.Server, auth Auth, cfg *config.Config, log *slog.Logger, sendingClient pbsendsvc.SendingClient, jwtClient pbjwtsvc.JWTClient) {
 	pbauthsvc.RegisterAuthServer(gRPC, &serverAPI{
 		auth:          auth,
 		cfg:           cfg,

@@ -1,7 +1,7 @@
 package authsvc
 
 import (
-	"AuthenticationService/api/pb/jwt_service"
+	pbjwtsvc "AuthenticationService/api/pb/jwtsvc"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/internal/domain/models"
 	"context"
@@ -44,7 +44,7 @@ func (as *AuthService) LoginUser(
 	ctx context.Context,
 	username string,
 	password string,
-	jwtClient jwt_service.JWTClient,
+	jwtClient pbjwtsvc.JWTClient,
 ) (userId int64, accessToken string, refreshToken string, err error) {
 	//TODO: check user confirmed or not
 
@@ -57,7 +57,7 @@ func (as *AuthService) LoginUser(
 		return 0, "", "", fmt.Errorf("invalid credentials")
 	}
 
-	accessTokenGenResp, err := jwtClient.GenerateAccessToken(ctx, &jwt_service.AccessTokenRequest{
+	accessTokenGenResp, err := jwtClient.GenerateAccessToken(ctx, &pbjwtsvc.AccessTokenRequest{
 		Uid:       user.ID,
 		Operation: accessOperationType,
 	})
@@ -66,7 +66,7 @@ func (as *AuthService) LoginUser(
 	}
 	accessToken = accessTokenGenResp.GetToken()
 
-	refreshTokenGenResp, err := jwtClient.GenerateRefreshToken(ctx, &jwt_service.RefreshTokenRequest{
+	refreshTokenGenResp, err := jwtClient.GenerateRefreshToken(ctx, &pbjwtsvc.RefreshTokenRequest{
 		Uid:       user.ID,
 		Operation: refreshOperationType,
 	})

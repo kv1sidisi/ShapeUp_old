@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "GatewayAPI/api/grpc_client/pb"
+	pbusrcreatesvc "GatewayAPI/api/grpccl/pb/usrcreatesvc"
 	"GatewayAPI/internal/config"
 	"GatewayAPI/internal/http-server/handlers/confacchdlr"
 	"GatewayAPI/internal/http-server/handlers/regusrhdlr"
@@ -45,7 +45,7 @@ func main() {
 	}
 	defer conn.Close()
 	log.Info("grpc client connected")
-	client := pb.NewUserCreationClient(conn)
+	client := pbusrcreatesvc.NewUserCreationClient(conn)
 
 	confirmAccountService := confaccsvc.New(log, client)
 	log.Info("confirm account service registered")

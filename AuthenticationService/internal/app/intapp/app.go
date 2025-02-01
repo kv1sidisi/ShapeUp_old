@@ -1,8 +1,8 @@
 package intapp
 
 import (
-	"AuthenticationService/api/pb/jwt_service"
-	"AuthenticationService/api/pb/sending_service"
+	pbjwtsvc "AuthenticationService/api/pb/jwtsvc"
+	pbsendsvc "AuthenticationService/api/pb/sendsvc"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/internal/grpc/grpcsrv"
 	"fmt"
@@ -23,8 +23,8 @@ func New(
 	log *slog.Logger,
 	cfg *config.Config,
 	authService grpcsrv.Auth,
-	sendingClient sending_service.SendingClient,
-	jwtClient jwt_service.JWTClient,
+	sendingClient pbsendsvc.SendingClient,
+	jwtClient pbjwtsvc.JWTClient,
 ) *App {
 	gRPCServer := grpc.NewServer()
 	log.Info("grpc server created")

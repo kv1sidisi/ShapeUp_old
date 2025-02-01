@@ -1,8 +1,8 @@
 package main
 
 import (
-	pbjwt "RegistrationService/api/pb/jwt_service"
-	pbsendsvc "RegistrationService/api/pb/sending_service"
+	pbjwtsvc "RegistrationService/api/pb/jwtsvc"
+	pbsendsvc "RegistrationService/api/pb/sendsvc"
 	"RegistrationService/internal/app/extapp"
 	"RegistrationService/internal/config"
 	"RegistrationService/pkg/client/pgsqlcl"
@@ -47,7 +47,7 @@ func main() {
 	jwtServiceConn := mustConnectToGRPC(cfg.GRPCClient.JWTServiceAddress, log, jwtService)
 	defer jwtServiceConn.Close()
 	log.Info("grpc sendingClient connected")
-	jwtClient := pbjwt.NewJWTClient(jwtServiceConn)
+	jwtClient := pbjwtsvc.NewJWTClient(jwtServiceConn)
 
 	log.Info("starting application")
 	application := extapp.New(log, cfg, postgresqlClient, sendingClient, jwtClient)

@@ -1,7 +1,7 @@
 package grpcsrv
 
 import (
-	pbsendsvc "SendingService/api/pb/sending_service"
+	pbsendsvc "SendingService/api/pb/sendsvc"
 	"SendingService/internal/config"
 	"context"
 	"errors"

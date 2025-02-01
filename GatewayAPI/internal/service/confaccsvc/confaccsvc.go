@@ -1,7 +1,7 @@
 package confaccsvc
 
 import (
-	pbgtway "GatewayAPI/api/grpc_client/pb"
+	pbusrcreatesvc "GatewayAPI/api/grpccl/pb/usrcreatesvc"
 	"context"
 	"fmt"
 	"log/slog"
@@ -9,11 +9,11 @@ import (
 
 type ConfirmAccount struct {
 	log    *slog.Logger
-	client pbgtway.UserCreationClient
+	client pbusrcreatesvc.UserCreationClient
 }
 
 // New creates ConfirmAccount service
-func New(log *slog.Logger, client pbgtway.UserCreationClient) *ConfirmAccount {
+func New(log *slog.Logger, client pbusrcreatesvc.UserCreationClient) *ConfirmAccount {
 	return &ConfirmAccount{
 		log:    log,
 		client: client,
@@ -24,7 +24,7 @@ func New(log *slog.Logger, client pbgtway.UserCreationClient) *ConfirmAccount {
 func (ca *ConfirmAccount) ConfirmAccount(token string) error {
 	ca.log.Info("sending token for confirmation", slog.String("token", token))
 
-	resp, err := ca.client.Confirm(context.Background(), &pbgtway.ConfirmRequest{Jwt: token})
+	resp, err := ca.client.Confirm(context.Background(), &pbusrcreatesvc.ConfirmRequest{Jwt: token})
 	if err != nil {
 		ca.log.Error("confirm error", slog.String("error", err.Error()))
 		return err

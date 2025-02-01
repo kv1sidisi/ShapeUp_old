@@ -1,8 +1,8 @@
 package extapp
 
 import (
-	"RegistrationService/api/pb/jwt_service"
-	"RegistrationService/api/pb/sending_service"
+	pbjwtsvc "RegistrationService/api/pb/jwtsvc"
+	pbsendsvc "RegistrationService/api/pb/sendsvc"
 	"RegistrationService/internal/app/intapp"
 	"RegistrationService/internal/config"
 	"RegistrationService/internal/service/usrcreatesvc"
@@ -22,8 +22,8 @@ func New(
 	log *slog.Logger,
 	cfg *config.Config,
 	postgresqlClient *pgxpool.Pool,
-	sendingClient sending_service.SendingClient,
-	jwtClient jwt_service.JWTClient,
+	sendingClient pbsendsvc.SendingClient,
+	jwtClient pbjwtsvc.JWTClient,
 ) *App {
 	log.Info("creating postgresql service")
 	storage, err := pgsql.New(postgresqlClient, log)

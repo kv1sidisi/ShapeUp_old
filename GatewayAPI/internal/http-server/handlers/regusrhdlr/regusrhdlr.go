@@ -1,7 +1,7 @@
 package regusrhdlr
 
 import (
-	"GatewayAPI/api/grpc_client/pb"
+	pbusrcreatesvc "GatewayAPI/api/grpccl/pb/usrcreatesvc"
 	"encoding/json"
 	"github.com/go-chi/chi/middleware"
 	"log/slog"
@@ -10,7 +10,7 @@ import (
 
 // RegisterUser interface represents service for register user endpoint.
 type RegisterUser interface {
-	RegisterUser(email, password string) (resp *regv1.RegisterResponse, err error)
+	RegisterUser(email, password string) (resp *pbusrcreatesvc.RegisterResponse, err error)
 }
 
 type JSONRegisterRequest struct {

@@ -1,7 +1,7 @@
 package usrcreatesvc
 
 import (
-	"RegistrationService/api/pb/jwt_service"
+	pbjwtsvc "RegistrationService/api/pb/jwtsvc"
 	"RegistrationService/internal/storage"
 	"context"
 	"errors"
@@ -75,7 +75,7 @@ func (r *UserCreation) RegisterNewUser(ctx context.Context, email, password stri
 
 // ConfirmNewUser confirms account
 // If user does not exist returns error
-func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, jwtClient jwt_service.JWTClient) (userId int64, err error) {
+func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, jwtClient pbjwtsvc.JWTClient) (userId int64, err error) {
 	const op = "register.ConfirmAccount"
 
 	log := r.log.With(
@@ -84,7 +84,7 @@ func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, jwtClie
 	)
 
 	log.Info("verifying confirmation token")
-	validationResp, err := jwtClient.ValidateAccessToken(ctx, &jwt_service.ValidateAccessTokenRequest{
+	validationResp, err := jwtClient.ValidateAccessToken(ctx, &pbjwtsvc.ValidateAccessTokenRequest{
 		Token: token,
 	})
 	if err != nil {

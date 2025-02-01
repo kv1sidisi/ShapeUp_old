@@ -1,7 +1,7 @@
 package regusrsvc
 
 import (
-	pbgtway "GatewayAPI/api/grpc_client/pb"
+	pbusrcreatesvc "GatewayAPI/api/grpccl/pb/usrcreatesvc"
 	"context"
 	"fmt"
 	"log/slog"
@@ -9,11 +9,11 @@ import (
 
 type RegisterUser struct {
 	log    *slog.Logger
-	client pbgtway.UserCreationClient
+	client pbusrcreatesvc.UserCreationClient
 }
 
 // New creates RegisterUser service.
-func New(log *slog.Logger, client pbgtway.UserCreationClient) *RegisterUser {
+func New(log *slog.Logger, client pbusrcreatesvc.UserCreationClient) *RegisterUser {
 	return &RegisterUser{
 		log:    log,
 		client: client,
@@ -21,10 +21,10 @@ func New(log *slog.Logger, client pbgtway.UserCreationClient) *RegisterUser {
 }
 
 // RegisterUser method invokes grpc client of RegisterService to register new user.
-func (ru *RegisterUser) RegisterUser(email string, password string) (resp *pbgtway.RegisterResponse, err error) {
+func (ru *RegisterUser) RegisterUser(email string, password string) (resp *pbusrcreatesvc.RegisterResponse, err error) {
 
 	ru.log.Info("registering user: ", email, password)
-	resp, err = ru.client.Register(context.Background(), &pbgtway.RegisterRequest{
+	resp, err = ru.client.Register(context.Background(), &pbusrcreatesvc.RegisterRequest{
 		Email:    email,
 		Password: password,
 	})
