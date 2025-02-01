@@ -22,7 +22,7 @@ func New(
 	log *slog.Logger,
 	cfg *config.Config,
 	authService grpc2.Auth,
-	sendingClient sending.SendingClient,
+	sendingClient sending_service.SendingClient,
 ) *App {
 	gRPCServer := grpc.NewServer()
 	log.Info("grpc server created")

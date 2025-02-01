@@ -3,7 +3,6 @@ package auth_service
 import (
 	"AuthenticationService/internal/config"
 	"AuthenticationService/internal/domain/models"
-	"AuthenticationService/internal/service/jwt_service"
 	"context"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"

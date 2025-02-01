@@ -24,11 +24,11 @@ type serverAPI struct {
 	auth          Auth
 	cfg           *config.Config
 	log           *slog.Logger
-	sendingClient sending.SendingClient
+	sendingClient sending_service.SendingClient
 }
 
 // RegisterServer registers the request handler in the gRPC server.
-func RegisterServer(gRPC *grpc.Server, auth Auth, cfg *config.Config, log *slog.Logger, sendingClient sending.SendingClient) {
+func RegisterServer(gRPC *grpc.Server, auth Auth, cfg *config.Config, log *slog.Logger, sendingClient sending_service.SendingClient) {
 	authv1.RegisterAuthServer(gRPC, &serverAPI{
 		auth:          auth,
 		cfg:           cfg,

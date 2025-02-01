@@ -21,7 +21,7 @@ func New(
 	log *slog.Logger,
 	cfg *config.Config,
 	postgresqlClient *pgxpool.Pool,
-	sendingClient sending.SendingClient,
+	sendingClient sending_service.SendingClient,
 ) *App {
 	log.Info("creating postgresql service")
 	storage, err := postgresql.New(postgresqlClient, log)

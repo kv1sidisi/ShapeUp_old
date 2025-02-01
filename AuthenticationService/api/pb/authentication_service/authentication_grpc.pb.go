@@ -4,7 +4,7 @@
 // - protoc             v5.29.3
 // source: authentication.proto
 
-package authentication
+package authentication_service
 
 import (
 	context "context"
