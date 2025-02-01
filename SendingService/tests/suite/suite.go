@@ -1,7 +1,7 @@
 package suite
 
 import (
-	sendv1 "SendingService/api/pb"
+	sendv1 "SendingService/api/pb/sending_service"
 	"SendingService/internal/config"
 	"context"
 	"google.golang.org/grpc"

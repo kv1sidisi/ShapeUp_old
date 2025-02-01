@@ -1,7 +1,7 @@
 package main
 
 import (
-	"SendingService/internal/app"
+	"SendingService/internal/app/extapp"
 	"SendingService/internal/config"
 	"log/slog"
 	"os"
@@ -23,7 +23,7 @@ func main() {
 	log.Info("starting up", slog.String("env", cfg.Env))
 
 	log.Info("starting application")
-	application := app.New(log, cfg)
+	application := extapp.New(log, cfg)
 
 	log.Info("starting grpc server")
 	go application.GRPCSrv.MustRun()

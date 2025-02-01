@@ -35,7 +35,7 @@ func New(
 	log.Info("creating register service")
 	registerService := user_creation.New(log, storage)
 
-	log.Info("creating grpc server app")
+	log.Info("creating grpc server external_app")
 	grpcApp := grpcapp.New(log, registerService, cfg, sendingClient, jwtClient)
 
 	return &App{

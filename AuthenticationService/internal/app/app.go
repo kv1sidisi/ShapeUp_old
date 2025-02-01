@@ -35,7 +35,7 @@ func New(
 	log.Info("creating auth service")
 	authService := auth_service.New(log, cfg, storage)
 
-	log.Info("creating grpc server app")
+	log.Info("creating grpc server external_app")
 	grpcApp := internal.New(log, cfg, authService, sendingClient, jwtClient)
 
 	return &App{

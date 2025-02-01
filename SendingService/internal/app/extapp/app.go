@@ -1,15 +1,15 @@
-package app
+package extapp
 
 import (
-	grpcapp "SendingService/internal/app/grpc"
+	"SendingService/internal/app/intapp"
 	"SendingService/internal/config"
-	"SendingService/internal/service"
+	"SendingService/internal/service/sendsvc"
 	"log/slog"
 )
 
 // App structure represents upper layer of application and configure bottom layer of application with database and register service.
 type App struct {
-	GRPCSrv *grpcapp.App
+	GRPCSrv *intapp.App
 	cfg     *config.Config
 }
 
@@ -19,10 +19,10 @@ func New(
 	cfg *config.Config,
 ) *App {
 	log.Info("creating email sending service")
-	sendingService := service.New(log, cfg)
+	sendingService := sendsvc.New(log, cfg)
 
 	log.Info("creating grpc server app")
-	grpcApp := grpcapp.New(log, sendingService, cfg)
+	grpcApp := intapp.New(log, sendingService, cfg)
 
 	return &App{
 		GRPCSrv: grpcApp,

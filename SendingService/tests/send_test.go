@@ -1,7 +1,7 @@
 package tests
 
 import (
-	sendv1 "SendingService/api/pb"
+	sendv1 "SendingService/api/pb/sending_service"
 	"SendingService/tests/suite"
 	"github.com/stretchr/testify/require"
 	"testing"

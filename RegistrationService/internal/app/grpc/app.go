@@ -18,7 +18,7 @@ type App struct {
 	cfg        *config.Config
 }
 
-// New creates new gRPC server app.
+// New creates new gRPC server external_app.
 func New(
 	log *slog.Logger,
 	registerService reggrpc.UserCreation,

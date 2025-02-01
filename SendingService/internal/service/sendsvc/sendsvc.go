@@ -1,4 +1,4 @@
-package service
+package sendsvc
 
 import (
 	"SendingService/internal/config"

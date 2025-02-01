@@ -1,9 +1,9 @@
-package grpcapp
+package intapp
 
 import (
 	"SendingService/internal/config"
-	grpc_server "SendingService/internal/grpc"
-	sendserv "SendingService/internal/service"
+	"SendingService/internal/grpc/grpcsrv"
+	"SendingService/internal/service/sendsvc"
 	"fmt"
 	"google.golang.org/grpc"
 	"log/slog"
@@ -20,14 +20,14 @@ type App struct {
 // New creates new gRPC server app.
 func New(
 	log *slog.Logger,
-	sendingService *sendserv.SendingService,
+	sendingService *sendsvc.SendingService,
 	cfg *config.Config,
 ) *App {
 	grpcServer := grpc.NewServer()
 	log.Info("grpc server created")
 
 	log.Info("registering services in grpc server")
-	grpc_server.RegisterServer(grpcServer, sendingService, cfg, log)
+	grpcsrv.RegisterServer(grpcServer, sendingService, cfg, log)
 	return &App{
 		log:        log,
 		gRPCServer: grpcServer,

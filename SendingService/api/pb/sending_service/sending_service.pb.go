@@ -4,7 +4,7 @@
 // 	protoc        v5.29.3
 // source: sending_service.proto
 
-package sendv1
+package sending_service
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
