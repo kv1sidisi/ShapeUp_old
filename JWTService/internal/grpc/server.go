@@ -40,11 +40,11 @@ func (s *ServerAPI) GenerateAccessToken(ctx context.Context,
 	log := s.log.With(slog.String("op", op))
 
 	if req.GetUid() == 0 {
-		log.Error("invalid uid in request")
+		log.Error("invalid uid in request:", req.GetUid())
 		return nil, fmt.Errorf("invalid uid in request")
 	}
 	if len(req.GetOperation()) == 0 {
-		log.Error("invalid operation in request")
+		log.Error("invalid operation in request: ", req.GetUid())
 		return nil, fmt.Errorf("invalid operation in request")
 	}
 
@@ -158,6 +158,8 @@ func (s *ServerAPI) GenerateLink(ctx context.Context,
 		log.Error(err.Error())
 		return nil, err
 	}
+
+	log.Info("link generated successfully: ", link)
 
 	return &jwtv1.GenerateLinkResponse{
 		Link: link,

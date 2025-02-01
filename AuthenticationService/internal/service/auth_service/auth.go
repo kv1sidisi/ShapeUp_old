@@ -58,7 +58,7 @@ func (as *AuthService) LoginUser(
 	}
 
 	accessTokenGenResp, err := jwtClient.GenerateAccessToken(ctx, &jwt_service.AccessTokenRequest{
-		Uid:       userId,
+		Uid:       user.ID,
 		Operation: accessOperationType,
 	})
 	if err != nil {
@@ -67,7 +67,7 @@ func (as *AuthService) LoginUser(
 	accessToken = accessTokenGenResp.GetToken()
 
 	refreshTokenGenResp, err := jwtClient.GenerateRefreshToken(ctx, &jwt_service.RefreshTokenRequest{
-		Uid:       userId,
+		Uid:       user.ID,
 		Operation: refreshOperationType,
 	})
 	if err != nil {
