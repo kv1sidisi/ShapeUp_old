@@ -1,7 +1,8 @@
 package external_app
 
 import (
-	"AuthenticationService/api/pb/sending"
+	"AuthenticationService/api/pb/jwt_service"
+	"AuthenticationService/api/pb/sending_service"
 	internal "AuthenticationService/internal/app/grpc"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/internal/service/auth_service"
@@ -22,6 +23,7 @@ func New(
 	cfg *config.Config,
 	postgresqlClient *pgxpool.Pool,
 	sendingClient sending_service.SendingClient,
+	jwtClient jwt_service.JWTClient,
 ) *App {
 	log.Info("creating postgresql service")
 	storage, err := postgresql.New(postgresqlClient, log)
@@ -34,7 +36,7 @@ func New(
 	authService := auth_service.New(log, cfg, storage)
 
 	log.Info("creating grpc server app")
-	grpcApp := internal.New(log, cfg, authService, sendingClient)
+	grpcApp := internal.New(log, cfg, authService, sendingClient, jwtClient)
 
 	return &App{
 		GRPCSrv: grpcApp,

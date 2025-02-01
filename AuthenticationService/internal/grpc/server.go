@@ -1,8 +1,9 @@
 package grpc
 
 import (
-	authv1 "AuthenticationService/api/pb/authentication"
-	"AuthenticationService/api/pb/sending"
+	authv1 "AuthenticationService/api/pb/authentication_service"
+	"AuthenticationService/api/pb/jwt_service"
+	"AuthenticationService/api/pb/sending_service"
 	"AuthenticationService/internal/config"
 	"context"
 	"google.golang.org/grpc"
@@ -15,6 +16,7 @@ type Auth interface {
 		ctx context.Context,
 		username string,
 		password string,
+		jwtClient jwt_service.JWTClient,
 	) (userId int64, accessToken string, refreshToken string, err error)
 }
 
@@ -25,15 +27,17 @@ type serverAPI struct {
 	cfg           *config.Config
 	log           *slog.Logger
 	sendingClient sending_service.SendingClient
+	jwtClient     jwt_service.JWTClient
 }
 
 // RegisterServer registers the request handler in the gRPC server.
-func RegisterServer(gRPC *grpc.Server, auth Auth, cfg *config.Config, log *slog.Logger, sendingClient sending_service.SendingClient) {
+func RegisterServer(gRPC *grpc.Server, auth Auth, cfg *config.Config, log *slog.Logger, sendingClient sending_service.SendingClient, jwtClient jwt_service.JWTClient) {
 	authv1.RegisterAuthServer(gRPC, &serverAPI{
 		auth:          auth,
 		cfg:           cfg,
 		log:           log,
 		sendingClient: sendingClient,
+		jwtClient:     jwtClient,
 	})
 }
 
@@ -46,7 +50,7 @@ func (s *serverAPI) Login(
 	log := s.log.With(slog.String("op", op))
 
 	log.Info("logging user: ")
-	userId, jwt, refresh, err := s.auth.LoginUser(ctx, req.GetUsername(), req.GetPassword())
+	userId, jwt, refresh, err := s.auth.LoginUser(ctx, req.GetUsername(), req.GetPassword(), s.jwtClient)
 	if err != nil {
 		log.Error(err.Error())
 		return nil, err

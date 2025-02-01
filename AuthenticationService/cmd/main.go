@@ -1,7 +1,8 @@
 package main
 
 import (
-	pb "AuthenticationService/api/pb/sending"
+	pbJWT "AuthenticationService/api/pb/jwt_service"
+	pbSending "AuthenticationService/api/pb/sending_service"
 	external_app "AuthenticationService/internal/app"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/pkg/client/postgresql"
@@ -21,6 +22,11 @@ const (
 	prod  = "prod"
 )
 
+const (
+	sendingService = "sending service"
+	jwtService     = "jwt service"
+)
+
 func main() {
 	cfg := config.MustLoad()
 
@@ -29,20 +35,22 @@ func main() {
 	log.Info("starting up", slog.String("env", cfg.Env))
 
 	log.Info("connecting to database")
-	postgresqlClient := mustLoadDatabaseConnection(cfg, log)
+	postgresqlClient := mustConnectToDatabase(cfg, log)
 	log.Info("connected to postgresql")
 
 	log.Info("connecting to grpc SendingService", slog.String("address", cfg.GRPCClient.SendingServiceAddress))
-	conn, err := grpc.NewClient(cfg.GRPCClient.SendingServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Error("failed to create grpc client connection to sending service: ", err)
-		panic(err)
-	}
-	defer conn.Close()
-	log.Info("grpc client connected")
-	sendingClient := pb.NewSendingClient(conn)
+	sendingServiceConn := mustConnectToGRPC(cfg.GRPCClient.SendingServiceAddress, log, sendingService)
+	defer sendingServiceConn.Close()
+	log.Info("grpc sendingClient connected")
+	sendingClient := pbSending.NewSendingClient(sendingServiceConn)
 
-	application := external_app.New(log, cfg, postgresqlClient, sendingClient)
+	log.Info("connecting to grpc JWTService", slog.String("address", cfg.GRPCClient.JWTServiceAddress))
+	jwtServiceConn := mustConnectToGRPC(cfg.GRPCClient.JWTServiceAddress, log, jwtService)
+	defer jwtServiceConn.Close()
+	log.Info("grpc sendingClient connected")
+	jwtClient := pbJWT.NewJWTClient(jwtServiceConn)
+
+	application := external_app.New(log, cfg, postgresqlClient, sendingClient, jwtClient)
 
 	log.Info("starting grpc server")
 	go application.GRPCSrv.MustRun()
@@ -72,8 +80,8 @@ func setupLogger(env string) *slog.Logger {
 	return log
 }
 
-// mustLoadDatabaseConnection panics if setupDatabaseConnection fails
-func mustLoadDatabaseConnection(cfg *config.Config, log *slog.Logger) *pgxpool.Pool {
+// mustConnectToDatabase panics if setupDatabaseConnection fails
+func mustConnectToDatabase(cfg *config.Config, log *slog.Logger) *pgxpool.Pool {
 	postgresqlClient, err := setupDatabaseConnection(cfg, log)
 	if err != nil {
 		panic(err)
@@ -89,4 +97,13 @@ func setupDatabaseConnection(cfg *config.Config, log *slog.Logger) (*pgxpool.Poo
 		return nil, err
 	}
 	return postgresqlClient, nil
+}
+
+func mustConnectToGRPC(address string, log *slog.Logger, serviceName string) *grpc.ClientConn {
+	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Error("failed to create grpc connection to "+serviceName+" service: ", err)
+		panic(err)
+	}
+	return conn
 }

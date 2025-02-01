@@ -7,6 +7,7 @@ grpc:
   timeout: 10h
 grpc_client:
   sending_service_address: "localhost:33033"
+  jwt_service_address: "localhost:11011"
 storage:
   host: localhost
   port: 5432
