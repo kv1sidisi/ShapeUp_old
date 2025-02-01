@@ -1,7 +1,7 @@
 package grpcsrv
 
 import (
-	"SendingService/api/pb/sending_service"
+	pbsendsvc "SendingService/api/pb/sending_service"
 	"SendingService/internal/config"
 	"context"
 	"errors"
@@ -28,7 +28,7 @@ type SendingService interface {
 
 // serverAPI represents the handler for the gRPC server.
 type serverAPI struct {
-	sending_service.UnimplementedSendingServer
+	pbsendsvc.UnimplementedSendingServer
 	sendingService SendingService
 	cfg            *config.Config
 	log            *slog.Logger
@@ -36,7 +36,7 @@ type serverAPI struct {
 
 // RegisterServer registers the request handler in the gRPC server.
 func RegisterServer(gRPC *grpc.Server, sendingService SendingService, cfg *config.Config, log *slog.Logger) {
-	sending_service.RegisterSendingServer(gRPC,
+	pbsendsvc.RegisterSendingServer(gRPC,
 		&serverAPI{
 			sendingService: sendingService,
 			cfg:            cfg,
@@ -47,8 +47,8 @@ func RegisterServer(gRPC *grpc.Server, sendingService SendingService, cfg *confi
 // SendEmail is the gRPC server handler method, the top layer of the sending process.
 func (s *serverAPI) SendEmail(
 	ctx context.Context,
-	req *sending_service.EmailRequest,
-) (*sending_service.EmailResponse, error) {
+	req *pbsendsvc.EmailRequest,
+) (*pbsendsvc.EmailResponse, error) {
 	const op = "server.SendEmail"
 
 	log := s.log.With(slog.String("op", op))
@@ -66,7 +66,7 @@ func (s *serverAPI) SendEmail(
 	}
 	log.Info("email sent")
 
-	return &sending_service.EmailResponse{
+	return &pbsendsvc.EmailResponse{
 		Email: req.GetEmail(),
 	}, nil
 }

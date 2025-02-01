@@ -1,13 +1,13 @@
 package main
 
 import (
+	pb "GatewayAPI/api/grpc_client/pb"
 	"GatewayAPI/internal/config"
-	"GatewayAPI/internal/http-server/handlers/confirm_account"
-	handler_register_user "GatewayAPI/internal/http-server/handlers/register_user"
+	"GatewayAPI/internal/http-server/handlers/confacchdlr"
+	"GatewayAPI/internal/http-server/handlers/regusrhdlr"
 	"GatewayAPI/internal/http-server/middleware/logger"
-	"GatewayAPI/internal/service/confirm_account"
-	service_register_user "GatewayAPI/internal/service/register_user"
-	pb "GatewayAPI/pkg/grpc_client/pb"
+	"GatewayAPI/internal/service/confaccsvc"
+	"GatewayAPI/internal/service/regusrsvc"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"google.golang.org/grpc"
@@ -47,14 +47,14 @@ func main() {
 	log.Info("grpc client connected")
 	client := pb.NewUserCreationClient(conn)
 
-	confirmAccountService := service_confirm_account.New(log, client)
+	confirmAccountService := confaccsvc.New(log, client)
 	log.Info("confirm account service registered")
-	router.Get("/confirm_account", handler_confirm_account.New(log, confirmAccountService))
+	router.Get("/confirm_account", confacchdlr.New(log, confirmAccountService))
 	log.Info("confirm_account endpoint registered")
 
-	registerUserService := service_register_user.New(log, client)
+	registerUserService := regusrsvc.New(log, client)
 	log.Info("register user service registered")
-	router.Post("/register_user", handler_register_user.New(log, registerUserService))
+	router.Post("/register_user", regusrhdlr.New(log, registerUserService))
 	log.Info("register user endpoint registered")
 
 	log.Info("starting server", slog.String("address", cfg.Address))

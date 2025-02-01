@@ -1,11 +1,11 @@
 package main
 
 import (
-	pbJWT "AuthenticationService/api/pb/jwt_service"
-	pbSending "AuthenticationService/api/pb/sending_service"
-	external_app "AuthenticationService/internal/app"
+	pbjwt "AuthenticationService/api/pb/jwt_service"
+	pbsendsvc "AuthenticationService/api/pb/sending_service"
+	"AuthenticationService/internal/app/extapp"
 	"AuthenticationService/internal/config"
-	"AuthenticationService/pkg/client/postgresql"
+	"AuthenticationService/pkg/client/pgsqlcl"
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"google.golang.org/grpc"
@@ -42,15 +42,15 @@ func main() {
 	sendingServiceConn := mustConnectToGRPC(cfg.GRPCClient.SendingServiceAddress, log, sendingService)
 	defer sendingServiceConn.Close()
 	log.Info("grpc sendingClient connected")
-	sendingClient := pbSending.NewSendingClient(sendingServiceConn)
+	sendingClient := pbsendsvc.NewSendingClient(sendingServiceConn)
 
 	log.Info("connecting to grpc JWTService", slog.String("address", cfg.GRPCClient.JWTServiceAddress))
 	jwtServiceConn := mustConnectToGRPC(cfg.GRPCClient.JWTServiceAddress, log, jwtService)
 	defer jwtServiceConn.Close()
 	log.Info("grpc sendingClient connected")
-	jwtClient := pbJWT.NewJWTClient(jwtServiceConn)
+	jwtClient := pbjwt.NewJWTClient(jwtServiceConn)
 
-	application := external_app.New(log, cfg, postgresqlClient, sendingClient, jwtClient)
+	application := extapp.New(log, cfg, postgresqlClient, sendingClient, jwtClient)
 
 	log.Info("starting grpc server")
 	go application.GRPCSrv.MustRun()
@@ -91,7 +91,7 @@ func mustConnectToDatabase(cfg *config.Config, log *slog.Logger) *pgxpool.Pool {
 
 // setupDatabaseConnection connect to database.
 func setupDatabaseConnection(cfg *config.Config, log *slog.Logger) (*pgxpool.Pool, error) {
-	postgresqlClient, err := postgresql.NewClient(context.TODO(), 3, cfg.Storage)
+	postgresqlClient, err := pgsqlcl.NewClient(context.TODO(), 3, cfg.Storage)
 	if err != nil {
 		log.Error("Failed to connect to database", err)
 		return nil, err

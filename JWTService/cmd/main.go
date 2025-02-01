@@ -1,7 +1,7 @@
 package main
 
 import (
-	external_app "JWTService/internal/app"
+	"JWTService/internal/app/extapp"
 	"JWTService/internal/config"
 	"log/slog"
 	"os"
@@ -20,7 +20,7 @@ func main() {
 
 	log := setupLogger(cfg.Env)
 
-	application := external_app.New(log, cfg)
+	application := extapp.New(log, cfg)
 
 	log.Info("starting grpc server")
 	go application.GRPCSrv.MustRun()
