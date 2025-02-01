@@ -32,7 +32,7 @@ type UserCreation interface {
 	ConfirmNewUser(
 		ctx context.Context,
 		jwt string,
-		secretKey string,
+		jwtClient jwt_service.JWTClient,
 	) (userId int64, err error)
 }
 
@@ -146,7 +146,7 @@ func (s *serverAPI) Confirm(ctx context.Context,
 ) (*regv1.ConfirmResponse, error) {
 
 	s.log.Info("confirming new user with token")
-	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt, s.cfg.JWTSecret)
+	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt, s.jwtClient)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
