@@ -23,6 +23,7 @@ type GRPCConfig struct {
 
 type GRPCClientConfig struct {
 	SendingServiceAddress string `yaml:"sending_service_address" env-required:"true"`
+	JWTServiceAddress     string `yaml:"jwt_service_address" env-required:"true"`
 }
 
 // StorageConfig structure represents information from config to connect to database.
