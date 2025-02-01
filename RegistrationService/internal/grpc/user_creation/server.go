@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	confirmAccountLinkBase = "http://localhost:8082/confirm_account?token="
-	confirmOperationType   = "confirmation"
+	confirmAccountLinkBase    = "http://localhost:8082/confirm_account?token="
+	confirmationOperationType = "confirmation"
 )
 
 // UserCreation interface represents upper layer of userCreation methods of application.
@@ -95,7 +95,7 @@ func (s *serverAPI) Register(
 	linkGenResp, err := s.jwtClient.GenerateLink(ctx, &jwt_service.GenerateLinkRequest{
 		LinkBase:  confirmAccountLinkBase,
 		Uid:       userId,
-		Operation: confirmOperationType,
+		Operation: confirmationOperationType,
 	})
 	if err != nil {
 		log.Error("confirmation link generation failed")
