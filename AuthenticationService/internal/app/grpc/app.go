@@ -1,7 +1,8 @@
 package internal_app
 
 import (
-	"AuthenticationService/api/pb/sending"
+	"AuthenticationService/api/pb/jwt_service"
+	"AuthenticationService/api/pb/sending_service"
 	"AuthenticationService/internal/config"
 	grpc2 "AuthenticationService/internal/grpc"
 	"fmt"
@@ -22,13 +23,14 @@ func New(
 	log *slog.Logger,
 	cfg *config.Config,
 	authService grpc2.Auth,
-	sendingClient sending.SendingClient,
+	sendingClient sending_service.SendingClient,
+	jwtClient jwt_service.JWTClient,
 ) *App {
 	gRPCServer := grpc.NewServer()
 	log.Info("grpc server created")
 
 	log.Info("registering services in grpc server")
-	grpc2.RegisterServer(gRPCServer, authService, cfg, log, sendingClient)
+	grpc2.RegisterServer(gRPCServer, authService, cfg, log, sendingClient, jwtClient)
 	return &App{
 		log:        log,
 		gRPCServer: gRPCServer,

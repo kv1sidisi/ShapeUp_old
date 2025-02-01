@@ -1,11 +1,11 @@
 package register
 
 import (
+	"RegistrationService/api/pb/jwt_service"
 	"RegistrationService/api/pb/sending_service"
 	regv1 "RegistrationService/api/pb/user_creation"
 	"RegistrationService/internal/config"
 	"RegistrationService/internal/storage"
-	"RegistrationService/pkg/utils/jwt"
 	"context"
 	"errors"
 	"github.com/asaskevich/govalidator"
@@ -14,6 +14,11 @@ import (
 	"google.golang.org/grpc/status"
 	"log/slog"
 	"strings"
+)
+
+const (
+	confirmAccountLinkBase    = "http://localhost:8082/confirm_account?token="
+	confirmationOperationType = "confirmation"
 )
 
 // UserCreation interface represents upper layer of userCreation methods of application.
@@ -27,7 +32,7 @@ type UserCreation interface {
 	ConfirmNewUser(
 		ctx context.Context,
 		jwt string,
-		secretKey string,
+		jwtClient jwt_service.JWTClient,
 	) (userId int64, err error)
 }
 
@@ -38,16 +43,25 @@ type serverAPI struct {
 	cfg           *config.Config
 	log           *slog.Logger
 	sendingClient sending_service.SendingClient
+	jwtClient     jwt_service.JWTClient
 }
 
 // RegisterServer registers the request handler in the gRPC server.
-func RegisterServer(gRPC *grpc.Server, userCreation UserCreation, cfg *config.Config, log *slog.Logger, sendingClient sending_service.SendingClient) {
-	regv1.RegisterUserCreationServer(gRPC,
+func RegisterServer(gRPC *grpc.Server,
+	userCreation UserCreation,
+	cfg *config.Config,
+	log *slog.Logger,
+	sendingClient sending_service.SendingClient,
+	jwtClient jwt_service.JWTClient,
+) {
+	regv1.RegisterUserCreationServer(
+		gRPC,
 		&serverAPI{
 			userCreation:  userCreation,
 			cfg:           cfg,
 			log:           log,
 			sendingClient: sendingClient,
+			jwtClient:     jwtClient,
 		})
 }
 
@@ -78,25 +92,27 @@ func (s *serverAPI) Register(
 	log.Info("user registered")
 
 	log.Info("generating confirmation link")
-	// Generate link for account confirmation
-	//TODO: invoke authenticationService to generate link
-	link, err := jwt.JwtLinkGeneration(userId, s.cfg.JWTSecret)
+	linkGenResp, err := s.jwtClient.GenerateLink(ctx, &jwt_service.GenerateLinkRequest{
+		LinkBase:  confirmAccountLinkBase,
+		Uid:       userId,
+		Operation: confirmationOperationType,
+	})
 	if err != nil {
 		log.Error("confirmation link generation failed")
 		return nil, status.Error(codes.Internal, "internal error")
 	}
-	log.Info("confirmation link generated successfully: ", link)
+	log.Info("confirmation link generated successfully: ", linkGenResp.GetLink())
 
 	log.Info("sending user confirmation link")
-	resp, err := s.sendingClient.SendEmail(ctx, &sending_service.EmailRequest{
-		Message: link,
+	sendEmailResp, err := s.sendingClient.SendEmail(ctx, &sending_service.EmailRequest{
+		Message: linkGenResp.GetLink(),
 		Email:   req.GetEmail(),
 	})
 	if err != nil {
 		log.Error("failed to send confirmation link")
 		return nil, status.Error(codes.Internal, "internal error")
 	}
-	log.Info("user confirmation link sent successfully to:" + resp.GetEmail())
+	log.Info("user confirmation link sent successfully to:" + sendEmailResp.GetEmail())
 
 	// Return the response with the user ID
 	return &regv1.RegisterResponse{
@@ -130,7 +146,7 @@ func (s *serverAPI) Confirm(ctx context.Context,
 ) (*regv1.ConfirmResponse, error) {
 
 	s.log.Info("confirming new user with token")
-	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt, s.cfg.JWTSecret)
+	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt, s.jwtClient)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())

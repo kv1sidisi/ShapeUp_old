@@ -8,31 +8,19 @@ import (
 )
 
 type Config struct {
-	Env        string           `yaml:"env" env-default:"local"`
-	JWTSecret  string           `yaml:"jwt_secret_key" env-required:"true"`
-	GRPC       GRPCConfig       `yaml:"grpc"`
-	Storage    StorageConfig    `yaml:"storage"`
-	GRPCClient GRPCClientConfig `yaml:"grpc_client"`
+	Env  string     `yaml:"env"`
+	JWT  JWTConfig  `yaml:"jwt"`
+	GRPC GRPCConfig `yaml:"grpc"`
 }
 
-// GRPCConfig structure represents information from config to configure grpc server.
+type JWTConfig struct {
+	AccessTokenSecretKey  string `yaml:"access_token_secret_key"`
+	RefreshTokenSecretKey string `yaml:"refresh_token_secret_key"`
+}
+
 type GRPCConfig struct {
 	Port    int64         `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
-}
-
-type GRPCClientConfig struct {
-	SendingServiceAddress string `yaml:"sending_service_address" env-required:"true"`
-	JWTServiceAddress     string `yaml:"jwt_service_address" env-required:"true"`
-}
-
-// StorageConfig structure represents information from config to connect to database.
-type StorageConfig struct {
-	Host     string `json:"host"`
-	Port     string `json:"port"`
-	Database string `json:"database"`
-	Username string `json:"username"`
-	Password string `json:"password"`
 }
 
 // MustLoad gets config path and panics if there is any errors in parsing config.

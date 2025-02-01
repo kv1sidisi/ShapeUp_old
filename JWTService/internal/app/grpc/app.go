@@ -1,42 +1,33 @@
-package grpcapp
+package internal_app
 
 import (
-	"RegistrationService/api/pb/jwt_service"
-	"RegistrationService/api/pb/sending_service"
-	"RegistrationService/internal/config"
-	reggrpc "RegistrationService/internal/grpc/user_creation"
+	"JWTService/internal/config"
+	grpc_server "JWTService/internal/grpc"
 	"fmt"
 	"google.golang.org/grpc"
 	"log/slog"
 	"net"
 )
 
-// App structure represents bottom layer of application and contains grpc server.
 type App struct {
 	log        *slog.Logger
-	gRPCServer *grpc.Server
 	cfg        *config.Config
+	grpcServer *grpc.Server
 }
 
-// New creates new gRPC server app.
-func New(
-	log *slog.Logger,
-	registerService reggrpc.UserCreation,
+func New(log *slog.Logger,
 	cfg *config.Config,
-	sendingClient sending_service.SendingClient,
-	jwtClient jwt_service.JWTClient,
+	jwtService grpc_server.JWT,
 ) *App {
 	gRPCServer := grpc.NewServer()
 	log.Info("grpc server created")
 
 	log.Info("registering services in grpc server")
-	reggrpc.RegisterServer(gRPCServer, registerService, cfg, log, sendingClient, jwtClient)
+	grpc_server.RegisterServer(gRPCServer, jwtService, cfg, log)
 
-	return &App{
-		log:        log,
-		gRPCServer: gRPCServer,
+	return &App{log: log,
 		cfg:        cfg,
-	}
+		grpcServer: gRPCServer}
 }
 
 // MustRun runs gRPC server and panics if any errors occurs.
@@ -65,7 +56,7 @@ func (a *App) Run() error {
 	log.Info("gRPC server is running", slog.String("addr", l.Addr().String()))
 
 	// Start server with listener "l".
-	if err := a.gRPCServer.Serve(l); err != nil {
+	if err := a.grpcServer.Serve(l); err != nil {
 		log.Error("failed to serve", err)
 		return err
 	}
@@ -79,7 +70,7 @@ func (a *App) Stop() error {
 
 	a.log.With(slog.String("op", op)).Info("stopping gRPC server", slog.Int64("port", a.cfg.GRPC.Port))
 
-	a.gRPCServer.GracefulStop()
+	a.grpcServer.GracefulStop()
 
 	return nil
 }

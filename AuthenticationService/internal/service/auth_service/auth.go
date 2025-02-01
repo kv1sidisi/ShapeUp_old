@@ -1,13 +1,18 @@
 package auth_service
 
 import (
+	"AuthenticationService/api/pb/jwt_service"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/internal/domain/models"
-	"AuthenticationService/internal/service/jwt_service"
 	"context"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"log/slog"
+)
+
+const (
+	refreshOperationType = "refresh"
+	accessOperationType  = "access"
 )
 
 // AuthService struct represents the sending service and it is implementation of bottom layer of sending method of application.
@@ -39,6 +44,7 @@ func (as *AuthService) LoginUser(
 	ctx context.Context,
 	username string,
 	password string,
+	jwtClient jwt_service.JWTClient,
 ) (userId int64, accessToken string, refreshToken string, err error) {
 	//TODO: check user confirmed or not
 
@@ -51,14 +57,23 @@ func (as *AuthService) LoginUser(
 		return 0, "", "", fmt.Errorf("invalid credentials")
 	}
 
-	accessToken, err = jwt_service.GenerateAccessToken(user.ID, as.cfg.JWT.AccessSecret)
+	accessTokenGenResp, err := jwtClient.GenerateAccessToken(ctx, &jwt_service.AccessTokenRequest{
+		Uid:       user.ID,
+		Operation: accessOperationType,
+	})
 	if err != nil {
 		return 0, "", "", err
 	}
-	refreshToken, err = jwt_service.GenerateRefreshToken(user.ID, as.cfg.JWT.RefreshSecret)
+	accessToken = accessTokenGenResp.GetToken()
+
+	refreshTokenGenResp, err := jwtClient.GenerateRefreshToken(ctx, &jwt_service.RefreshTokenRequest{
+		Uid:       user.ID,
+		Operation: refreshOperationType,
+	})
 	if err != nil {
 		return 0, "", "", err
 	}
+	refreshToken = refreshTokenGenResp.GetToken()
 
 	fmt.Println(userId, accessToken, refreshToken)
 

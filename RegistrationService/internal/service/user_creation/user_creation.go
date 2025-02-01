@@ -1,8 +1,8 @@
 package user_creation
 
 import (
+	"RegistrationService/api/pb/jwt_service"
 	"RegistrationService/internal/storage"
-	"RegistrationService/pkg/utils/jwt"
 	"context"
 	"errors"
 	"fmt"
@@ -75,7 +75,7 @@ func (r *UserCreation) RegisterNewUser(ctx context.Context, email, password stri
 
 // ConfirmNewUser confirms account
 // If user does not exist returns error
-func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, secretKey string) (userId int64, err error) {
+func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, jwtClient jwt_service.JWTClient) (userId int64, err error) {
 	const op = "register.ConfirmAccount"
 
 	log := r.log.With(
@@ -84,11 +84,14 @@ func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, secretK
 	)
 
 	log.Info("verifying confirmation token")
-	userId, err = jwt.VerifyToken(log, token, secretKey)
+	validationResp, err := jwtClient.ValidateAccessToken(ctx, &jwt_service.ValidateAccessTokenRequest{
+		Token: token,
+	})
 	if err != nil {
 		log.Error("failed to verify confirmation token", err)
 		return -1, status.Error(codes.Unauthenticated, "invalid token")
 	}
+	userId = validationResp.GetUid()
 
 	if err := r.userSaver.ConfirmAccount(ctx, userId); err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
