@@ -1,7 +1,7 @@
 package tests
 
 import (
-	sendv1 "SendingService/api/pb/sending_service"
+	pbsendsvc "SendingService/api/pb/sendsvc"
 	"SendingService/tests/suite"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -13,7 +13,7 @@ func TestSendEmail_HappyPath(t *testing.T) {
 	email := "lapunovvadim34@gmail.com"
 	message := "Test message\nPlease confirm your account:\n link"
 
-	resp, err := st.SendClient.SendEmail(ctx, &sendv1.EmailRequest{
+	resp, err := st.SendClient.SendEmail(ctx, &pbsendsvc.EmailRequest{
 		Email:   email,
 		Message: message,
 	})

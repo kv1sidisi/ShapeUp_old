@@ -1,7 +1,7 @@
 package suite
 
 import (
-	sendv1 "SendingService/api/pb/sending_service"
+	pbsendsvc "SendingService/api/pb/sendsvc"
 	"SendingService/internal/config"
 	"context"
 	"google.golang.org/grpc"
@@ -14,7 +14,7 @@ import (
 type Suite struct {
 	*testing.T
 	Cfg        *config.Config
-	SendClient sendv1.SendingClient
+	SendClient pbsendsvc.SendingClient
 }
 
 const (
@@ -44,7 +44,7 @@ func New(t *testing.T) (context.Context, *Suite) {
 	return ctx, &Suite{
 		t,
 		cfg,
-		sendv1.NewSendingClient(cc),
+		pbsendsvc.NewSendingClient(cc),
 	}
 }
 
