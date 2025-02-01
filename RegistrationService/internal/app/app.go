@@ -1,6 +1,7 @@
 package app
 
 import (
+	"RegistrationService/api/pb/jwt_service"
 	"RegistrationService/api/pb/sending_service"
 	grpcapp "RegistrationService/internal/app/grpc"
 	"RegistrationService/internal/config"
@@ -22,6 +23,7 @@ func New(
 	cfg *config.Config,
 	postgresqlClient *pgxpool.Pool,
 	sendingClient sending_service.SendingClient,
+	jwtClient jwt_service.JWTClient,
 ) *App {
 	log.Info("creating postgresql service")
 	storage, err := postgresql.New(postgresqlClient, log)
@@ -34,7 +36,7 @@ func New(
 	registerService := user_creation.New(log, storage)
 
 	log.Info("creating grpc server app")
-	grpcApp := grpcapp.New(log, registerService, cfg, sendingClient)
+	grpcApp := grpcapp.New(log, registerService, cfg, sendingClient, jwtClient)
 
 	return &App{
 		GRPCSrv: grpcApp,

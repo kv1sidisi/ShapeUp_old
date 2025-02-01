@@ -1,6 +1,7 @@
 package grpcapp
 
 import (
+	"RegistrationService/api/pb/jwt_service"
 	"RegistrationService/api/pb/sending_service"
 	"RegistrationService/internal/config"
 	reggrpc "RegistrationService/internal/grpc/user_creation"
@@ -23,12 +24,13 @@ func New(
 	registerService reggrpc.UserCreation,
 	cfg *config.Config,
 	sendingClient sending_service.SendingClient,
+	jwtClient jwt_service.JWTClient,
 ) *App {
 	gRPCServer := grpc.NewServer()
 	log.Info("grpc server created")
 
 	log.Info("registering services in grpc server")
-	reggrpc.RegisterServer(gRPCServer, registerService, cfg, log, sendingClient)
+	reggrpc.RegisterServer(gRPCServer, registerService, cfg, log, sendingClient, jwtClient)
 
 	return &App{
 		log:        log,
