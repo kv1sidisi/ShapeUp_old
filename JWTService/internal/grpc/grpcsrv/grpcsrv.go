@@ -9,7 +9,7 @@ import (
 	"log/slog"
 )
 
-type JWT interface {
+type JWTSvc interface {
 	GenerateAccessToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error)
 	GenerateRefreshToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error)
 	ValidateAccessToken(ctx context.Context, accessToken string, secretKey string) (uid int64, operation string, err error)
@@ -19,12 +19,12 @@ type JWT interface {
 
 type ServerAPI struct {
 	pbjwtsvc.UnimplementedJWTServer
-	jwtService JWT
+	jwtService JWTSvc
 	cfg        *config.Config
 	log        *slog.Logger
 }
 
-func RegisterServer(grpcServer *grpc.Server, jwtService JWT, cfg *config.Config, log *slog.Logger) {
+func RegisterServer(grpcServer *grpc.Server, jwtService JWTSvc, cfg *config.Config, log *slog.Logger) {
 	pbjwtsvc.RegisterJWTServer(grpcServer, &ServerAPI{
 		jwtService: jwtService,
 		cfg:        cfg,
@@ -35,7 +35,7 @@ func RegisterServer(grpcServer *grpc.Server, jwtService JWT, cfg *config.Config,
 func (s *ServerAPI) GenerateAccessToken(ctx context.Context,
 	req *pbjwtsvc.AccessTokenRequest,
 ) (*pbjwtsvc.AccessTokenResponse, error) {
-	const op = "server.GenerateAccessToken"
+	const op = "grpcsrv.GenerateAccessToken"
 
 	log := s.log.With(slog.String("op", op))
 
@@ -64,7 +64,7 @@ func (s *ServerAPI) GenerateAccessToken(ctx context.Context,
 func (s *ServerAPI) GenerateRefreshToken(ctx context.Context,
 	req *pbjwtsvc.RefreshTokenRequest,
 ) (*pbjwtsvc.RefreshTokenResponse, error) {
-	const op = "server.GenerateRefreshToken"
+	const op = "grpcsrv.GenerateRefreshToken"
 
 	log := s.log.With(slog.String("op", op))
 
@@ -93,7 +93,7 @@ func (s *ServerAPI) GenerateRefreshToken(ctx context.Context,
 func (s *ServerAPI) ValidateAccessToken(ctx context.Context,
 	req *pbjwtsvc.ValidateAccessTokenRequest,
 ) (*pbjwtsvc.ValidateAccessTokenResponse, error) {
-	const op = "server.ValidateAccessToken"
+	const op = "grpcsrv.ValidateAccessToken"
 
 	log := s.log.With(slog.String("op", op))
 
@@ -118,7 +118,7 @@ func (s *ServerAPI) ValidateAccessToken(ctx context.Context,
 func (s *ServerAPI) ValidateRefreshToken(ctx context.Context,
 	req *pbjwtsvc.ValidateRefreshTokenRequest,
 ) (*pbjwtsvc.ValidateRefreshTokenResponse, error) {
-	const op = "server.ValidateRefreshToken"
+	const op = "grpcsrv.ValidateRefreshToken"
 
 	log := s.log.With(slog.String("op", op))
 
@@ -143,7 +143,7 @@ func (s *ServerAPI) ValidateRefreshToken(ctx context.Context,
 func (s *ServerAPI) GenerateLink(ctx context.Context,
 	req *pbjwtsvc.GenerateLinkRequest,
 ) (*pbjwtsvc.GenerateLinkResponse, error) {
-	const op = "server.GenerateLink"
+	const op = "grpcsrv.GenerateLink"
 
 	log := s.log.With(slog.String("op", op))
 

@@ -18,11 +18,11 @@ func New(
 	log *slog.Logger,
 	cfg *config.Config,
 ) *App {
-	log.Info("creating email sending service")
 	sendingService := sendsvc.New(log, cfg)
+	log.Info("email sending service created")
 
-	log.Info("creating grpc server app")
 	grpcApp := intapp.New(log, sendingService, cfg)
+	log.Info("external GRPC server created")
 
 	return &App{
 		GRPCSrv: grpcApp,

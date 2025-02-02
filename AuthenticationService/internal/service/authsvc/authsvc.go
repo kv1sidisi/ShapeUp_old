@@ -2,6 +2,7 @@ package authsvc
 
 import (
 	pbjwtsvc "AuthenticationService/api/pb/jwtsvc"
+	pbsendsvc "AuthenticationService/api/pb/sendsvc"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/internal/domain/models"
 	"context"
@@ -15,14 +16,16 @@ const (
 	accessOperationType  = "access"
 )
 
-// AuthService struct represents the sending service and it is implementation of bottom layer of sending method of application.
-type AuthService struct {
-	log     *slog.Logger
-	cfg     *config.Config
-	storage AuthManager
+// AuthSvc struct represents the sending service and it is implementation of bottom layer of sending method of application.
+type AuthSvc struct {
+	log           *slog.Logger
+	cfg           *config.Config
+	storage       AuthMgr
+	sendingClient pbsendsvc.SendingClient
+	jwtClient     pbjwtsvc.JWTClient
 }
 
-type AuthManager interface {
+type AuthMgr interface {
 	FindUserByEmail(ctx context.Context,
 		email string,
 	) (user models.User, err error)
@@ -33,19 +36,28 @@ type AuthManager interface {
 	) (err error)
 }
 
-// New returns a new instance of AuthService service.
-func New(log *slog.Logger, cfg *config.Config, storage AuthManager) *AuthService {
-	return &AuthService{log: log,
-		storage: storage,
-		cfg:     cfg}
+// New returns a new instance of AuthSvc service.
+func New(log *slog.Logger,
+	cfg *config.Config,
+	storage AuthMgr,
+	sendingClient pbsendsvc.SendingClient,
+	jwtClient pbjwtsvc.JWTClient) *AuthSvc {
+	return &AuthSvc{log: log,
+		storage:       storage,
+		cfg:           cfg,
+		sendingClient: sendingClient,
+		jwtClient:     jwtClient}
+
 }
 
-func (as *AuthService) LoginUser(
+func (as *AuthSvc) LoginUser(
 	ctx context.Context,
 	username string,
 	password string,
-	jwtClient pbjwtsvc.JWTClient,
 ) (userId int64, accessToken string, refreshToken string, err error) {
+	const op = "authsvc.LoginUser"
+	log := as.log.With(slog.String("op", op))
+
 	//TODO: check user confirmed or not
 
 	user, err := as.storage.FindUserByEmail(ctx, username)
@@ -57,7 +69,7 @@ func (as *AuthService) LoginUser(
 		return 0, "", "", fmt.Errorf("invalid credentials")
 	}
 
-	accessTokenGenResp, err := jwtClient.GenerateAccessToken(ctx, &pbjwtsvc.AccessTokenRequest{
+	accessTokenGenResp, err := as.jwtClient.GenerateAccessToken(ctx, &pbjwtsvc.AccessTokenRequest{
 		Uid:       user.ID,
 		Operation: accessOperationType,
 	})
@@ -65,8 +77,9 @@ func (as *AuthService) LoginUser(
 		return 0, "", "", err
 	}
 	accessToken = accessTokenGenResp.GetToken()
+	log.Info("access token generated", slog.String("accessToken", accessToken))
 
-	refreshTokenGenResp, err := jwtClient.GenerateRefreshToken(ctx, &pbjwtsvc.RefreshTokenRequest{
+	refreshTokenGenResp, err := as.jwtClient.GenerateRefreshToken(ctx, &pbjwtsvc.RefreshTokenRequest{
 		Uid:       user.ID,
 		Operation: refreshOperationType,
 	})
@@ -74,12 +87,12 @@ func (as *AuthService) LoginUser(
 		return 0, "", "", err
 	}
 	refreshToken = refreshTokenGenResp.GetToken()
-
-	fmt.Println(userId, accessToken, refreshToken)
+	log.Info("refresh token generated", slog.String("refreshToken", refreshToken))
 
 	if err := as.storage.AddSession(ctx, user.ID, accessToken, refreshToken); err != nil {
 		return 0, "", "", err
 	}
+	log.Info("session created")
 
 	return user.ID, accessToken, refreshToken, nil
 }

@@ -1,8 +1,6 @@
 package grpcsrv
 
 import (
-	pbjwtsvc "RegistrationService/api/pb/jwtsvc"
-	pbsendsvc "RegistrationService/api/pb/sendsvc"
 	pbusrcreate "RegistrationService/api/pb/usrcreatesvc"
 	"RegistrationService/internal/config"
 	"RegistrationService/internal/storage"
@@ -16,13 +14,8 @@ import (
 	"strings"
 )
 
-const (
-	confirmAccountLinkBase    = "http://localhost:8082/confirm_account?token="
-	confirmationOperationType = "confirmation"
-)
-
-// UsrCreationSvc interface represents upper layer of userCreation methods of application.
-type UsrCreationSvc interface {
+// UsrCreateSvc interface of user creation service.
+type UsrCreateSvc interface {
 	RegisterNewUser(
 		ctx context.Context,
 		email string,
@@ -32,36 +25,29 @@ type UsrCreationSvc interface {
 	ConfirmNewUser(
 		ctx context.Context,
 		jwt string,
-		jwtClient pbjwtsvc.JWTClient,
 	) (userId int64, err error)
 }
 
 // serverAPI represents the handler for the gRPC server.
 type serverAPI struct {
 	pbusrcreate.UnimplementedUserCreationServer
-	userCreation  UsrCreationSvc
-	cfg           *config.Config
-	log           *slog.Logger
-	sendingClient pbsendsvc.SendingClient
-	jwtClient     pbjwtsvc.JWTClient
+	userCreation UsrCreateSvc
+	cfg          *config.Config
+	log          *slog.Logger
 }
 
 // RegisterServer registers the request handler in the gRPC server.
 func RegisterServer(gRPC *grpc.Server,
-	userCreation UsrCreationSvc,
+	userCreation UsrCreateSvc,
 	cfg *config.Config,
 	log *slog.Logger,
-	sendingClient pbsendsvc.SendingClient,
-	jwtClient pbjwtsvc.JWTClient,
 ) {
 	pbusrcreate.RegisterUserCreationServer(
 		gRPC,
 		&serverAPI{
-			userCreation:  userCreation,
-			cfg:           cfg,
-			log:           log,
-			sendingClient: sendingClient,
-			jwtClient:     jwtClient,
+			userCreation: userCreation,
+			cfg:          cfg,
+			log:          log,
 		})
 }
 
@@ -70,7 +56,7 @@ func (s *serverAPI) Register(
 	ctx context.Context,
 	req *pbusrcreate.RegisterRequest,
 ) (*pbusrcreate.RegisterResponse, error) {
-	op := "server.Register"
+	const op = "grpcsrv.Register"
 	log := s.log.With(slog.String("op", op))
 
 	// Validate request in regex
@@ -79,8 +65,7 @@ func (s *serverAPI) Register(
 	}
 	log.Info("register request valid")
 
-	log.Info("registering new user")
-	// UsrCreationSvc the new user
+	// UsrCreateSvc the new user
 	userId, err := s.userCreation.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
 		if errors.Is(err, storage.ErrUserExists) {
@@ -89,30 +74,7 @@ func (s *serverAPI) Register(
 
 		return nil, status.Error(codes.Internal, "internal error")
 	}
-	log.Info("user registered")
-
-	log.Info("generating confirmation link")
-	linkGenResp, err := s.jwtClient.GenerateLink(ctx, &pbjwtsvc.GenerateLinkRequest{
-		LinkBase:  confirmAccountLinkBase,
-		Uid:       userId,
-		Operation: confirmationOperationType,
-	})
-	if err != nil {
-		log.Error("confirmation link generation failed")
-		return nil, status.Error(codes.Internal, "internal error")
-	}
-	log.Info("confirmation link generated successfully: ", linkGenResp.GetLink())
-
-	log.Info("sending user confirmation link")
-	sendEmailResp, err := s.sendingClient.SendEmail(ctx, &pbsendsvc.EmailRequest{
-		Message: linkGenResp.GetLink(),
-		Email:   req.GetEmail(),
-	})
-	if err != nil {
-		log.Error("failed to send confirmation link")
-		return nil, status.Error(codes.Internal, "internal error")
-	}
-	log.Info("user confirmation link sent successfully to:" + sendEmailResp.GetEmail())
+	log.Info("user registered successfully")
 
 	// Return the response with the user ID
 	return &pbusrcreate.RegisterResponse{
@@ -145,8 +107,7 @@ func (s *serverAPI) Confirm(ctx context.Context,
 	req *pbusrcreate.ConfirmRequest,
 ) (*pbusrcreate.ConfirmResponse, error) {
 
-	s.log.Info("confirming new user with token")
-	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt, s.jwtClient)
+	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())

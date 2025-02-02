@@ -37,24 +37,23 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	log.Info("connecting to grpc RegistrationService", slog.String("address", cfg.GRPC.ConfirmAccountAddress))
 	conn, err := grpc.NewClient(cfg.GRPC.ConfirmAccountAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Error("failed to create grpc client connection to confirm account service: ", err)
+		log.Error("failed to create GRPC client connection to confirm account service: ", err)
 		panic(err)
 	}
 	defer conn.Close()
-	log.Info("grpc client connected")
 	client := pbusrcreatesvc.NewUserCreationClient(conn)
+	log.Info("GRPC RegistrationService connected", slog.String("address", cfg.GRPC.ConfirmAccountAddress))
 
-	confirmAccountService := confaccsvc.New(log, client)
+	confAccSvc := confaccsvc.New(log, client)
 	log.Info("confirm account service registered")
-	router.Get("/confirm_account", confacchdlr.New(log, confirmAccountService))
+	router.Get("/confirm_account", confacchdlr.New(log, confAccSvc))
 	log.Info("confirm_account endpoint registered")
 
-	registerUserService := regusrsvc.New(log, client)
+	regUsrSvc := regusrsvc.New(log, client)
 	log.Info("register user service registered")
-	router.Post("/register_user", regusrhdlr.New(log, registerUserService))
+	router.Post("/register_user", regusrhdlr.New(log, regUsrSvc))
 	log.Info("register user endpoint registered")
 
 	log.Info("starting server", slog.String("address", cfg.Address))

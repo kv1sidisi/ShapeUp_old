@@ -3,38 +3,37 @@ package regusrsvc
 import (
 	pbusrcreatesvc "GatewayAPI/api/grpccl/pb/usrcreatesvc"
 	"context"
-	"fmt"
 	"log/slog"
 )
 
-type RegisterUser struct {
+type RegUsrSvc struct {
 	log    *slog.Logger
 	client pbusrcreatesvc.UserCreationClient
 }
 
-// New creates RegisterUser service.
-func New(log *slog.Logger, client pbusrcreatesvc.UserCreationClient) *RegisterUser {
-	return &RegisterUser{
+// New creates RegUsrSvc service.
+func New(log *slog.Logger, client pbusrcreatesvc.UserCreationClient) *RegUsrSvc {
+	return &RegUsrSvc{
 		log:    log,
 		client: client,
 	}
 }
 
 // RegisterUser method invokes grpc client of RegisterService to register new user.
-func (ru *RegisterUser) RegisterUser(email string, password string) (resp *pbusrcreatesvc.RegisterResponse, err error) {
+func (ru *RegUsrSvc) RegisterUser(email string, password string) (resp *pbusrcreatesvc.RegisterResponse, err error) {
+	const op = "reusrsvc.RegisterUser"
+	log := ru.log.With(slog.String("op", op))
 
-	ru.log.Info("registering user: ", email, password)
+	log.Info("registering user: ", email, password)
 	resp, err = ru.client.Register(context.Background(), &pbusrcreatesvc.RegisterRequest{
 		Email:    email,
 		Password: password,
 	})
 	if err != nil {
-		ru.log.Error("register error", slog.String("error", err.Error()))
+		log.Error("register error", slog.String("error", err.Error()))
 		return nil, err
 	}
 
-	fmt.Println(resp.UserId)
-
-	ru.log.Info("registered account ", slog.Int64("userId", resp.UserId))
+	log.Info("registered account ", slog.Int64("userId", resp.UserId))
 	return resp, nil
 }

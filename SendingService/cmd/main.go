@@ -22,12 +22,11 @@ func main() {
 
 	log.Info("starting up", slog.String("env", cfg.Env))
 
-	log.Info("starting application")
 	application := extapp.New(log, cfg)
+	log.Info("application created")
 
-	log.Info("starting grpc server")
 	go application.GRPCSrv.MustRun()
-	log.Info("grpc server started")
+	log.Info("GRPC server started")
 
 	//Graceful shutdown
 	stop := make(chan os.Signal, 1)

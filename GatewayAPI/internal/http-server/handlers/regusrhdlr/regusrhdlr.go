@@ -8,8 +8,8 @@ import (
 	"net/http"
 )
 
-// RegisterUser interface represents service for register user endpoint.
-type RegisterUser interface {
+// RegUsrSvc interface represents service for register user endpoint.
+type RegUsrSvc interface {
 	RegisterUser(email, password string) (resp *pbusrcreatesvc.RegisterResponse, err error)
 }
 
@@ -19,9 +19,9 @@ type JSONRegisterRequest struct {
 }
 
 // New creates endpoint for register user service.
-func New(log *slog.Logger, registerUser RegisterUser) http.HandlerFunc {
+func New(log *slog.Logger, registerUser RegUsrSvc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "handlers.register_user"
+		const op = "regusrhdlr.register_user"
 
 		log = log.With(
 			slog.String("op", op),

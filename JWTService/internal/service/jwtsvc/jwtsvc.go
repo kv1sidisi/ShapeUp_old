@@ -19,16 +19,16 @@ const (
 	refreshTokenExpireTime = time.Hour * 24 * 30
 )
 
-type JWTService struct {
+type JWTSvc struct {
 	log *slog.Logger
 	cfg *config.Config
 }
 
-func New(log *slog.Logger, cfg *config.Config) *JWTService {
-	return &JWTService{log: log, cfg: cfg}
+func New(log *slog.Logger, cfg *config.Config) *JWTSvc {
+	return &JWTSvc{log: log, cfg: cfg}
 }
 
-func (s *JWTService) GenerateAccessToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error) {
+func (s *JWTSvc) GenerateAccessToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error) {
 	operation = getOperationType(operation)
 	if len(operation) == 0 {
 		return "", errors.New("invalid operation type")
@@ -51,7 +51,7 @@ func (s *JWTService) GenerateAccessToken(ctx context.Context, uid int64, operati
 	return accessToken, nil
 }
 
-func (s *JWTService) GenerateRefreshToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error) {
+func (s *JWTSvc) GenerateRefreshToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error) {
 	operation = getOperationType(operation)
 	if len(operation) == 0 {
 		return "", errors.New("invalid operation type")
@@ -74,7 +74,7 @@ func (s *JWTService) GenerateRefreshToken(ctx context.Context, uid int64, operat
 	return refreshToken, nil
 }
 
-func (s *JWTService) ValidateAccessToken(ctx context.Context, accessToken string, secretKey string) (uid int64, operation string, err error) {
+func (s *JWTSvc) ValidateAccessToken(ctx context.Context, accessToken string, secretKey string) (uid int64, operation string, err error) {
 	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -103,7 +103,7 @@ func (s *JWTService) ValidateAccessToken(ctx context.Context, accessToken string
 	return 0, "", fmt.Errorf("invalid token")
 }
 
-func (s *JWTService) ValidateRefreshToken(ctx context.Context, refreshToken string, secretKey string) (uid int64, operation string, err error) {
+func (s *JWTSvc) ValidateRefreshToken(ctx context.Context, refreshToken string, secretKey string) (uid int64, operation string, err error) {
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -132,7 +132,7 @@ func (s *JWTService) ValidateRefreshToken(ctx context.Context, refreshToken stri
 	return 0, "", fmt.Errorf("invalid token")
 }
 
-func (s *JWTService) GenerateLink(ctx context.Context, linkBase string, uid int64, operation string, secretKey string) (string, error) {
+func (s *JWTSvc) GenerateLink(ctx context.Context, linkBase string, uid int64, operation string, secretKey string) (string, error) {
 	operation = getOperationType(operation)
 	if len(operation) == 0 {
 		return "", errors.New("invalid operation type")

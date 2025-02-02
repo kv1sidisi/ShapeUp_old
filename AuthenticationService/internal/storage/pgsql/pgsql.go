@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgconn"
 	"log/slog"
+	"strings"
 )
 
 const (
@@ -17,19 +18,19 @@ const (
 	codeSessionAlreadyExists = "23505"
 )
 
-type Storage struct {
+type AuthMgr struct {
 	client pgsqlcl.Client
 	log    *slog.Logger
 }
 
-func New(client pgsqlcl.Client, log *slog.Logger) (*Storage, error) {
-	return &Storage{
+func New(client pgsqlcl.Client, log *slog.Logger) (*AuthMgr, error) {
+	return &AuthMgr{
 		client: client,
 		log:    log,
 	}, nil
 }
 
-func (s *Storage) FindUserByEmail(ctx context.Context,
+func (s *AuthMgr) FindUserByEmail(ctx context.Context,
 	email string,
 ) (user models.User, err error) {
 	const op = "postgresql.FindUserByEmail"
@@ -52,7 +53,7 @@ func (s *Storage) FindUserByEmail(ctx context.Context,
 	return user, nil
 }
 
-func (s *Storage) AddSession(ctx context.Context,
+func (s *AuthMgr) AddSession(ctx context.Context,
 	uid int64,
 	accessToken string,
 	refreshToken string,
@@ -67,7 +68,7 @@ func (s *Storage) AddSession(ctx context.Context,
 			VALUES ($1, $2, $3)
 			RETURNING id`
 
-	log.Info("SQL Query: %s", q)
+	log.Info("SQL Query: %s", removeLinesAndTabs(q))
 
 	var sessionId int64
 
@@ -88,4 +89,11 @@ func (s *Storage) AddSession(ctx context.Context,
 
 	log.Info(fmt.Sprintf("new session: %d", sessionId))
 	return nil
+}
+
+// removeLinesAndTabs removes \n and \t from string.
+func removeLinesAndTabs(input string) string {
+	input = strings.ReplaceAll(input, "\n", "")
+	input = strings.ReplaceAll(input, "\t", "")
+	return input
 }

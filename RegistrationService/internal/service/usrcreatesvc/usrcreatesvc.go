@@ -2,6 +2,7 @@ package usrcreatesvc
 
 import (
 	pbjwtsvc "RegistrationService/api/pb/jwtsvc"
+	pbsendsvc "RegistrationService/api/pb/sendsvc"
 	"RegistrationService/internal/storage"
 	"context"
 	"errors"
@@ -12,14 +13,21 @@ import (
 	"log/slog"
 )
 
-// UserCreation struct represents the registration service and it is implementation of bottom layer of register method of application.
-type UserCreation struct {
-	log       *slog.Logger
-	userSaver UserManager
+const (
+	confirmAccountLinkBase    = "http://localhost:8082/confirm_account?token="
+	confirmationOperationType = "confirmation"
+)
+
+// UsrCreateSvc implementation of user creation service.
+type UsrCreateSvc struct {
+	log           *slog.Logger
+	userSaver     UsrMgr
+	sendingClient pbsendsvc.SendingClient
+	jwtClient     pbjwtsvc.JWTClient
 }
 
-// UserManager interface defines the method for saving user information in database.
-type UserManager interface {
+// UsrMgr interface defines the method for saving user information in database.
+type UsrMgr interface {
 	SaveUser(
 		ctx context.Context,
 		email string,
@@ -33,18 +41,22 @@ type UserManager interface {
 
 // New returns a new instance of UserCreation service.
 func New(log *slog.Logger,
-	userSaver UserManager,
-) *UserCreation {
-	return &UserCreation{
-		userSaver: userSaver,
-		log:       log,
+	userSaver UsrMgr,
+	sendingClient pbsendsvc.SendingClient,
+	jwtClient pbjwtsvc.JWTClient,
+) *UsrCreateSvc {
+	return &UsrCreateSvc{
+		userSaver:     userSaver,
+		log:           log,
+		sendingClient: sendingClient,
+		jwtClient:     jwtClient,
 	}
 }
 
 // RegisterNewUser registers new user in the system and returns user ID.
 // If user with given username already exists, returns error.
-func (r *UserCreation) RegisterNewUser(ctx context.Context, email, password string) (int64, error) {
-	const op = "register.RegisterNewUser"
+func (r *UsrCreateSvc) RegisterNewUser(ctx context.Context, email, password string) (int64, error) {
+	const op = "usrcreatesvc.RegisterNewUser"
 
 	log := r.log.With(
 		slog.String("op", op),
@@ -59,8 +71,8 @@ func (r *UserCreation) RegisterNewUser(ctx context.Context, email, password stri
 	}
 	log.Info("password hash generated")
 
-	log.Info("saving new user to database")
-	id, err := r.userSaver.SaveUser(ctx, email, passHash)
+	// Saving user in database
+	uid, err := r.userSaver.SaveUser(ctx, email, passHash)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserExists) {
 			r.log.Warn("user already exists")
@@ -69,13 +81,37 @@ func (r *UserCreation) RegisterNewUser(ctx context.Context, email, password stri
 		log.Error("failed to save new user")
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
+	log.Info("user successfully saved: ", slog.Int64("userId", uid))
 
-	return id, nil
+	// Generating confirmation link
+	linkGenResp, err := r.jwtClient.GenerateLink(ctx, &pbjwtsvc.GenerateLinkRequest{
+		LinkBase:  confirmAccountLinkBase,
+		Uid:       uid,
+		Operation: confirmationOperationType,
+	})
+	if err != nil {
+		log.Error("confirmation link generation failed")
+		return 0, status.Error(codes.Internal, "internal error")
+	}
+	log.Info("confirmation link generated successfully: ", linkGenResp.GetLink())
+
+	// Sending confirmation link
+	_, err = r.sendingClient.SendEmail(ctx, &pbsendsvc.EmailRequest{
+		Message: linkGenResp.GetLink(),
+		Email:   email,
+	})
+	if err != nil {
+		log.Error("failed to send confirmation link")
+		return 0, status.Error(codes.Internal, "internal error")
+	}
+	log.Info("user confirmation link sent successfully")
+
+	return uid, nil
 }
 
 // ConfirmNewUser confirms account
 // If user does not exist returns error
-func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, jwtClient pbjwtsvc.JWTClient) (userId int64, err error) {
+func (r *UsrCreateSvc) ConfirmNewUser(ctx context.Context, token string) (uid int64, err error) {
 	const op = "register.ConfirmAccount"
 
 	log := r.log.With(
@@ -83,17 +119,18 @@ func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, jwtClie
 		slog.String("token", token),
 	)
 
-	log.Info("verifying confirmation token")
-	validationResp, err := jwtClient.ValidateAccessToken(ctx, &pbjwtsvc.ValidateAccessTokenRequest{
+	validationResp, err := r.jwtClient.ValidateAccessToken(ctx, &pbjwtsvc.ValidateAccessTokenRequest{
 		Token: token,
 	})
 	if err != nil {
 		log.Error("failed to verify confirmation token", err)
 		return -1, status.Error(codes.Unauthenticated, "invalid token")
 	}
-	userId = validationResp.GetUid()
+	uid = validationResp.GetUid()
+	log.Info("user confirmation token verified successfully: ", slog.Int64("userId", uid))
 
-	if err := r.userSaver.ConfirmAccount(ctx, userId); err != nil {
+	// Confirming user through database
+	if err := r.userSaver.ConfirmAccount(ctx, uid); err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
 			r.log.Warn("user does not exist")
 			return -1, fmt.Errorf("%s: %w", op, err)
@@ -102,5 +139,5 @@ func (r *UserCreation) ConfirmNewUser(ctx context.Context, token string, jwtClie
 		return -1, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return userId, nil
+	return uid, nil
 }

@@ -2,42 +2,35 @@ package grpcsrv
 
 import (
 	pbauthsvc "AuthenticationService/api/pb/authsvc"
-	pbjwtsvc "AuthenticationService/api/pb/jwtsvc"
-	pbsendsvc "AuthenticationService/api/pb/sendsvc"
 	"AuthenticationService/internal/config"
 	"context"
 	"google.golang.org/grpc"
 	"log/slog"
 )
 
-// Auth interface represents upper layer of authentication methods of application.
-type Auth interface {
+// AuthSvc interface represents upper layer of authentication methods of application.
+type AuthSvc interface {
 	LoginUser(
 		ctx context.Context,
 		username string,
 		password string,
-		jwtClient pbjwtsvc.JWTClient,
 	) (userId int64, accessToken string, refreshToken string, err error)
 }
 
 // serverAPI represents the handler for the gRPC server.
 type serverAPI struct {
 	pbauthsvc.UnimplementedAuthServer
-	auth          Auth
-	cfg           *config.Config
-	log           *slog.Logger
-	sendingClient pbsendsvc.SendingClient
-	jwtClient     pbjwtsvc.JWTClient
+	auth AuthSvc
+	cfg  *config.Config
+	log  *slog.Logger
 }
 
 // RegisterServer registers the request handler in the gRPC server.
-func RegisterServer(gRPC *grpc.Server, auth Auth, cfg *config.Config, log *slog.Logger, sendingClient pbsendsvc.SendingClient, jwtClient pbjwtsvc.JWTClient) {
+func RegisterServer(gRPC *grpc.Server, auth AuthSvc, cfg *config.Config, log *slog.Logger) {
 	pbauthsvc.RegisterAuthServer(gRPC, &serverAPI{
-		auth:          auth,
-		cfg:           cfg,
-		log:           log,
-		sendingClient: sendingClient,
-		jwtClient:     jwtClient,
+		auth: auth,
+		cfg:  cfg,
+		log:  log,
 	})
 }
 
@@ -45,20 +38,19 @@ func (s *serverAPI) Login(
 	ctx context.Context,
 	req *pbauthsvc.LoginRequest,
 ) (*pbauthsvc.LoginResponse, error) {
-	op := "server.Login"
+	const op = "grpcsrv.Login"
 
 	log := s.log.With(slog.String("op", op))
 
-	log.Info("logging user: ")
-	userId, jwt, refresh, err := s.auth.LoginUser(ctx, req.GetUsername(), req.GetPassword(), s.jwtClient)
+	uid, jwt, refresh, err := s.auth.LoginUser(ctx, req.GetUsername(), req.GetPassword())
 	if err != nil {
 		log.Error(err.Error())
 		return nil, err
 	}
-	log.Info("logged successfully userId: ", userId)
+	log.Info("logged successfully userId: ", uid)
 
 	return &pbauthsvc.LoginResponse{
-		UserId:       userId,
+		UserId:       uid,
 		JwtToken:     jwt,
 		RefreshToken: refresh,
 	}, nil

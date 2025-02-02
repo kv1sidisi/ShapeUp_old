@@ -25,18 +25,17 @@ func New(
 	sendingClient pbsendsvc.SendingClient,
 	jwtClient pbjwtsvc.JWTClient,
 ) *App {
-	log.Info("creating postgresql service")
 	storage, err := postgresql.New(postgresqlClient, log)
 	if err != nil {
-		log.Error("error creating postgresql service: ", err)
 		panic(err)
 	}
+	log.Info("postgresql storage manager created")
 
-	log.Info("creating auth service")
-	authService := authsvc.New(log, cfg, storage)
+	authService := authsvc.New(log, cfg, storage, sendingClient, jwtClient)
+	log.Info("auth service created")
 
-	log.Info("creating grpc server external_app")
-	grpcApp := intapp.New(log, cfg, authService, sendingClient, jwtClient)
+	grpcApp := intapp.New(log, cfg, authService)
+	log.Info("external GRPC server created")
 
 	return &App{
 		GRPCSrv: grpcApp,

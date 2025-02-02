@@ -16,11 +16,11 @@ func New(
 	log *slog.Logger,
 	cfg *config.Config,
 ) *App {
-	log.Info("creating jwt service")
 	jwtService := jwtsvc.New(log, cfg)
+	log.Info("jwt service created")
 
-	log.Info("creating grpc server")
 	grpcApp := intapp.New(log, cfg, jwtService)
+	log.Info("external GRPC server created")
 
 	return &App{
 		GRPCSrv: grpcApp,

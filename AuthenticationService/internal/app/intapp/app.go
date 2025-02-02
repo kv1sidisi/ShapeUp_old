@@ -1,8 +1,6 @@
 package intapp
 
 import (
-	pbjwtsvc "AuthenticationService/api/pb/jwtsvc"
-	pbsendsvc "AuthenticationService/api/pb/sendsvc"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/internal/grpc/grpcsrv"
 	"fmt"
@@ -22,15 +20,14 @@ type App struct {
 func New(
 	log *slog.Logger,
 	cfg *config.Config,
-	authService grpcsrv.Auth,
-	sendingClient pbsendsvc.SendingClient,
-	jwtClient pbjwtsvc.JWTClient,
+	authService grpcsrv.AuthSvc,
 ) *App {
 	gRPCServer := grpc.NewServer()
-	log.Info("grpc server created")
+	log.Info("GRPC server created")
 
-	log.Info("registering services in grpc server")
-	grpcsrv.RegisterServer(gRPCServer, authService, cfg, log, sendingClient, jwtClient)
+	grpcsrv.RegisterServer(gRPCServer, authService, cfg, log)
+	log.Info("services registered in GRPC server")
+
 	return &App{
 		log:        log,
 		gRPCServer: gRPCServer,
@@ -61,7 +58,7 @@ func (a *App) Run() error {
 		return err
 	}
 
-	log.Info("gRPC server is running", slog.String("addr", l.Addr().String()))
+	log.Info("GRPC server is running", slog.String("addr", l.Addr().String()))
 
 	// Start server with listener "l".
 	if err := a.gRPCServer.Serve(l); err != nil {
@@ -76,7 +73,7 @@ func (a *App) Run() error {
 func (a *App) Stop() error {
 	const op = "grpcapp.Stop"
 
-	a.log.With(slog.String("op", op)).Info("stopping gRPC server", slog.Int64("port", a.cfg.GRPC.Port))
+	a.log.With(slog.String("op", op)).Info("stopping GRPC server", slog.Int64("port", a.cfg.GRPC.Port))
 
 	a.gRPCServer.GracefulStop()
 
