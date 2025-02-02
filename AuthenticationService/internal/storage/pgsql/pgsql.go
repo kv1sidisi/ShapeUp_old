@@ -44,7 +44,7 @@ func (s *AuthMgr) FindUserByEmail(ctx context.Context,
 
 	if err := s.client.QueryRow(ctx, q, email).Scan(&user.ID, &user.Username, &user.PassHash); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.User{}, fmt.Errorf("%s: %w", op, ErrUserNotFound)
+			return models.User{}, fmt.Errorf("%s: %s", op, ErrUserNotFound)
 		}
 
 		return models.User{}, fmt.Errorf("%s: %w", op, err)
