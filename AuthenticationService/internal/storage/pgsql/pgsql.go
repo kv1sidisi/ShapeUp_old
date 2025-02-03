@@ -13,9 +13,8 @@ import (
 )
 
 const (
-	ErrUserNotFound          = "user not found"
-	ErrSessionAlreadyExists  = "session already exists"
-	codeSessionAlreadyExists = "23505"
+	ErrUserNotFound         = "user not found"
+	ErrSessionAlreadyExists = "session already exists"
 )
 
 type AuthMgr struct {
@@ -64,6 +63,14 @@ func (s *AuthMgr) AddSession(ctx context.Context,
 		"op", op,
 	)
 
+	exists, err := checkOnlineSession(ctx, log, s.client, uid)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if exists {
+		return fmt.Errorf("%s: %w", op, ErrSessionAlreadyExists)
+	}
+
 	q := `INSERT INTO sessions (user_id, access_token, refresh_token)
 			VALUES ($1, $2, $3)
 			RETURNING id`
@@ -75,20 +82,32 @@ func (s *AuthMgr) AddSession(ctx context.Context,
 	if err := s.client.QueryRow(ctx, q, uid, accessToken, refreshToken).Scan(&sessionId); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
-			newErr := fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where %s, Code: %s, SQLState: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
-			log.Info(newErr.Error())
-
-			if pgErr.Code == codeSessionAlreadyExists {
-				return fmt.Errorf(ErrSessionAlreadyExists)
-			}
-
-			return nil
+			return fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where %s, Code: %s, SQLState: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
 		}
 		return err
 	}
 
 	log.Info(fmt.Sprintf("new session: %d", sessionId))
 	return nil
+}
+
+func checkOnlineSession(ctx context.Context, log *slog.Logger, client pgsqlcl.Client, uid int64) (bool, error) {
+	q := `
+        SELECT EXISTS (
+            SELECT 1 
+            FROM sessions 
+            WHERE user_id = $1
+        )`
+
+	log.Info(fmt.Sprintf("Query: %s", removeLinesAndTabs(q)))
+
+	var exists bool
+	// Выполняем запрос и сканируем результат
+	err := client.QueryRow(ctx, q, uid).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("query error: %w", err)
+	}
+	return exists, nil
 }
 
 // removeLinesAndTabs removes \n and \t from string.
