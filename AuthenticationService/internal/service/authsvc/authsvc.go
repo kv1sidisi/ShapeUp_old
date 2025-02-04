@@ -59,7 +59,8 @@ func (as *AuthSvc) LoginUser(
 	password string,
 ) (userId int64, accessToken string, refreshToken string, err error) {
 	const op = "authsvc.LoginUser"
-	log := as.log.With(slog.String("op", op))
+	log := as.log.With(slog.String("op", op),
+		slog.String("username", username))
 
 	user, err := as.storage.FindUserByEmail(ctx, username)
 	if err != nil {

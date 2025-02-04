@@ -35,7 +35,8 @@ func (s *AuthMgr) FindUserByEmail(ctx context.Context,
 	const op = "postgresql.FindUserByEmail"
 
 	log := s.log.With(
-		slog.String("op", op))
+		slog.String("op", op),
+		slog.String("email", email))
 
 	q := `SELECT id, email, password_hash FROM users WHERE email = $1`
 
