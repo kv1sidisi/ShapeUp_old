@@ -95,16 +95,17 @@ func (r *UsrCreateSvc) RegisterNewUser(ctx context.Context, email, password stri
 	}
 	log.Info("confirmation link generated successfully: ", linkGenResp.GetLink())
 
+	// TODO: connect sending service
 	// Sending confirmation link
-	_, err = r.sendingClient.SendEmail(ctx, &pbsendsvc.EmailRequest{
-		Message: linkGenResp.GetLink(),
-		Email:   email,
-	})
-	if err != nil {
-		log.Error("failed to send confirmation link")
-		return 0, status.Error(codes.Internal, "internal error")
-	}
-	log.Info("user confirmation link sent successfully")
+	//_, err = r.sendingClient.SendEmail(ctx, &pbsendsvc.EmailRequest{
+	//	Message: linkGenResp.GetLink(),
+	//	Email:   email,
+	//})
+	//if err != nil {
+	//	log.Error("failed to send confirmation link")
+	//	return 0, status.Error(codes.Internal, "internal error")
+	//}
+	//log.Info("user confirmation link sent successfully")
 
 	return uid, nil
 }
