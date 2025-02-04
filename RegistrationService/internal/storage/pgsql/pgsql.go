@@ -77,6 +77,22 @@ func (s *UsrMgr) ConfirmAccount(ctx context.Context, uid int64) error {
 	return nil
 }
 
+func (s *UsrMgr) DeleteUser(ctx context.Context, uid int64) error {
+	const op = "pgsql.DeleteUser"
+	log := s.log.With(
+		slog.String("op", op),
+	)
+	q := `DELETE FROM users WHERE id = $1`
+
+	log.Info(fmt.Sprintf("SQL query: %s", removeLinesAndTabs(q)))
+
+	if _, err := s.client.Exec(ctx, q, uid); err != nil {
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+	return nil
+
+}
+
 // removeLinesAndTabs removes \n and \t from string.
 func removeLinesAndTabs(input string) string {
 	input = strings.ReplaceAll(input, "\n", "")

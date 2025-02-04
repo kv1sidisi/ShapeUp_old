@@ -37,6 +37,10 @@ type UsrMgr interface {
 		ctx context.Context,
 		uid int64,
 	) (err error)
+	DeleteUser(
+		ctx context.Context,
+		uid int64,
+	) (err error)
 }
 
 // New returns a new instance of UserCreation service.
@@ -91,6 +95,11 @@ func (r *UsrCreateSvc) RegisterNewUser(ctx context.Context, email, password stri
 	})
 	if err != nil {
 		log.Error("confirmation link generation failed")
+		if err := r.userSaver.DeleteUser(ctx, uid); err != nil {
+			log.Error("failed to delete user", err)
+			return 0, fmt.Errorf("%s: %w", op, err)
+		}
+		log.Error("compensating move, user deleted")
 		return 0, status.Error(codes.Internal, "internal error")
 	}
 	log.Info("confirmation link generated successfully: ", linkGenResp.GetLink())
