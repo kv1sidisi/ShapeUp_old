@@ -4,8 +4,6 @@
 // 	protoc        v5.29.3
 // source: sendsvc.proto
 
-//TODO: rename package
-
 package sendsvc
 
 import (

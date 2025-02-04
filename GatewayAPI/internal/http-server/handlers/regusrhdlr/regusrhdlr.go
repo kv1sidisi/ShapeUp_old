@@ -30,6 +30,7 @@ func New(log *slog.Logger, registerUser RegUsrSvc) http.HandlerFunc {
 
 		var req JSONRegisterRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			log.Error("failed to decode request body: ", err)
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		}
 
@@ -38,13 +39,14 @@ func New(log *slog.Logger, registerUser RegUsrSvc) http.HandlerFunc {
 
 		resp, err := registerUser.RegisterUser(req.Email, req.Password)
 		if err != nil {
-			log.Error("Failed confirming account: ", err)
+			log.Error("failed register account: ", err)
+			http.Error(w, "failed to register account", http.StatusInternalServerError)
 		}
 		log.Info("user registered successfully")
 		w.Header().Set("Content-Type", "application/json")
-		err = json.NewEncoder(w).Encode(resp)
-		//TODO: handle errors. look for better practice
-		if err != nil {
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			log.Error("failed encoding response: ", err)
+			http.Error(w, "failed to encode response", http.StatusInternalServerError)
 			return
 		}
 	}
