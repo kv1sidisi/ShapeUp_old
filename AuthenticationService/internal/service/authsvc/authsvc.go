@@ -34,6 +34,9 @@ type AuthMgr interface {
 		accessToken string,
 		refreshToken string,
 	) (err error)
+	IsUserConfirmed(ctx context.Context,
+		uid int64,
+	) (confirmed bool, err error)
 }
 
 // New returns a new instance of AuthSvc service.
@@ -58,12 +61,20 @@ func (as *AuthSvc) LoginUser(
 	const op = "authsvc.LoginUser"
 	log := as.log.With(slog.String("op", op))
 
-	//TODO: check user confirmed or not
-
 	user, err := as.storage.FindUserByEmail(ctx, username)
 	if err != nil {
 		return 0, "", "", err
 	}
+
+	isConfirmed, err := as.storage.IsUserConfirmed(ctx, user.ID)
+	if err != nil {
+		return 0, "", "", err
+	}
+	if !isConfirmed {
+		return 0, "", "", fmt.Errorf("user is not confirmed")
+	}
+
+	log.Info("user is confirmed")
 
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
 		return 0, "", "", fmt.Errorf("invalid credentials")

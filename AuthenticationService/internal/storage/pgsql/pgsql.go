@@ -39,7 +39,7 @@ func (s *AuthMgr) FindUserByEmail(ctx context.Context,
 
 	q := `SELECT id, email, password_hash FROM users WHERE email = $1`
 
-	log.Info(fmt.Sprintf("Query: %s", q))
+	log.Info(fmt.Sprintf("query: %s", q))
 
 	if err := s.client.QueryRow(ctx, q, email).Scan(&user.ID, &user.Username, &user.PassHash); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -75,7 +75,7 @@ func (s *AuthMgr) AddSession(ctx context.Context,
 			VALUES ($1, $2, $3)
 			RETURNING id`
 
-	log.Info("SQL Query: %s", removeLinesAndTabs(q))
+	log.Info("SQL query: %s", removeLinesAndTabs(q))
 
 	var sessionId int64
 
@@ -99,15 +99,36 @@ func checkOnlineSession(ctx context.Context, log *slog.Logger, client pgsqlcl.Cl
             WHERE user_id = $1
         )`
 
-	log.Info(fmt.Sprintf("Query: %s", removeLinesAndTabs(q)))
+	log.Info(fmt.Sprintf("query: %s", removeLinesAndTabs(q)))
 
 	var exists bool
-	// Выполняем запрос и сканируем результат
 	err := client.QueryRow(ctx, q, uid).Scan(&exists)
 	if err != nil {
 		return false, fmt.Errorf("query error: %w", err)
 	}
 	return exists, nil
+}
+
+// IsUserConfirmed checks if user`s account confirmed and returns true or false.
+func (s *AuthMgr) IsUserConfirmed(ctx context.Context, uid int64) (confirmed bool, err error) {
+	const op = "postgresql.IsUserConfirmed"
+	log := s.log.With(
+		slog.String("op", op))
+
+	q := `SELECT isconfirmed FROM users WHERE id = $1`
+
+	log.Info(fmt.Sprintf("query: %s", removeLinesAndTabs(q)))
+
+	var isConfirmed bool
+	if err := s.client.QueryRow(ctx, q, uid).Scan(&isConfirmed); err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			return false, fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where %s, Code: %s, SQLState: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
+		}
+		return false, err
+	}
+
+	return isConfirmed, nil
 }
 
 // removeLinesAndTabs removes \n and \t from string.
