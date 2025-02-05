@@ -1,7 +1,7 @@
 package grpcsrv
 
 import (
-	pbauthsvc "AuthenticationService/api/pb/authsvc"
+	"AuthenticationService/api/grpc/pb/authsvc"
 	"AuthenticationService/internal/config"
 	"context"
 	"google.golang.org/grpc"
@@ -19,7 +19,7 @@ type AuthSvc interface {
 
 // serverAPI represents the handler for the gRPC server.
 type serverAPI struct {
-	pbauthsvc.UnimplementedAuthServer
+	authsvc.UnimplementedAuthServer
 	auth AuthSvc
 	cfg  *config.Config
 	log  *slog.Logger
@@ -27,7 +27,7 @@ type serverAPI struct {
 
 // RegisterServer registers the request handler in the gRPC server.
 func RegisterServer(gRPC *grpc.Server, auth AuthSvc, cfg *config.Config, log *slog.Logger) {
-	pbauthsvc.RegisterAuthServer(gRPC, &serverAPI{
+	authsvc.RegisterAuthServer(gRPC, &serverAPI{
 		auth: auth,
 		cfg:  cfg,
 		log:  log,
@@ -36,8 +36,8 @@ func RegisterServer(gRPC *grpc.Server, auth AuthSvc, cfg *config.Config, log *sl
 
 func (s *serverAPI) Login(
 	ctx context.Context,
-	req *pbauthsvc.LoginRequest,
-) (*pbauthsvc.LoginResponse, error) {
+	req *authsvc.LoginRequest,
+) (*authsvc.LoginResponse, error) {
 	const op = "grpcsrv.Login"
 
 	log := s.log.With(slog.String("op", op))
@@ -49,7 +49,7 @@ func (s *serverAPI) Login(
 	}
 	log.Info("logged successfully userId: ", uid)
 
-	return &pbauthsvc.LoginResponse{
+	return &authsvc.LoginResponse{
 		UserId:       uid,
 		JwtToken:     jwt,
 		RefreshToken: refresh,

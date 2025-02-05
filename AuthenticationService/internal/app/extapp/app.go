@@ -1,8 +1,8 @@
 package extapp
 
 import (
-	pbjwtsvc "AuthenticationService/api/pb/jwtsvc"
-	pbsendsvc "AuthenticationService/api/pb/sendsvc"
+	pbjwtsvc "AuthenticationService/api/grpccl/pb/jwtsvc"
+	pbsendsvc "AuthenticationService/api/grpccl/pb/sendsvc"
 	"AuthenticationService/internal/app/intapp"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/internal/service/authsvc"

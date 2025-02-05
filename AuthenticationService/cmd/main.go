@@ -1,8 +1,8 @@
 package main
 
 import (
-	pbjwtsvc "AuthenticationService/api/pb/jwtsvc"
-	pbsendsvc "AuthenticationService/api/pb/sendsvc"
+	pbjwtsvc "AuthenticationService/api/grpccl/pb/jwtsvc"
+	pbsendsvc "AuthenticationService/api/grpccl/pb/sendsvc"
 	"AuthenticationService/internal/app/extapp"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/pkg/client/pgsqlcl"
