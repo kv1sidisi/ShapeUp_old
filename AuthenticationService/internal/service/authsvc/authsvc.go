@@ -16,7 +16,7 @@ const (
 	accessOperationType  = "access"
 )
 
-// AuthSvc struct represents the sending service and it is implementation of bottom layer of sending method of application.
+// AuthSvc struct represents the sending service, and it is implementation of bottom layer of sending method of application.
 type AuthSvc struct {
 	log           *slog.Logger
 	cfg           *config.Config
@@ -53,6 +53,7 @@ func New(log *slog.Logger,
 
 }
 
+// LoginUser service returns user id and refresh and access tokens as successful authentication.
 func (as *AuthSvc) LoginUser(
 	ctx context.Context,
 	username string,
