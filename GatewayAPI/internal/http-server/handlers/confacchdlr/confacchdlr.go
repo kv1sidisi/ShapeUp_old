@@ -14,7 +14,7 @@ type ConfAccSvc interface {
 // New creates endpoint for confirm account service.
 func New(log *slog.Logger, confirmAccount ConfAccSvc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "handlers.confirm_account"
+		const op = "handlers.confacchdlr.New"
 		log = log.With(
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),

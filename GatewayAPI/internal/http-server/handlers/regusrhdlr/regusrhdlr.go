@@ -13,13 +13,14 @@ type RegUsrSvc interface {
 	RegisterUser(email, password string) (resp *pbusrcreatesvc.RegisterResponse, err error)
 }
 
+// JSONRegisterRequest struct for json request parsing.
 type JSONRegisterRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 // New creates endpoint for register user service.
-func New(log *slog.Logger, registerUser RegUsrSvc) http.HandlerFunc {
+func New(log *slog.Logger, regUsrSvc RegUsrSvc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "regusrhdlr.register_user"
 
@@ -37,7 +38,7 @@ func New(log *slog.Logger, registerUser RegUsrSvc) http.HandlerFunc {
 		log.Info("got email: ", req.Email)
 		log.Info("got password: ", req.Password)
 
-		resp, err := registerUser.RegisterUser(req.Email, req.Password)
+		resp, err := regUsrSvc.RegisterUser(req.Email, req.Password)
 		if err != nil {
 			log.Error("failed register account: ", err)
 			http.Error(w, "failed to register account", http.StatusInternalServerError)
