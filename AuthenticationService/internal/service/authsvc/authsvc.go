@@ -1,8 +1,10 @@
 package authsvc
 
 import (
-	"AuthenticationService/api/grpccl/pb/jwtsvc"
+	pbjwtsvc "AuthenticationService/api/grpccl/pb/jwtsvc"
 	pbsendsvc "AuthenticationService/api/grpccl/pb/sendsvc"
+	"AuthenticationService/cmd/grpccl"
+	"AuthenticationService/cmd/grpccl/consts"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/internal/domain/models"
 	"context"
@@ -22,7 +24,7 @@ type AuthSvc struct {
 	cfg           *config.Config
 	storage       AuthMgr
 	sendingClient pbsendsvc.SendingClient
-	jwtClient     jwtsvc.JWTClient
+	jwtClient     pbjwtsvc.JWTClient
 }
 
 type AuthMgr interface {
@@ -43,13 +45,14 @@ type AuthMgr interface {
 func New(log *slog.Logger,
 	cfg *config.Config,
 	storage AuthMgr,
-	sendingClient pbsendsvc.SendingClient,
-	jwtClient jwtsvc.JWTClient) *AuthSvc {
+	grpccl *grpccl.GRPCClients,
+) *AuthSvc {
 	return &AuthSvc{log: log,
 		storage:       storage,
 		cfg:           cfg,
-		sendingClient: sendingClient,
-		jwtClient:     jwtClient}
+		sendingClient: grpccl.Cl[consts.SendSvc].Client.(pbsendsvc.SendingClient),
+		jwtClient:     grpccl.Cl[consts.JWTSvc].Client.(pbjwtsvc.JWTClient),
+	}
 
 }
 
@@ -82,7 +85,7 @@ func (as *AuthSvc) LoginUser(
 		return 0, "", "", fmt.Errorf("invalid credentials")
 	}
 
-	accessTokenGenResp, err := as.jwtClient.GenerateAccessToken(ctx, &jwtsvc.AccessTokenRequest{
+	accessTokenGenResp, err := as.jwtClient.GenerateAccessToken(ctx, &pbjwtsvc.AccessTokenRequest{
 		Uid:       user.ID,
 		Operation: accessOperationType,
 	})
@@ -92,7 +95,7 @@ func (as *AuthSvc) LoginUser(
 	accessToken = accessTokenGenResp.GetToken()
 	log.Info("access token generated", slog.String("accessToken", accessToken))
 
-	refreshTokenGenResp, err := as.jwtClient.GenerateRefreshToken(ctx, &jwtsvc.RefreshTokenRequest{
+	refreshTokenGenResp, err := as.jwtClient.GenerateRefreshToken(ctx, &pbjwtsvc.RefreshTokenRequest{
 		Uid:       user.ID,
 		Operation: refreshOperationType,
 	})

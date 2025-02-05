@@ -1,10 +1,10 @@
 package grpccl
 
 import (
-	pbjwtsvc "RegistrationService/api/grpccl/pb/jwtsvc"
-	pbsendsvc "RegistrationService/api/grpccl/pb/sendsvc"
-	"RegistrationService/cmd/grpccl/consts"
-	"RegistrationService/internal/config"
+	pbjwtsvc "AuthenticationService/api/grpccl/pb/jwtsvc"
+	pbsendsvc "AuthenticationService/api/grpccl/pb/sendsvc"
+	"AuthenticationService/cmd/grpccl/consts"
+	"AuthenticationService/internal/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log/slog"

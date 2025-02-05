@@ -4,6 +4,7 @@ import (
 	pbjwtsvc "RegistrationService/api/grpccl/pb/jwtsvc"
 	pbsendsvc "RegistrationService/api/grpccl/pb/sendsvc"
 	"RegistrationService/cmd/grpccl"
+	"RegistrationService/cmd/grpccl/consts"
 	"RegistrationService/internal/storage"
 	"context"
 	"errors"
@@ -52,8 +53,8 @@ func New(log *slog.Logger,
 	return &UsrCreateSvc{
 		userSaver:     userSaver,
 		log:           log,
-		sendingClient: grpccl.Cl["sendsvc"].Client.(pbsendsvc.SendingClient),
-		jwtClient:     grpccl.Cl["jwtsvc"].Client.(pbjwtsvc.JWTClient),
+		sendingClient: grpccl.Cl[consts.SendSvc].Client.(pbsendsvc.SendingClient),
+		jwtClient:     grpccl.Cl[consts.JWTSvc].Client.(pbjwtsvc.JWTClient),
 	}
 }
 

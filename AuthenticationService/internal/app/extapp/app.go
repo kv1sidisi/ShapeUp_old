@@ -1,8 +1,7 @@
 package extapp
 
 import (
-	pbjwtsvc "AuthenticationService/api/grpccl/pb/jwtsvc"
-	pbsendsvc "AuthenticationService/api/grpccl/pb/sendsvc"
+	"AuthenticationService/cmd/grpccl"
 	"AuthenticationService/internal/app/intapp"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/internal/service/authsvc"
@@ -22,8 +21,8 @@ func New(
 	log *slog.Logger,
 	cfg *config.Config,
 	postgresqlClient *pgxpool.Pool,
-	sendingClient pbsendsvc.SendingClient,
-	jwtClient pbjwtsvc.JWTClient,
+	grpccl *grpccl.GRPCClients,
+
 ) *App {
 	storage, err := postgresql.New(postgresqlClient, log)
 	if err != nil {
@@ -31,7 +30,7 @@ func New(
 	}
 	log.Info("postgresql storage manager created")
 
-	authService := authsvc.New(log, cfg, storage, sendingClient, jwtClient)
+	authService := authsvc.New(log, cfg, storage, grpccl)
 	log.Info("auth service created")
 
 	grpcApp := intapp.New(log, cfg, authService)

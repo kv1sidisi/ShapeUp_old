@@ -1,8 +1,7 @@
 package main
 
 import (
-	pbjwtsvc "AuthenticationService/api/grpccl/pb/jwtsvc"
-	pbsendsvc "AuthenticationService/api/grpccl/pb/sendsvc"
+	"AuthenticationService/cmd/grpccl"
 	"AuthenticationService/internal/app/extapp"
 	"AuthenticationService/internal/config"
 	"AuthenticationService/pkg/client/pgsqlcl"
@@ -32,17 +31,11 @@ func main() {
 	postgresqlClient := mustConnectToDatabase(cfg, log)
 	log.Info("connected to database")
 
-	sendingServiceConn := mustConnectToGRPC(cfg.GRPCClient.SendingServiceAddress, log)
-	defer sendingServiceConn.Close()
-	sendingClient := pbsendsvc.NewSendingClient(sendingServiceConn)
-	log.Info("GRPC SendingService connected", slog.String("address", cfg.GRPCClient.SendingServiceAddress))
+	//connecting grpc clients
+	clients := grpccl.New(log, cfg)
+	defer clients.Close()
 
-	jwtServiceConn := mustConnectToGRPC(cfg.GRPCClient.JWTServiceAddress, log)
-	defer jwtServiceConn.Close()
-	jwtClient := pbjwtsvc.NewJWTClient(jwtServiceConn)
-	log.Info("GRPC JWTService connected", slog.String("address", cfg.GRPCClient.JWTServiceAddress))
-
-	application := extapp.New(log, cfg, postgresqlClient, sendingClient, jwtClient)
+	application := extapp.New(log, cfg, postgresqlClient, clients)
 	log.Info("application created")
 
 	go application.GRPCSrv.MustRun()

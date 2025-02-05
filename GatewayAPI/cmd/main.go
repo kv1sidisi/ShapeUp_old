@@ -3,6 +3,8 @@ package main
 import (
 	pbauthsvc "GatewayAPI/api/grpccl/pb/authsvc"
 	pbusrcreatesvc "GatewayAPI/api/grpccl/pb/usrcreatesvc"
+	"GatewayAPI/cmd/grpccl"
+	"GatewayAPI/cmd/grpccl/consts"
 	"GatewayAPI/internal/config"
 	"GatewayAPI/internal/http-server/handlers/authhdlr"
 	"GatewayAPI/internal/http-server/handlers/confacchdlr"
@@ -13,8 +15,6 @@ import (
 	"GatewayAPI/internal/service/regusrsvc"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log/slog"
 	"net/http"
 	"os"
@@ -40,35 +40,21 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	usrCreateSvcConn, err := grpc.NewClient(cfg.GRPC.UserCreationServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Error("failed to create GRPC client connection to confirm account service: ", err)
-		panic(err)
-	}
-	defer usrCreateSvcConn.Close()
-	usrCreateClient := pbusrcreatesvc.NewUserCreationClient(usrCreateSvcConn)
-	log.Info("GRPC RegistrationService connected", slog.String("address", cfg.GRPC.UserCreationServiceAddress))
+	//connecting grpc clients
+	clients := grpccl.New(log, cfg)
+	defer clients.Close()
 
-	confAccSvc := confaccsvc.New(log, usrCreateClient)
+	confAccSvc := confaccsvc.New(log, clients.Cl[consts.UsrCreateSvc].Client.(pbusrcreatesvc.UserCreationClient))
 	log.Info("confirm account service registered")
 	router.Get("/confirm_account", confacchdlr.New(log, confAccSvc))
 	log.Info("confirm_account endpoint registered")
 
-	regUsrSvc := regusrsvc.New(log, usrCreateClient)
+	regUsrSvc := regusrsvc.New(log, clients.Cl[consts.ConfAccSvc].Client.(pbusrcreatesvc.UserCreationClient))
 	log.Info("register user service registered")
 	router.Post("/register_user", regusrhdlr.New(log, regUsrSvc))
 	log.Info("register user endpoint registered")
 
-	authSvcConn, err := grpc.NewClient(cfg.GRPC.AuthenticationServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Error("failed to create GRPC client connection to confirm account service: ", err)
-		panic(err)
-	}
-	defer authSvcConn.Close()
-	authSvcClient := pbauthsvc.NewAuthClient(authSvcConn)
-	log.Info("GRPC AuthService connected", slog.String("address", cfg.GRPC.AuthenticationServiceAddress))
-
-	authSvc := authsvc.New(log, authSvcClient)
+	authSvc := authsvc.New(log, clients.Cl[consts.AuthSvc].Client.(pbauthsvc.AuthClient))
 	log.Info("authentication service registered")
 	router.Get("/login", authhdlr.New(log, authSvc))
 	log.Info("authentication endpoint registered")
