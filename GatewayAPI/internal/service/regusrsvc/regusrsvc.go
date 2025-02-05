@@ -34,6 +34,6 @@ func (ru *RegUsrSvc) RegisterUser(email string, password string) (resp *pbusrcre
 		return nil, err
 	}
 
-	log.Info("registered account ", slog.Int64("userId", resp.UserId))
+	log.Info("registered account ", slog.Int64("userId", resp.GetUserId()))
 	return resp, nil
 }
