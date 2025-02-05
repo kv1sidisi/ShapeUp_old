@@ -1,6 +1,7 @@
 package main
 
 import (
+	pbauthsvc "GatewayAPI/api/grpccl/pb/authsvc"
 	pbusrcreatesvc "GatewayAPI/api/grpccl/pb/usrcreatesvc"
 	"GatewayAPI/internal/config"
 	"GatewayAPI/internal/http-server/handlers/confacchdlr"
@@ -37,24 +38,33 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	conn, err := grpc.NewClient(cfg.GRPC.ConfirmAccountAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	usrCreateSvcConn, err := grpc.NewClient(cfg.GRPC.UserCreationServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Error("failed to create GRPC client connection to confirm account service: ", err)
 		panic(err)
 	}
-	defer conn.Close()
-	client := pbusrcreatesvc.NewUserCreationClient(conn)
-	log.Info("GRPC RegistrationService connected", slog.String("address", cfg.GRPC.ConfirmAccountAddress))
+	defer usrCreateSvcConn.Close()
+	usrCreateClient := pbusrcreatesvc.NewUserCreationClient(usrCreateSvcConn)
+	log.Info("GRPC RegistrationService connected", slog.String("address", cfg.GRPC.UserCreationServiceAddress))
 
-	confAccSvc := confaccsvc.New(log, client)
+	confAccSvc := confaccsvc.New(log, usrCreateClient)
 	log.Info("confirm account service registered")
 	router.Get("/confirm_account", confacchdlr.New(log, confAccSvc))
 	log.Info("confirm_account endpoint registered")
 
-	regUsrSvc := regusrsvc.New(log, client)
+	regUsrSvc := regusrsvc.New(log, usrCreateClient)
 	log.Info("register user service registered")
 	router.Post("/register_user", regusrhdlr.New(log, regUsrSvc))
 	log.Info("register user endpoint registered")
+
+	authSvcConn, err := grpc.NewClient(cfg.GRPC.AuthenticationServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Error("failed to create GRPC client connection to confirm account service: ", err)
+		panic(err)
+	}
+	defer authSvcConn.Close()
+	authSvcClient := pbauthsvc.NewAuthClient(authSvcConn)
+	log.Info("GRPC AuthService connected", slog.String("address", cfg.GRPC.AuthenticationServiceAddress))
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 	srv := &http.Server{
