@@ -1,8 +1,8 @@
 package main
 
 import (
-	pbjwtsvc "RegistrationService/api/pb/jwtsvc"
-	pbsendsvc "RegistrationService/api/pb/sendsvc"
+	pbjwtsvc "RegistrationService/api/grpccl/pb/jwtsvc"
+	pbsendsvc "RegistrationService/api/grpccl/pb/sendsvc"
 	"RegistrationService/internal/app/extapp"
 	"RegistrationService/internal/config"
 	"RegistrationService/pkg/client/pgsqlcl"

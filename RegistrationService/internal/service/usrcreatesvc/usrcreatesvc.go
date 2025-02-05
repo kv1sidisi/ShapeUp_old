@@ -1,8 +1,8 @@
 package usrcreatesvc
 
 import (
-	pbjwtsvc "RegistrationService/api/pb/jwtsvc"
-	pbsendsvc "RegistrationService/api/pb/sendsvc"
+	"RegistrationService/api/grpccl/pb/jwtsvc"
+	pbsendsvc "RegistrationService/api/grpccl/pb/sendsvc"
 	"RegistrationService/internal/storage"
 	"context"
 	"errors"
@@ -23,7 +23,7 @@ type UsrCreateSvc struct {
 	log           *slog.Logger
 	userSaver     UsrMgr
 	sendingClient pbsendsvc.SendingClient
-	jwtClient     pbjwtsvc.JWTClient
+	jwtClient     jwtsvc.JWTClient
 }
 
 // UsrMgr interface defines the method for saving user information in database.
@@ -47,7 +47,7 @@ type UsrMgr interface {
 func New(log *slog.Logger,
 	userSaver UsrMgr,
 	sendingClient pbsendsvc.SendingClient,
-	jwtClient pbjwtsvc.JWTClient,
+	jwtClient jwtsvc.JWTClient,
 ) *UsrCreateSvc {
 	return &UsrCreateSvc{
 		userSaver:     userSaver,
@@ -88,7 +88,7 @@ func (r *UsrCreateSvc) RegisterNewUser(ctx context.Context, email, password stri
 	log.Info("user successfully saved: ", slog.Int64("userId", uid))
 
 	// Generating confirmation link
-	linkGenResp, err := r.jwtClient.GenerateLink(ctx, &pbjwtsvc.GenerateLinkRequest{
+	linkGenResp, err := r.jwtClient.GenerateLink(ctx, &jwtsvc.GenerateLinkRequest{
 		LinkBase:  confirmAccountLinkBase,
 		Uid:       uid,
 		Operation: confirmationOperationType,
@@ -129,7 +129,7 @@ func (r *UsrCreateSvc) ConfirmNewUser(ctx context.Context, token string) (uid in
 		slog.String("token", token),
 	)
 
-	validationResp, err := r.jwtClient.ValidateAccessToken(ctx, &pbjwtsvc.ValidateAccessTokenRequest{
+	validationResp, err := r.jwtClient.ValidateAccessToken(ctx, &jwtsvc.ValidateAccessTokenRequest{
 		Token: token,
 	})
 	if err != nil {

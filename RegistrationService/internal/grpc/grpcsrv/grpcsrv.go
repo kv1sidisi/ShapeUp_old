@@ -1,7 +1,7 @@
 package grpcsrv
 
 import (
-	pbusrcreate "RegistrationService/api/pb/usrcreatesvc"
+	usrcreatesvc2 "RegistrationService/api/grpc/pb/usrcreatesvc"
 	"RegistrationService/internal/config"
 	"RegistrationService/internal/storage"
 	"context"
@@ -30,7 +30,7 @@ type UsrCreateSvc interface {
 
 // serverAPI represents the handler for the gRPC server.
 type serverAPI struct {
-	pbusrcreate.UnimplementedUserCreationServer
+	usrcreatesvc2.UnimplementedUserCreationServer
 	userCreation UsrCreateSvc
 	cfg          *config.Config
 	log          *slog.Logger
@@ -42,7 +42,7 @@ func RegisterServer(gRPC *grpc.Server,
 	cfg *config.Config,
 	log *slog.Logger,
 ) {
-	pbusrcreate.RegisterUserCreationServer(
+	usrcreatesvc2.RegisterUserCreationServer(
 		gRPC,
 		&serverAPI{
 			userCreation: userCreation,
@@ -54,8 +54,8 @@ func RegisterServer(gRPC *grpc.Server,
 // Register is the gRPC server handler method, the top layer of the registration process.
 func (s *serverAPI) Register(
 	ctx context.Context,
-	req *pbusrcreate.RegisterRequest,
-) (*pbusrcreate.RegisterResponse, error) {
+	req *usrcreatesvc2.RegisterRequest,
+) (*usrcreatesvc2.RegisterResponse, error) {
 	const op = "grpcsrv.Register"
 	log := s.log.With(slog.String("op", op))
 
@@ -77,13 +77,13 @@ func (s *serverAPI) Register(
 	log.Info("user registered successfully")
 
 	// Return the response with the user ID
-	return &pbusrcreate.RegisterResponse{
+	return &usrcreatesvc2.RegisterResponse{
 		UserId: userId,
 	}, nil
 }
 
 // validateRegisterRequest performs validation on the registration request.
-func validateRegisterRequest(req *pbusrcreate.RegisterRequest) error {
+func validateRegisterRequest(req *usrcreatesvc2.RegisterRequest) error {
 	// Validate email
 	if !govalidator.IsEmail(req.GetEmail()) {
 		return errors.New("incorrect email address")
@@ -104,8 +104,8 @@ func validateRegisterRequest(req *pbusrcreate.RegisterRequest) error {
 
 // Confirm is the gRPC server handler method, the top layer of the registration process.
 func (s *serverAPI) Confirm(ctx context.Context,
-	req *pbusrcreate.ConfirmRequest,
-) (*pbusrcreate.ConfirmResponse, error) {
+	req *usrcreatesvc2.ConfirmRequest,
+) (*usrcreatesvc2.ConfirmResponse, error) {
 
 	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt)
 	if err != nil {
@@ -116,7 +116,7 @@ func (s *serverAPI) Confirm(ctx context.Context,
 	}
 	s.log.Info("user confirmed")
 
-	return &pbusrcreate.ConfirmResponse{
+	return &usrcreatesvc2.ConfirmResponse{
 		UserId: userId,
 	}, nil
 }

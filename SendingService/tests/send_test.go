@@ -1,7 +1,7 @@
 package tests
 
 import (
-	pbsendsvc "SendingService/api/pb/sendsvc"
+	pbsendsvc "SendingService/api/grpc/pb/sendsvc"
 	"SendingService/tests/suite"
 	"github.com/stretchr/testify/require"
 	"testing"
