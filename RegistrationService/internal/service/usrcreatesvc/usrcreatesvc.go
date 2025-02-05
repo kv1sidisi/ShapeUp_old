@@ -1,8 +1,9 @@
 package usrcreatesvc
 
 import (
-	"RegistrationService/api/grpccl/pb/jwtsvc"
+	pbjwtsvc "RegistrationService/api/grpccl/pb/jwtsvc"
 	pbsendsvc "RegistrationService/api/grpccl/pb/sendsvc"
+	"RegistrationService/cmd/grpccl"
 	"RegistrationService/internal/storage"
 	"context"
 	"errors"
@@ -23,7 +24,7 @@ type UsrCreateSvc struct {
 	log           *slog.Logger
 	userSaver     UsrMgr
 	sendingClient pbsendsvc.SendingClient
-	jwtClient     jwtsvc.JWTClient
+	jwtClient     pbjwtsvc.JWTClient
 }
 
 // UsrMgr interface defines the method for saving user information in database.
@@ -46,14 +47,13 @@ type UsrMgr interface {
 // New returns a new instance of UserCreation service.
 func New(log *slog.Logger,
 	userSaver UsrMgr,
-	sendingClient pbsendsvc.SendingClient,
-	jwtClient jwtsvc.JWTClient,
+	grpccl *grpccl.GRPCClients,
 ) *UsrCreateSvc {
 	return &UsrCreateSvc{
 		userSaver:     userSaver,
 		log:           log,
-		sendingClient: sendingClient,
-		jwtClient:     jwtClient,
+		sendingClient: grpccl.Cl["sendsvc"].Client.(pbsendsvc.SendingClient),
+		jwtClient:     grpccl.Cl["jwtsvc"].Client.(pbjwtsvc.JWTClient),
 	}
 }
 
@@ -88,13 +88,13 @@ func (r *UsrCreateSvc) RegisterNewUser(ctx context.Context, email, password stri
 	log.Info("user successfully saved: ", slog.Int64("userId", uid))
 
 	// Generating confirmation link
-	linkGenResp, err := r.jwtClient.GenerateLink(ctx, &jwtsvc.GenerateLinkRequest{
+	linkGenResp, err := r.jwtClient.GenerateLink(ctx, &pbjwtsvc.GenerateLinkRequest{
 		LinkBase:  confirmAccountLinkBase,
 		Uid:       uid,
 		Operation: confirmationOperationType,
 	})
 	if err != nil {
-		log.Error("confirmation link generation failed")
+		log.Error("confirmation link generation failed", err)
 		if err := r.userSaver.DeleteUser(ctx, uid); err != nil {
 			log.Error("failed to delete user", err)
 			return 0, fmt.Errorf("%s: %w", op, err)
@@ -129,7 +129,7 @@ func (r *UsrCreateSvc) ConfirmNewUser(ctx context.Context, token string) (uid in
 		slog.String("token", token),
 	)
 
-	validationResp, err := r.jwtClient.ValidateAccessToken(ctx, &jwtsvc.ValidateAccessTokenRequest{
+	validationResp, err := r.jwtClient.ValidateAccessToken(ctx, &pbjwtsvc.ValidateAccessTokenRequest{
 		Token: token,
 	})
 	if err != nil {

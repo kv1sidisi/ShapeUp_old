@@ -1,15 +1,12 @@
 package main
 
 import (
-	pbjwtsvc "RegistrationService/api/grpccl/pb/jwtsvc"
-	pbsendsvc "RegistrationService/api/grpccl/pb/sendsvc"
+	"RegistrationService/cmd/grpccl"
 	"RegistrationService/internal/app/extapp"
 	"RegistrationService/internal/config"
 	"RegistrationService/pkg/client/pgsqlcl"
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -32,17 +29,11 @@ func main() {
 	postgresqlClient := mustConnectToDatabase(cfg, log)
 	log.Info("connected to database")
 
-	sendingServiceConn := mustConnectToGRPC(cfg.GRPCClient.SendingServiceAddress, log)
-	defer sendingServiceConn.Close()
-	sendingClient := pbsendsvc.NewSendingClient(sendingServiceConn)
-	log.Info("GRPC SendingService connected", slog.String("address", cfg.GRPCClient.SendingServiceAddress))
+	//connecting grpc clients
+	clients := grpccl.New(log, cfg)
+	defer clients.Close()
 
-	jwtServiceConn := mustConnectToGRPC(cfg.GRPCClient.JWTServiceAddress, log)
-	defer jwtServiceConn.Close()
-	jwtClient := pbjwtsvc.NewJWTClient(jwtServiceConn)
-	log.Info("GRPC JWTService connected", slog.String("address", cfg.GRPCClient.JWTServiceAddress))
-
-	application := extapp.New(log, cfg, postgresqlClient, sendingClient, jwtClient)
+	application := extapp.New(log, cfg, postgresqlClient, clients)
 	log.Info("application created")
 
 	go application.GRPCSrv.MustRun()
@@ -92,12 +83,4 @@ func setupDatabaseConnection(cfg *config.Config, log *slog.Logger) (*pgxpool.Poo
 		return nil, err
 	}
 	return postgresqlClient, nil
-}
-
-func mustConnectToGRPC(address string, log *slog.Logger) *grpc.ClientConn {
-	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
-	return conn
 }
