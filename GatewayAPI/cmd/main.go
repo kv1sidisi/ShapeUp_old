@@ -4,9 +4,11 @@ import (
 	pbauthsvc "GatewayAPI/api/grpccl/pb/authsvc"
 	pbusrcreatesvc "GatewayAPI/api/grpccl/pb/usrcreatesvc"
 	"GatewayAPI/internal/config"
+	"GatewayAPI/internal/http-server/handlers/authhdlr"
 	"GatewayAPI/internal/http-server/handlers/confacchdlr"
 	"GatewayAPI/internal/http-server/handlers/regusrhdlr"
 	"GatewayAPI/internal/http-server/middleware/logger"
+	"GatewayAPI/internal/service/authsvc"
 	"GatewayAPI/internal/service/confaccsvc"
 	"GatewayAPI/internal/service/regusrsvc"
 	"github.com/go-chi/chi"
@@ -65,6 +67,11 @@ func main() {
 	defer authSvcConn.Close()
 	authSvcClient := pbauthsvc.NewAuthClient(authSvcConn)
 	log.Info("GRPC AuthService connected", slog.String("address", cfg.GRPC.AuthenticationServiceAddress))
+
+	authSvc := authsvc.New(log, authSvcClient)
+	log.Info("authentication service registered")
+	router.Get("/login", authhdlr.New(log, authSvc))
+	log.Info("authentication endpoint registered")
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 	srv := &http.Server{
