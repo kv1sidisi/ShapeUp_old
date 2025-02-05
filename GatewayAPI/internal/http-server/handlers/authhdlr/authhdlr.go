@@ -31,9 +31,6 @@ func New(log *slog.Logger, authSvc AuthSvc) http.HandlerFunc {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		}
 
-		log.Info("got username: ", req.Username)
-		log.Info("got password: ", req.Password)
-
 		resp, err := authSvc.Login(req.Username, req.Password)
 		if err != nil {
 			log.Error("failed log user in: ", err)

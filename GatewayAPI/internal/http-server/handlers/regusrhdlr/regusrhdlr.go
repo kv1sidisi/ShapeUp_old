@@ -35,9 +35,6 @@ func New(log *slog.Logger, regUsrSvc RegUsrSvc) http.HandlerFunc {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		}
 
-		log.Info("got email: ", req.Email)
-		log.Info("got password: ", req.Password)
-
 		resp, err := regUsrSvc.RegisterUser(req.Email, req.Password)
 		if err != nil {
 			log.Error("failed register account: ", err)
