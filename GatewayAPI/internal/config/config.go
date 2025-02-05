@@ -20,7 +20,8 @@ type HTTPServer struct {
 }
 
 type GRPC struct {
-	ConfirmAccountAddress string `yaml:"confirm_account_address" env-required:"true"`
+	UserCreationServiceAddress   string `yaml:"user_creation_service_address" env-required:"true"`
+	AuthenticationServiceAddress string `yaml:"authentication_service_address" env-required:"true"`
 }
 
 // MustLoad gets config path and panics if there is any errors in parsing config.
