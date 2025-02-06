@@ -4,5 +4,5 @@ http_server:
   timeout: 4s
   idle_timeout: 30s
 grpc_client:
-  user_creation_service_address: "localhost:44044"
-  authentication_service_address: "localhost:22022"
+  user_creation_service_address: "localhost:10002"
+  authentication_service_address: "localhost:10004"

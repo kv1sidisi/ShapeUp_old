@@ -3,5 +3,5 @@ jwt:
   access_token_secret_key: "oosndoiebovubovnosnvojsnvoevoneokvnoskmokcsgoenovneovnsojnsojvnosjvnosjvojsoienogineoinodivndoiv"
   refresh_token_secret_key: "oignoievnoienvoienvoinwoignwoisfnpisnfinsoneovnoisfnvoiensvoiwnsofinsoifneoisnvoiesnvoisnoisgnovi"
 grpc:
-  port: 11011
+  port: 10003
   timeout: 10h
