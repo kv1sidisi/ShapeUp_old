@@ -24,7 +24,7 @@ func New(
 	grpccl *grpccl.GRPCClients,
 
 ) *App {
-	storage, err := postgresql.New(postgresqlClient, log)
+	storage, err := pgsql.New(postgresqlClient, log)
 	if err != nil {
 		panic(err)
 	}

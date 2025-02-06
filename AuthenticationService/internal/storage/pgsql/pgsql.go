@@ -1,4 +1,4 @@
-package postgresql
+package pgsql
 
 import (
 	"AuthenticationService/internal/domain/models"
@@ -8,6 +8,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jackc/pgconn"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"log/slog"
 	"strings"
 )
@@ -29,6 +31,7 @@ func New(client pgsqlcl.Client, log *slog.Logger) (*AuthMgr, error) {
 	}, nil
 }
 
+// FindUserByEmail looks for user model in users db table using email.
 func (s *AuthMgr) FindUserByEmail(ctx context.Context,
 	email string,
 ) (user models.User, err error) {
@@ -44,15 +47,16 @@ func (s *AuthMgr) FindUserByEmail(ctx context.Context,
 
 	if err := s.client.QueryRow(ctx, q, email).Scan(&user.ID, &user.Username, &user.PassHash); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.User{}, fmt.Errorf("%s: %s", op, ErrUserNotFound)
+			return models.User{}, status.Error(codes.NotFound, ErrUserNotFound)
 		}
 
-		return models.User{}, fmt.Errorf("%s: %w", op, err)
+		return models.User{}, status.Error(codes.Internal, err.Error())
 	}
 
 	return user, nil
 }
 
+// AddSession adds new session to sessions db table.
 func (s *AuthMgr) AddSession(ctx context.Context,
 	uid int64,
 	accessToken string,
@@ -66,10 +70,10 @@ func (s *AuthMgr) AddSession(ctx context.Context,
 
 	exists, err := checkOnlineSession(ctx, log, s.client, uid)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return err
 	}
 	if exists {
-		return fmt.Errorf("%s: %w", op, ErrSessionAlreadyExists)
+		return status.Error(codes.AlreadyExists, ErrSessionAlreadyExists)
 	}
 
 	q := `INSERT INTO sessions (user_id, access_token, refresh_token)
@@ -83,15 +87,16 @@ func (s *AuthMgr) AddSession(ctx context.Context,
 	if err := s.client.QueryRow(ctx, q, uid, accessToken, refreshToken).Scan(&sessionId); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
-			return fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where %s, Code: %s, SQLState: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
+			return status.Error(codes.Internal, fmt.Sprintf("SQL Error: %s, Detail: %s, Where %s, Code: %s, SQLState: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
 		}
-		return err
+		return status.Error(codes.Internal, err.Error())
 	}
 
 	log.Info(fmt.Sprintf("new session: %d", sessionId))
 	return nil
 }
 
+// checkOnlineSession returns true is session with user already exists in session db table.
 func checkOnlineSession(ctx context.Context, log *slog.Logger, client pgsqlcl.Client, uid int64) (bool, error) {
 	q := `
         SELECT EXISTS (
@@ -105,7 +110,7 @@ func checkOnlineSession(ctx context.Context, log *slog.Logger, client pgsqlcl.Cl
 	var exists bool
 	err := client.QueryRow(ctx, q, uid).Scan(&exists)
 	if err != nil {
-		return false, fmt.Errorf("query error: %w", err)
+		return false, status.Error(codes.Internal, err.Error())
 	}
 	return exists, nil
 }
@@ -124,9 +129,9 @@ func (s *AuthMgr) IsUserConfirmed(ctx context.Context, uid int64) (confirmed boo
 	if err := s.client.QueryRow(ctx, q, uid).Scan(&isConfirmed); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
-			return false, fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where %s, Code: %s, SQLState: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
+			return false, status.Error(codes.Internal, fmt.Sprintf("SQL Error: %s, Detail: %s, Where %s, Code: %s, SQLState: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
 		}
-		return false, err
+		return false, status.Error(codes.Internal, err.Error())
 	}
 
 	return isConfirmed, nil

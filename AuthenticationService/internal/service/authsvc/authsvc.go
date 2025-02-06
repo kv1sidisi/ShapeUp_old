@@ -8,14 +8,20 @@ import (
 	"AuthenticationService/internal/config"
 	"AuthenticationService/internal/domain/models"
 	"context"
-	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"log/slog"
 )
 
 const (
 	refreshOperationType = "refresh"
 	accessOperationType  = "access"
+)
+
+const (
+	ErrUsrNotConfirmed = "user not confirmed"
+	ErrWrongUsrOrPass  = "wrong username or pass"
 )
 
 // AuthSvc struct represents the sending service, and it is implementation of bottom layer of sending method of application.
@@ -76,13 +82,13 @@ func (as *AuthSvc) LoginUser(
 		return 0, "", "", err
 	}
 	if !isConfirmed {
-		return 0, "", "", fmt.Errorf("user is not confirmed")
+		return 0, "", "", status.Error(codes.PermissionDenied, ErrUsrNotConfirmed)
 	}
 
 	log.Info("user is confirmed")
 
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
-		return 0, "", "", fmt.Errorf("invalid credentials")
+		return 0, "", "", status.Error(codes.Unauthenticated, ErrWrongUsrOrPass)
 	}
 
 	accessTokenGenResp, err := as.jwtClient.GenerateAccessToken(ctx, &pbjwtsvc.AccessTokenRequest{
@@ -90,6 +96,7 @@ func (as *AuthSvc) LoginUser(
 		Operation: accessOperationType,
 	})
 	if err != nil {
+		//TODO: check error from jwtClient
 		return 0, "", "", err
 	}
 	accessToken = accessTokenGenResp.GetToken()
@@ -100,6 +107,7 @@ func (as *AuthSvc) LoginUser(
 		Operation: refreshOperationType,
 	})
 	if err != nil {
+		//TODO: check error from jwtClient
 		return 0, "", "", err
 	}
 	refreshToken = refreshTokenGenResp.GetToken()
