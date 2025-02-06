@@ -6,7 +6,16 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"log/slog"
+)
+
+const (
+	InvalidUserId        = "invalid user id"
+	InvalidOperationType = "invalid operation type"
+	InvalidToken         = "invalid token"
+	InvalidLinkBase      = "invalid link base"
 )
 
 type JWTSvc interface {
@@ -41,11 +50,11 @@ func (s *ServerAPI) GenerateAccessToken(ctx context.Context,
 
 	if req.GetUid() == 0 {
 		log.Error("invalid uid in request:", req.GetUid())
-		return nil, fmt.Errorf("invalid uid in request")
+		return nil, status.Error(codes.InvalidArgument, InvalidUserId)
 	}
 	if len(req.GetOperation()) == 0 {
 		log.Error("invalid operation in request: ", req.GetUid())
-		return nil, fmt.Errorf("invalid operation in request")
+		return nil, status.Error(codes.InvalidArgument, InvalidOperationType)
 	}
 
 	token, err := s.jwtService.GenerateAccessToken(ctx, req.GetUid(), req.GetOperation(), s.cfg.JWT.AccessTokenSecretKey)
@@ -70,11 +79,11 @@ func (s *ServerAPI) GenerateRefreshToken(ctx context.Context,
 
 	if req.GetUid() == 0 {
 		log.Error("invalid uid in request")
-		return nil, fmt.Errorf("invalid uid in request")
+		return nil, status.Error(codes.InvalidArgument, InvalidUserId)
 	}
 	if len(req.GetOperation()) == 0 {
 		log.Error("invalid operation in request")
-		return nil, fmt.Errorf("invalid operation in request")
+		return nil, status.Error(codes.InvalidArgument, InvalidOperationType)
 	}
 
 	token, err := s.jwtService.GenerateRefreshToken(ctx, req.GetUid(), req.GetOperation(), s.cfg.JWT.AccessTokenSecretKey)
@@ -99,6 +108,7 @@ func (s *ServerAPI) ValidateAccessToken(ctx context.Context,
 
 	if len(req.GetToken()) == 0 {
 		log.Error("invalid token in request")
+		return nil, status.Error(codes.InvalidArgument, InvalidToken)
 	}
 
 	uid, operation, err := s.jwtService.ValidateAccessToken(ctx, req.GetToken(), s.cfg.JWT.AccessTokenSecretKey)
@@ -124,6 +134,7 @@ func (s *ServerAPI) ValidateRefreshToken(ctx context.Context,
 
 	if len(req.GetToken()) == 0 {
 		log.Error("invalid token in request")
+		return nil, status.Error(codes.InvalidArgument, InvalidToken)
 	}
 
 	uid, operation, err := s.jwtService.ValidateRefreshToken(ctx, req.GetToken(), s.cfg.JWT.RefreshTokenSecretKey)
@@ -168,15 +179,15 @@ func (s *ServerAPI) GenerateLink(ctx context.Context,
 
 func validateGenerateLinkRequest(req *jwtsvc.GenerateLinkRequest) error {
 	if req.GetUid() == 0 {
-		return fmt.Errorf("invalid uid in request")
+		return status.Error(codes.InvalidArgument, InvalidUserId)
 	}
 
 	if req.GetOperation() == "" {
-		return fmt.Errorf("invalid operation in request")
+		return status.Error(codes.InvalidArgument, InvalidOperationType)
 	}
 
 	if req.GetLinkBase() == "" {
-		return fmt.Errorf("invalid linkBase in request")
+		return status.Error(codes.InvalidArgument, InvalidLinkBase)
 	}
 
 	return nil

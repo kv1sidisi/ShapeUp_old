@@ -5,6 +5,8 @@ import (
 	"AuthenticationService/internal/config"
 	"context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"log/slog"
 )
 
@@ -53,5 +55,5 @@ func (s *serverAPI) Login(
 		UserId:       uid,
 		JwtToken:     jwt,
 		RefreshToken: refresh,
-	}, nil
+	}, status.Error(codes.OK, "")
 }
