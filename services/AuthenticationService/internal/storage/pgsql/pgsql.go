@@ -2,10 +2,10 @@ package pgsql
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx/v4"
 	"github.com/kv1sidisi/shapeup/libs/common/errdefs"
 	"github.com/kv1sidisi/shapeup/services/authsvc/internal/domain/models"
 	"github.com/kv1sidisi/shapeup/services/authsvc/pkg/client/pgsqlcl"
@@ -40,7 +40,7 @@ func (s *AuthMgr) FindUserByEmail(ctx context.Context,
 	log.Info(fmt.Sprintf("query: %s", q))
 
 	if err := s.client.QueryRow(ctx, q, email).Scan(&user.ID, &user.Username, &user.PassHash); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			log.Error("user not found", err)
 			return models.User{}, errdefs.ErrUserNotFound
 		}
