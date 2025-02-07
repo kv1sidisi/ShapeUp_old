@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"github.com/go-chi/chi/middleware"
 	pbauthsvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/authsvc"
+	mapper "github.com/kv1sidisi/shapeup/services/gtwapi/internal/utils/grpchttperrmap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"log/slog"
 	"net/http"
 )
@@ -28,19 +31,21 @@ func New(log *slog.Logger, authSvc AuthSvc) http.HandlerFunc {
 		var req JSONAuthRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			log.Error("failed to decode request body: ", err)
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			mapper.WriteError(w, status.Error(codes.InvalidArgument, "invalid reuest body"), log)
+			return
 		}
 
 		resp, err := authSvc.Login(req.Username, req.Password)
 		if err != nil {
-			log.Error("failed log user in: ", err)
-			http.Error(w, "failed to log user in ", http.StatusInternalServerError)
+			log.Error("failed to log user in", slog.Any("error", err))
+			mapper.WriteError(w, err, log)
+			return
 		}
 		log.Info("login succeeded")
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Error("failed to encode response: ", err)
-			http.Error(w, "failed to encode response", http.StatusInternalServerError)
+			log.Error("failed to encode response", slog.Any("error", err))
+			mapper.WriteError(w, status.Error(codes.Internal, "failed to encode response"), log)
 			return
 		}
 	}

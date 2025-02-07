@@ -2,6 +2,9 @@ package confacchdlr
 
 import (
 	"github.com/go-chi/chi/middleware"
+	mapper "github.com/kv1sidisi/shapeup/services/gtwapi/internal/utils/grpchttperrmap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"log/slog"
 	"net/http"
 )
@@ -24,7 +27,7 @@ func New(log *slog.Logger, confirmAccount ConfAccSvc) http.HandlerFunc {
 
 		if tokenString == "" {
 			log.Error("token parameter is missing")
-			http.Error(w, "token is missing", http.StatusBadRequest)
+			mapper.WriteError(w, status.Error(codes.InvalidArgument, "token parameter is missing"), log)
 			return
 		}
 
@@ -32,7 +35,8 @@ func New(log *slog.Logger, confirmAccount ConfAccSvc) http.HandlerFunc {
 
 		if err := confirmAccount.ConfirmAccount(tokenString); err != nil {
 			log.Error("failed confirming account: ", err)
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			mapper.WriteError(w, err, log)
+			return
 		}
 	}
 }

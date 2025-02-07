@@ -18,24 +18,15 @@ var (
 )
 
 var (
-	InvalidRegisterRequest = newError(codes.InvalidArgument, "invalid register request")
-	InvalidCredentials     = newError(codes.InvalidArgument, "invalid credentials")
-	InvalidUserId          = newError(codes.InvalidArgument, "invalid user id")
-	InvalidEmail           = newError(codes.InvalidArgument, "invalid email")
-	InvalidOperationType   = newError(codes.InvalidArgument, "invalid operation type")
-	InvalidToken           = newError(codes.InvalidArgument, "invalid token")
-	InvalidLinkBase        = newError(codes.InvalidArgument, "invalid link base")
-	InvalidSigningMethod   = newError(codes.InvalidArgument, "invalid token signing method")
+	InvalidCredentials   = newError(codes.InvalidArgument, "invalid credentials")
+	InvalidUserId        = newError(codes.InvalidArgument, "invalid user id")
+	InvalidEmail         = newError(codes.InvalidArgument, "invalid email")
+	InvalidOperationType = newError(codes.InvalidArgument, "invalid operation type")
+	InvalidToken         = newError(codes.InvalidArgument, "invalid token")
+	InvalidLinkBase      = newError(codes.InvalidArgument, "invalid link base")
+	InvalidSigningMethod = newError(codes.InvalidArgument, "invalid token signing method")
 )
 
 func newError(code codes.Code, msg string) error {
 	return status.Error(code, msg)
-}
-
-func CheckError(err error, wantCode codes.Code, wantMsg string) bool {
-	st, ok := status.FromError(err)
-	if !ok {
-		return false
-	}
-	return st.Code() == wantCode && st.Message() == wantMsg
 }

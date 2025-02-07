@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"github.com/go-chi/chi/middleware"
 	pbusrcreatesvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/usrcreatesvc"
+	mapper "github.com/kv1sidisi/shapeup/services/gtwapi/internal/utils/grpchttperrmap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"log/slog"
 	"net/http"
 )
@@ -32,19 +35,22 @@ func New(log *slog.Logger, regUsrSvc RegUsrSvc) http.HandlerFunc {
 		var req JSONRegisterRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			log.Error("failed to decode request body: ", err)
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			mapper.WriteError(w, status.Error(codes.InvalidArgument, "invalid reuest body"), log)
+			return
 		}
 
 		resp, err := regUsrSvc.RegisterUser(req.Email, req.Password)
 		if err != nil {
 			log.Error("failed register account: ", err)
-			http.Error(w, "failed to register account", http.StatusInternalServerError)
+			mapper.WriteError(w, err, log)
+			return
 		}
 		log.Info("user registered successfully")
+
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Error("failed encoding response: ", err)
-			http.Error(w, "failed to encode response", http.StatusInternalServerError)
+			log.Error("failed to encode response", slog.Any("error", err))
+			mapper.WriteError(w, status.Error(codes.Internal, "failed to encode response"), log)
 			return
 		}
 	}
