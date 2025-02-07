@@ -1,0 +1,14 @@
+env: "local" #dev, prod
+jwt_secret_key: "isfniuevouensviueniuvbeouvnsoinvosnvbosnoierbonsonvoisnvosnvodnbobvfndo"
+grpc:
+  port: 10002
+  timeout: 10h
+grpc_client:
+  sending_service_address: "localhost:10001"
+  jwt_service_address: "localhost:10003"
+storage:
+  host: localhost
+  port: 5432
+  database: postgres
+  username: postgres
+  password: postgres

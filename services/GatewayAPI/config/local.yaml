@@ -1,0 +1,8 @@
+env: "local"
+http_server:
+  address: "localhost:8082"
+  timeout: 4s
+  idle_timeout: 30s
+grpc_client:
+  user_creation_service_address: "localhost:10002"
+  authentication_service_address: "localhost:10004"
