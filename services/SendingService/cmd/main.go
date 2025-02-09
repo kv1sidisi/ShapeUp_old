@@ -37,7 +37,7 @@ func main() {
 	log.Info("application stopped")
 }
 
-// setupLogger sets up logger dependent on environment type.
+// setupLogger sets up slog logger depending on "env".
 func setupLogger(env string) *slog.Logger {
 	var log *slog.Logger
 

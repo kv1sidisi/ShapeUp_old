@@ -18,7 +18,7 @@ const (
 	accessOperationType  = "access"
 )
 
-// AuthSvc struct represents the sending service, and it is implementation of bottom layer of sending method of application.
+// AuthSvc authentication service.
 type AuthSvc struct {
 	log           *slog.Logger
 	cfg           *config.Config
@@ -27,6 +27,7 @@ type AuthSvc struct {
 	jwtClient     pbjwtsvc.JWTClient
 }
 
+// AuthMgr manager for database.
 type AuthMgr interface {
 	FindUserByEmail(ctx context.Context,
 		email string,
@@ -41,7 +42,6 @@ type AuthMgr interface {
 	) (confirmed bool, err error)
 }
 
-// New returns a new instance of AuthSvc service.
 func New(log *slog.Logger,
 	cfg *config.Config,
 	storage AuthMgr,
@@ -56,7 +56,17 @@ func New(log *slog.Logger,
 
 }
 
-// LoginUser service returns user id and refresh and access tokens as successful authentication.
+// LoginUser logs user in.
+//
+// Returns:
+//
+//   - userId, access and refresh tokens if successful.
+//
+//   - Error if: Database fails.
+//     User is not confirmed.
+//     Invalid password.
+//     Failed to generate JWT access or refresh tokens through JWTService
+//     Failed to add new session for user.
 func (as *AuthSvc) LoginUser(
 	ctx context.Context,
 	username string,

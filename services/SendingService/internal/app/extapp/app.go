@@ -7,13 +7,15 @@ import (
 	"log/slog"
 )
 
-// App structure represents upper layer of application and configure bottom layer of application with database and register service.
+// App external layer of GRPC application.
 type App struct {
 	GRPCSrv *intapp.App
 	cfg     *config.Config
 }
 
-// New creates upper layer of application
+// New creates services and internal GRPC
+//
+// Returns App.
 func New(
 	log *slog.Logger,
 	cfg *config.Config,

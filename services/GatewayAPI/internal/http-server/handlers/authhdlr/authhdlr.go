@@ -21,6 +21,7 @@ type JSONAuthRequest struct {
 	Password string `json:"password"`
 }
 
+// New creates endpoint for login account service.
 func New(log *slog.Logger, authSvc AuthSvc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.authhdlr.New"

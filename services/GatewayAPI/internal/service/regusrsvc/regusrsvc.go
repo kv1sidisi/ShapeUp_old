@@ -19,7 +19,7 @@ func New(log *slog.Logger, client pbusrcreatesvc.UserCreationClient) *RegUsrSvc 
 	}
 }
 
-// RegisterUser method invokes GRPC client of RegisterService to register new user.
+// RegisterUser method invokes GRPCClientConfig client of RegisterService to register new user.
 func (ru *RegUsrSvc) RegisterUser(email string, password string) (resp *pbusrcreatesvc.RegisterResponse, err error) {
 	const op = "reusrsvc.RegisterUser"
 	log := ru.log.With(slog.String("op", op))

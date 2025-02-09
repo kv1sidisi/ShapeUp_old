@@ -9,12 +9,16 @@ import (
 	"net"
 )
 
+// App internal layer of GRPC application.
 type App struct {
 	log        *slog.Logger
 	cfg        *config.Config
 	grpcServer *grpc.Server
 }
 
+// New creates GRPC server and registers services.
+//
+// Returns App
 func New(log *slog.Logger,
 	cfg *config.Config,
 	jwtService grpcsrv.JWTSvc,
@@ -30,14 +34,19 @@ func New(log *slog.Logger,
 		grpcServer: gRPCServer}
 }
 
-// MustRun runs gRPC server and panics if any errors occurs.
+// MustRun tries to run GRPC server.
+//
+// Panics if any errors occurs.
 func (a *App) MustRun() {
 	if err := a.Run(); err != nil {
 		panic(err)
 	}
 }
 
-// Run runs gRPC server.
+// Run runs GRPC server.
+//
+// Returns:
+//   - Error if: Fails to listen TCP port. Error while serving GRPC requests.
 func (a *App) Run() error {
 	// Shows where this method is.
 	const op = "grpcapp.Run"

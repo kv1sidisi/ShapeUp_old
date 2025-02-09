@@ -10,6 +10,7 @@ import (
 	"log/slog"
 )
 
+// JWTSvc service for serverAPI.
 type JWTSvc interface {
 	GenerateAccessToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error)
 	GenerateRefreshToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error)
@@ -18,6 +19,7 @@ type JWTSvc interface {
 	GenerateLink(ctx context.Context, linkBase string, uid int64, operation string, secretKey string) (string, error)
 }
 
+// serverAPI handler for the gRPC server.
 type ServerAPI struct {
 	jwtsvc.UnimplementedJWTServer
 	jwtService JWTSvc
@@ -25,6 +27,9 @@ type ServerAPI struct {
 	log        *slog.Logger
 }
 
+// RegisterServer registers services in the GRPC server.
+//
+// Returns serverAPI as handler for GRPC server.
 func RegisterServer(grpcServer *grpc.Server, jwtService JWTSvc, cfg *config.Config, log *slog.Logger) {
 	jwtsvc.RegisterJWTServer(grpcServer, &ServerAPI{
 		jwtService: jwtService,
@@ -33,6 +38,13 @@ func RegisterServer(grpcServer *grpc.Server, jwtService JWTSvc, cfg *config.Conf
 	})
 }
 
+// GenerateAccessToken is the GRPC server handler method. Generates new access JWT token.
+//
+// Returns:
+//
+//   - A pointer to AccessTokenResponse if succeeded.
+//
+//   - An error if: request is invalid. Error while generating access token through service.
 func (s *ServerAPI) GenerateAccessToken(ctx context.Context,
 	req *jwtsvc.AccessTokenRequest,
 ) (*jwtsvc.AccessTokenResponse, error) {
@@ -60,6 +72,13 @@ func (s *ServerAPI) GenerateAccessToken(ctx context.Context,
 	}, nil
 }
 
+// GenerateRefreshToken is the GRPC server handler method. Generates new refresh JWT token.
+//
+// Returns:
+//
+//   - A pointer to RefreshTokenResponse if succeeded.
+//
+//   - An error if: request is invalid. Error while generating refresh token through service.
 func (s *ServerAPI) GenerateRefreshToken(ctx context.Context,
 	req *jwtsvc.RefreshTokenRequest,
 ) (*jwtsvc.RefreshTokenResponse, error) {
@@ -88,6 +107,13 @@ func (s *ServerAPI) GenerateRefreshToken(ctx context.Context,
 	}, nil
 }
 
+// ValidateAccessToken is the GRPC server handler method. Validates access JWT token.
+//
+// Returns:
+//
+//   - A pointer to ValidateAccessTokenResponse if succeeded.
+//
+//   - An error if: Access token is invalid. Request is invalid. Error while validating access token through service.
 func (s *ServerAPI) ValidateAccessToken(ctx context.Context,
 	req *jwtsvc.ValidateAccessTokenRequest,
 ) (*jwtsvc.ValidateAccessTokenResponse, error) {
@@ -112,6 +138,13 @@ func (s *ServerAPI) ValidateAccessToken(ctx context.Context,
 	}, nil
 }
 
+// ValidateRefreshToken is the GRPC server handler method. Validates refresh JWT token.
+//
+// Returns:
+//
+//   - A pointer to ValidateRefreshTokenResponse if succeeded.
+//
+//   - An error if: Refresh token is invalid. Request is invalid. Error while validating refresh token through service.
 func (s *ServerAPI) ValidateRefreshToken(ctx context.Context,
 	req *jwtsvc.ValidateRefreshTokenRequest,
 ) (*jwtsvc.ValidateRefreshTokenResponse, error) {
@@ -136,6 +169,13 @@ func (s *ServerAPI) ValidateRefreshToken(ctx context.Context,
 	}, nil
 }
 
+// GenerateLink is the GRPC server handler method. Generates link from userId and operation type.
+//
+// Returns:
+//
+//   - A pointer to GenerateLinkResponse if succeeded.
+//
+//   - An error if: Request is invalid. Error while generating link through service.
 func (s *ServerAPI) GenerateLink(ctx context.Context,
 	req *jwtsvc.GenerateLinkRequest,
 ) (*jwtsvc.GenerateLinkResponse, error) {

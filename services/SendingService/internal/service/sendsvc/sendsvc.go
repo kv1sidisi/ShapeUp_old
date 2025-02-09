@@ -8,13 +8,12 @@ import (
 	"log/slog"
 )
 
-// SendSvc struct represents the sending service, and it is implementation of bottom layer of sending method of application.
+// SendSvc sending service.
 type SendSvc struct {
 	log *slog.Logger
 	cfg *config.Config
 }
 
-// New returns a new instance of SendSvc service.
 func New(log *slog.Logger, cfg *config.Config) *SendSvc {
 	return &SendSvc{
 		log: log,
@@ -22,6 +21,9 @@ func New(log *slog.Logger, cfg *config.Config) *SendSvc {
 }
 
 // GoGetSendNewEmail sends email through SMTP with GoGet package.
+//
+// Returns:
+//   - Error if: Fails to send email through SMTP.
 func (ss *SendSvc) GoGetSendNewEmail(ctx context.Context, email string, message string) error {
 	const op = "service.GoGetSendNewEmail"
 	log := ss.log.With(

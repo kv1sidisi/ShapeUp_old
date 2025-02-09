@@ -20,7 +20,6 @@ type UsrMgr struct {
 	log    *slog.Logger
 }
 
-// New creates a new instance of PostreSQL storage
 func New(client pgsqlcl.Client, log *slog.Logger) (*UsrMgr, error) {
 	return &UsrMgr{
 		client: client,
@@ -28,7 +27,11 @@ func New(client pgsqlcl.Client, log *slog.Logger) (*UsrMgr, error) {
 	}, nil
 }
 
-// SaveUser saves user in PostgreSQL database
+// SaveUser saves user in PostgreSQL database.
+//
+// Returns:
+//   - user ID if successful.
+//   - An error if: Email already exists. Database returns error.
 func (s *UsrMgr) SaveUser(ctx context.Context, email string, passHash []byte) (uid int64, err error) {
 	const op = "pgsql.SaveUser"
 
@@ -60,6 +63,10 @@ func (s *UsrMgr) SaveUser(ctx context.Context, email string, passHash []byte) (u
 	return uid, nil
 }
 
+// ConfirmAccount confirms account in PostgreSQL database.
+//
+// Returns:
+//   - An error if: Database returns error.
 func (s *UsrMgr) ConfirmAccount(ctx context.Context, uid int64) error {
 	const op = "pgsql.ConfirmAccount"
 	log := s.log.With(
@@ -77,6 +84,10 @@ func (s *UsrMgr) ConfirmAccount(ctx context.Context, uid int64) error {
 	return nil
 }
 
+// DeleteUser deletes account in PostgreSQL database.
+//
+// Returns:
+//   - An error if: Database returns error.
 func (s *UsrMgr) DeleteUser(ctx context.Context, uid int64) error {
 	const op = "pgsql.DeleteUser"
 	log := s.log.With(

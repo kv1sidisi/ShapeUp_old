@@ -48,7 +48,7 @@ func main() {
 	log.Info("application stopped")
 }
 
-// setupLogger sets up logger dependent on environment type.
+// setupLogger returns slog logger depending on "env".
 func setupLogger(env string) *slog.Logger {
 	var log *slog.Logger
 
@@ -76,7 +76,8 @@ func mustConnectToDatabase(cfg *config.Config, log *slog.Logger) *pgxpool.Pool {
 	return postgresqlClient
 }
 
-// setupDatabaseConnection connect to database.
+// setupDatabaseConnection connect to database
+// returns pgx client.
 func setupDatabaseConnection(cfg *config.Config, log *slog.Logger) (*pgxpool.Pool, error) {
 	postgresqlClient, err := pgsqlcl.NewClient(context.TODO(), 3, cfg.Storage)
 	if err != nil {

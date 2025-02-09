@@ -15,18 +15,19 @@ type Config struct {
 	GRPCClient GRPCClientConfig `yaml:"grpc_client"`
 }
 
-// GRPCConfig structure represents information from config to configure grpc server.
+// GRPCConfig configuration for GRPC server.
 type GRPCConfig struct {
 	Port    int64         `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
 }
 
+// GRPCClientConfig configuration for GRPC clients.
 type GRPCClientConfig struct {
 	SendingServiceAddress string `yaml:"sending_service_address" env-required:"true"`
 	JWTServiceAddress     string `yaml:"jwt_service_address" env-required:"true"`
 }
 
-// StorageConfig structure represents information from config to connect to database.
+// StorageConfig configuration for database.
 type StorageConfig struct {
 	Host     string `json:"host"`
 	Port     string `json:"port"`
@@ -35,7 +36,11 @@ type StorageConfig struct {
 	Password string `json:"password"`
 }
 
-// MustLoad gets config path and panics if there is any errors in parsing config.
+// MustLoad tries to get config path.
+//
+// Panics if there is any errors in parsing config.
+//
+// Returns Config.
 func MustLoad() *Config {
 	path := fetchConfigPath()
 	if path == "" {
@@ -45,7 +50,11 @@ func MustLoad() *Config {
 	return MustLoadByPath(path)
 }
 
-// MustLoadByPath gets config path from arguments and panics if there is any errors in parsing config.
+// MustLoadByPath tries to get config path from arguments.
+//
+// Panics if there is any errors in parsing config.
+//
+// Returns Config.
 func MustLoadByPath(configPath string) *Config {
 	//check if file exists
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
@@ -62,7 +71,9 @@ func MustLoadByPath(configPath string) *Config {
 }
 
 // fetchConfigPath fetches config path from command line flag or environment variable.
+//
 // Priority: flag > env > default.
+//
 // Default value is empty string "".
 func fetchConfigPath() string {
 	var res string
