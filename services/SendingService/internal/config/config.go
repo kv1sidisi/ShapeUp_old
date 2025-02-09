@@ -13,19 +13,19 @@ type Config struct {
 	SMTP SMTPConfig `yaml:"smtp"`
 }
 
-// GRPCConfig structure represents information from config to configure grpc server.
+// GRPCConfig configuration for GRPC server.
 type GRPCConfig struct {
 	Port    int64         `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
 }
 
-// SMTPConfig structure represents information from config to configure smtp client
+// SMTPConfig configuration for SMTP.
 type SMTPConfig struct {
 	MailRu MailRuConfig `yaml:"mail_ru"`
 	YDX    YandexConfig `yaml:"yandex"`
 }
 
-// MailRuConfig structure represents information from config to configure mail.ru smtp client
+// MailRuConfig configuration for MailRu SMTP.
 type MailRuConfig struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
@@ -33,7 +33,7 @@ type MailRuConfig struct {
 	Port     int64  `yaml:"port"`
 }
 
-// MailRuConfig structure represents information from config to configure yandex.ru smtp client
+// YandexConfig configuration for Yandex SMTP.
 type YandexConfig struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
@@ -41,7 +41,11 @@ type YandexConfig struct {
 	Port     int64  `yaml:"port"`
 }
 
-// MustLoad gets config path and panics if there is any errors in parsing config.
+// MustLoad tries to get config path.
+//
+// Panics if there is any errors in parsing config.
+//
+// Returns Config.
 func MustLoad() *Config {
 	path := fetchConfigPath()
 	if path == "" {
@@ -51,7 +55,11 @@ func MustLoad() *Config {
 	return MustLoadByPath(path)
 }
 
-// MustLoadByPath gets config path from arguments and panics if there is any errors in parsing config.
+// MustLoadByPath tries to get config path from arguments.
+//
+// Panics if there is any errors in parsing config.
+//
+// Returns Config.
 func MustLoadByPath(configPath string) *Config {
 	//check if file exists
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
@@ -67,8 +75,10 @@ func MustLoadByPath(configPath string) *Config {
 	return &cfg
 }
 
-// fetchConfigPath fetches config path from command line flag or environment variable.
+// fetchConfigPath fetches config path from command line flag or env variable.
+//
 // Priority: flag > env > default.
+//
 // Default value is empty string "".
 func fetchConfigPath() string {
 	var res string

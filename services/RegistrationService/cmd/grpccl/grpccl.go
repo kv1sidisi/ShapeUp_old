@@ -10,12 +10,13 @@ import (
 	"log/slog"
 )
 
-// GRPCClients struct contains map of GRPC clients and their connections to GRPC server.
+// GRPCClients struct contains map of ClConn.
 type GRPCClients struct {
 	log *slog.Logger
 	Cl  map[string]*ClConn
 }
 
+// ClConn struct contains client and it's connection.
 type ClConn struct {
 	Client interface{}
 	Conn   *grpc.ClientConn
@@ -33,6 +34,7 @@ func New(log *slog.Logger, cfg *config.Config) *GRPCClients {
 	return clients
 }
 
+// InitSendCl creates ClConn to SendService.
 func InitSendCl(log *slog.Logger, cfg *config.Config) *ClConn {
 	sendingServiceConn := mustConnectToGRPC(cfg.GRPCClient.SendingServiceAddress)
 	sendingClient := pbsendsvc.NewSendingClient(sendingServiceConn)
@@ -43,6 +45,7 @@ func InitSendCl(log *slog.Logger, cfg *config.Config) *ClConn {
 	}
 }
 
+// InitJWTCl creates ClConn to JWTService.
 func InitJWTCl(log *slog.Logger, cfg *config.Config) *ClConn {
 	jwtServiceConn := mustConnectToGRPC(cfg.GRPCClient.JWTServiceAddress)
 	jwtClient := pbjwtsvc.NewJWTClient(jwtServiceConn)
@@ -53,6 +56,8 @@ func InitJWTCl(log *slog.Logger, cfg *config.Config) *ClConn {
 	}
 }
 
+// mustConnectToGRPC returns grpc connection by address
+// panics if any error occurs.
 func mustConnectToGRPC(address string) *grpc.ClientConn {
 	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -61,6 +66,7 @@ func mustConnectToGRPC(address string) *grpc.ClientConn {
 	return conn
 }
 
+// Close closes all clients connections from GRPCClients map.
 func (c *GRPCClients) Close() {
 	for name, clientConn := range c.Cl {
 		if err := clientConn.Conn.Close(); err != nil {

@@ -27,6 +27,7 @@ var (
 	InvalidSigningMethod = newError(codes.InvalidArgument, "invalid token signing method")
 )
 
+// newError returns status error created from code and message.
 func newError(code codes.Code, msg string) error {
 	return status.Error(code, msg)
 }

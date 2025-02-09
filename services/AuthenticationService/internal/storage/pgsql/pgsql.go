@@ -25,7 +25,11 @@ func New(client pgsqlcl.Client, log *slog.Logger) (*AuthMgr, error) {
 	}, nil
 }
 
-// FindUserByEmail looks for user model in users db table using email.
+// FindUserByEmail looks for user model in users database table using email.
+//
+// Returns:
+//   - user model with user's data if successful.
+//   - An error if: User not found. Database returns error.
 func (s *AuthMgr) FindUserByEmail(ctx context.Context,
 	email string,
 ) (user models.User, err error) {
@@ -52,7 +56,11 @@ func (s *AuthMgr) FindUserByEmail(ctx context.Context,
 	return user, nil
 }
 
-// AddSession adds new session to sessions db table.
+// AddSession adds new session to sessions database table.
+//
+// Returns:
+//   - userId, access and refresh tokens of successful.
+//   - An error if: Session already exists. Database returns error.
 func (s *AuthMgr) AddSession(ctx context.Context,
 	uid int64,
 	accessToken string,

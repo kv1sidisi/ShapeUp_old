@@ -10,7 +10,7 @@ import (
 	"log/slog"
 )
 
-// SendSvc represent service for sending, bottom layer.
+// SendSvc service for serverAPI.
 type SendSvc interface {
 	GoGetSendNewEmail(
 		ctx context.Context,
@@ -19,7 +19,7 @@ type SendSvc interface {
 	) error
 }
 
-// serverAPI represents the handler for the gRPC server.
+// serverAPI handler for the GRPC server.
 type serverAPI struct {
 	sendsvc.UnimplementedSendingServer
 	sendingService SendSvc
@@ -27,7 +27,9 @@ type serverAPI struct {
 	log            *slog.Logger
 }
 
-// RegisterServer registers the request handler in the gRPC server.
+// RegisterServer registers services in the GRPC server.
+//
+// Returns serverAPI as handler for GRPC server.
 func RegisterServer(gRPC *grpc.Server, sendingService SendSvc, cfg *config.Config, log *slog.Logger) {
 	sendsvc.RegisterSendingServer(gRPC,
 		&serverAPI{
@@ -37,7 +39,13 @@ func RegisterServer(gRPC *grpc.Server, sendingService SendSvc, cfg *config.Confi
 		})
 }
 
-// SendEmail is the gRPC server handler method, the top layer of the sending process.
+// SendEmail is the GRPC server handler method. Sends email.
+//
+// Returns:
+//
+//   - A pointer to EmailResponse if successful.
+//
+//   - An error if: Email is invalid. Error while sending the email.
 func (s *serverAPI) SendEmail(
 	ctx context.Context,
 	req *sendsvc.EmailRequest,

@@ -7,8 +7,6 @@ import (
 	"github.com/kv1sidisi/shapeup/services/authsvc/internal/app/extapp"
 	"github.com/kv1sidisi/shapeup/services/authsvc/internal/config"
 	"github.com/kv1sidisi/shapeup/services/authsvc/pkg/client/pgsqlcl"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -28,7 +26,7 @@ func main() {
 
 	log.Info("starting up", slog.String("env", cfg.Env))
 
-	postgresqlClient := mustConnectToDatabase(cfg, log)
+	postgresqlClient := mustConnectToDatabase(cfg)
 	log.Info("connected to database")
 
 	//connecting grpc clients
@@ -50,6 +48,7 @@ func main() {
 	log.Info("application stopped")
 }
 
+// setupLogger returns slog logger depending on "env".
 func setupLogger(env string) *slog.Logger {
 	var log *slog.Logger
 
@@ -66,8 +65,8 @@ func setupLogger(env string) *slog.Logger {
 }
 
 // mustConnectToDatabase panics if setupDatabaseConnection fails
-func mustConnectToDatabase(cfg *config.Config, log *slog.Logger) *pgxpool.Pool {
-	postgresqlClient, err := setupDatabaseConnection(cfg, log)
+func mustConnectToDatabase(cfg *config.Config) *pgxpool.Pool {
+	postgresqlClient, err := setupDatabaseConnection(cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -75,18 +74,12 @@ func mustConnectToDatabase(cfg *config.Config, log *slog.Logger) *pgxpool.Pool {
 }
 
 // setupDatabaseConnection connect to database.
-func setupDatabaseConnection(cfg *config.Config, log *slog.Logger) (*pgxpool.Pool, error) {
+//
+// Returns pgx client.
+func setupDatabaseConnection(cfg *config.Config) (*pgxpool.Pool, error) {
 	postgresqlClient, err := pgsqlcl.NewClient(context.TODO(), 3, cfg.Storage)
 	if err != nil {
 		return nil, err
 	}
 	return postgresqlClient, nil
-}
-
-func mustConnectToGRPC(address string, log *slog.Logger) *grpc.ClientConn {
-	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
-	return conn
 }

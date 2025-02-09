@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// UsrCreateSvc interface of user creation service.
+// UsrCreateSvc service for serverAPI.
 type UsrCreateSvc interface {
 	RegisterNewUser(
 		ctx context.Context,
@@ -25,7 +25,7 @@ type UsrCreateSvc interface {
 	) (userId int64, err error)
 }
 
-// serverAPI represents the handler for the gRPC server.
+// serverAPI handler for the gRPC server.
 type serverAPI struct {
 	usrcreatesvc2.UnimplementedUserCreationServer
 	userCreation UsrCreateSvc
@@ -33,7 +33,9 @@ type serverAPI struct {
 	log          *slog.Logger
 }
 
-// RegisterServer registers the request handler in the gRPC server.
+// RegisterServer registers services in the GRPC server.
+//
+// Returns serverAPI as handler for GRPC server.
 func RegisterServer(gRPC *grpc.Server,
 	userCreation UsrCreateSvc,
 	cfg *config.Config,
@@ -48,7 +50,13 @@ func RegisterServer(gRPC *grpc.Server,
 		})
 }
 
-// Register is the gRPC server handler method, the top layer of the registration process.
+// Register is the GRPC server handler method. Registers new user.
+//
+// Returns:
+//
+//   - A pointer to RegisterResponse if successful.
+//
+//   - An error if: Request is invalid. Error while registering user through service.
 func (s *serverAPI) Register(
 	ctx context.Context,
 	req *usrcreatesvc2.RegisterRequest,
@@ -76,6 +84,8 @@ func (s *serverAPI) Register(
 }
 
 // validateRegisterRequest performs validation on the registration request.
+//
+// Returns nil if request is invalid.
 func validateRegisterRequest(log *slog.Logger, req *usrcreatesvc2.RegisterRequest) error {
 	// Validate email
 	if !govalidator.IsEmail(req.GetEmail()) {
@@ -98,16 +108,27 @@ func validateRegisterRequest(log *slog.Logger, req *usrcreatesvc2.RegisterReques
 	return nil
 }
 
-// Confirm is the gRPC server handler method, the top layer of the registration process.
+// Confirm is the gRPC server handler method. Confirms user account.
+// Returns:
+//
+//   - A pointer to ConfirmResponse if successful.
+//
+//   - An error if: Request is invalid. Error while confirming user through service.
 func (s *serverAPI) Confirm(ctx context.Context,
 	req *usrcreatesvc2.ConfirmRequest,
 ) (*usrcreatesvc2.ConfirmResponse, error) {
+	const op = "grpcsrv.Confirm"
+	log := s.log.With(slog.String("op", op))
+
+	if len(req.Jwt) == 0 {
+		return nil, errdefs.InvalidCredentials
+	}
 
 	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt)
 	if err != nil {
 		return nil, err
 	}
-	s.log.Info("user confirmed")
+	log.Info("user confirmed")
 
 	return &usrcreatesvc2.ConfirmResponse{
 		UserId: userId,

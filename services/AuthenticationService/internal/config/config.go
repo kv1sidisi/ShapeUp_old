@@ -9,30 +9,24 @@ import (
 
 type Config struct {
 	Env        string           `yaml:"env" env-default:"local"`
-	JWT        JWTConfig        `yaml:"jwt"`
 	GRPC       GRPCConfig       `yaml:"grpc"`
 	Storage    StorageConfig    `yaml:"storage"`
 	GRPCClient GRPCClientConfig `yaml:"grpc_client"`
 }
 
-// JWTConfig structure represents information from config about jwt
-type JWTConfig struct {
-	AccessSecret  string `yaml:"access_token_secret_key" env-required:"true"`
-	RefreshSecret string `yaml:"refresh_token_secret_key" env-required:"true"`
-}
-
-// GRPCConfig structure represents information from config to configure grpc server.
+// GRPCConfig configuration for GRPC server.
 type GRPCConfig struct {
 	Port    int64         `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
 }
 
+// GRPCClientConfig configuration for GRPC clients.
 type GRPCClientConfig struct {
 	SendingServiceAddress string `yaml:"sending_service_address" env-required:"true"`
 	JWTServiceAddress     string `yaml:"jwt_service_address" env-required:"true"`
 }
 
-// StorageConfig structure represents information from config to connect to database.
+// StorageConfig configuration for database.
 type StorageConfig struct {
 	Host     string `json:"host"`
 	Port     string `json:"port"`
@@ -41,7 +35,11 @@ type StorageConfig struct {
 	Password string `json:"password"`
 }
 
-// MustLoad gets config path and panics if there is any errors in parsing config.
+// MustLoad tries to get config path.
+//
+// Panics if there is any errors in parsing config.
+//
+// Returns Config.
 func MustLoad() *Config {
 	path := fetchConfigPath()
 	if path == "" {
@@ -51,7 +49,11 @@ func MustLoad() *Config {
 	return MustLoadByPath(path)
 }
 
-// MustLoadByPath gets config path from arguments and panics if there is any errors in parsing config.
+// MustLoadByPath tries to get config path from arguments.
+//
+// Panics if there is any errors in parsing config.
+//
+// Returns Config.
 func MustLoadByPath(configPath string) *Config {
 	//check if file exists
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
@@ -68,7 +70,9 @@ func MustLoadByPath(configPath string) *Config {
 }
 
 // fetchConfigPath fetches config path from command line flag or environment variable.
+//
 // Priority: flag > env > default.
+//
 // Default value is empty string "".
 func fetchConfigPath() string {
 	var res string

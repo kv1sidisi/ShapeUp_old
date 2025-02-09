@@ -16,7 +16,7 @@ const (
 	confirmationOperationType = "confirmation"
 )
 
-// UsrCreateSvc implementation of user creation service.
+// UsrCreateSvc user creation service.
 type UsrCreateSvc struct {
 	log           *slog.Logger
 	userSaver     UsrMgr
@@ -24,7 +24,7 @@ type UsrCreateSvc struct {
 	jwtClient     pbjwtsvc.JWTClient
 }
 
-// UsrMgr interface defines the method for saving user information in database.
+// UsrMgr manager for database.
 type UsrMgr interface {
 	SaveUser(
 		ctx context.Context,
@@ -41,7 +41,6 @@ type UsrMgr interface {
 	) (err error)
 }
 
-// New returns a new instance of UserCreation service.
 func New(log *slog.Logger,
 	userSaver UsrMgr,
 	grpccl *grpccl.GRPCClients,
@@ -54,8 +53,15 @@ func New(log *slog.Logger,
 	}
 }
 
-// RegisterNewUser registers new user in the system and returns user ID.
-// If user with given username already exists, returns error.
+// RegisterNewUser registers new user.
+//
+// Returns:
+//
+//   - user ID if operation successful.
+//
+//   - Error if: user with given username already exists.
+//     Password hash generation fails.
+//     Generation confirmation link fails.
 func (r *UsrCreateSvc) RegisterNewUser(ctx context.Context, email, password string) (int64, error) {
 	const op = "usrcreatesvc.RegisterNewUser"
 
@@ -110,8 +116,11 @@ func (r *UsrCreateSvc) RegisterNewUser(ctx context.Context, email, password stri
 	return uid, nil
 }
 
-// ConfirmNewUser confirms account
-// If user does not exist returns error
+// ConfirmNewUser confirms account.
+//
+// Returns:
+//   - user ID if operation successful.
+//   - Error if: user does not exist. JWT token is invalid.
 func (r *UsrCreateSvc) ConfirmNewUser(ctx context.Context, token string) (uid int64, err error) {
 	const op = "register.ConfirmAccount"
 

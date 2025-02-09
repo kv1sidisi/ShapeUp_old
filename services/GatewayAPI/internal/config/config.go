@@ -8,23 +8,29 @@ import (
 )
 
 type Config struct {
-	Env        string `yaml:"env" env-default:"local"`
-	HTTPServer `yaml:"http_server"`
-	GRPC       `yaml:"grpc_client"`
+	Env              string `yaml:"env" env-default:"local"`
+	HTTPServer       `yaml:"http_server"`
+	GRPCClientConfig `yaml:"grpc_client"`
 }
 
+// HTTPServer configuration for HTTP server.
 type HTTPServer struct {
 	Address     string        `yaml:"address" env-default:"localhost:8080"`
 	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
 }
 
-type GRPC struct {
+// GRPCClientConfig configuration for GRPC clients.
+type GRPCClientConfig struct {
 	UserCreationServiceAddress   string `yaml:"user_creation_service_address" env-required:"true"`
 	AuthenticationServiceAddress string `yaml:"authentication_service_address" env-required:"true"`
 }
 
-// MustLoad gets config path and panics if there is any errors in parsing config.
+// MustLoad tries to get config path.
+//
+// Panics if there is any errors in parsing config.
+//
+// Returns Config.
 func MustLoad() *Config {
 	path := fetchConfigPath()
 	if path == "" {
@@ -34,7 +40,11 @@ func MustLoad() *Config {
 	return MustLoadByPath(path)
 }
 
-// MustLoadByPath gets config path from arguments and panics if there is any errors in parsing config.
+// MustLoadByPath tries to get config path from arguments.
+//
+// Panics if there is any errors in parsing config.
+//
+// Returns Config.
 func MustLoadByPath(configPath string) *Config {
 	//check if file exists
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
@@ -51,7 +61,9 @@ func MustLoadByPath(configPath string) *Config {
 }
 
 // fetchConfigPath fetches config path from command line flag or environment variable.
+//
 // Priority: flag > env > default.
+//
 // Default value is empty string "".
 func fetchConfigPath() string {
 	var res string

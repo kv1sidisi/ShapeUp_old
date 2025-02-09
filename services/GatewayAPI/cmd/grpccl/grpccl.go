@@ -10,12 +10,13 @@ import (
 	"log/slog"
 )
 
-// GRPCClients struct contains map of GRPC clients and their connections to GRPC server.
+// GRPCClients struct contains map of ClConn.
 type GRPCClients struct {
 	log *slog.Logger
 	Cl  map[string]*ClConn
 }
 
+// ClConn struct contains client and it's connection.
 type ClConn struct {
 	Client interface{}
 	Conn   *grpc.ClientConn
@@ -33,26 +34,31 @@ func New(log *slog.Logger, cfg *config.Config) *GRPCClients {
 	return clients
 }
 
+// InitUsrCreteCl creates ClConn to UserCreateService.
 func InitUsrCreteCl(log *slog.Logger, cfg *config.Config) *ClConn {
-	usrCreateSvcConn := mustConnectToGRPC(cfg.GRPC.UserCreationServiceAddress)
+	usrCreateSvcConn := mustConnectToGRPC(cfg.GRPCClientConfig.UserCreationServiceAddress)
 	usrCreateSvcClient := pbusrcreatesvc.NewUserCreationClient(usrCreateSvcConn)
-	log.Info("GRPC RegistrationService connected", slog.String("address", cfg.GRPC.UserCreationServiceAddress))
+	log.Info("GRPCClientConfig RegistrationService connected", slog.String("address", cfg.GRPCClientConfig.UserCreationServiceAddress))
 	return &ClConn{
 		Client: usrCreateSvcClient,
 		Conn:   usrCreateSvcConn,
 	}
 }
 
+// InitAuthCl creates ClConn to AuthService.
 func InitAuthCl(log *slog.Logger, cfg *config.Config) *ClConn {
-	authSvcConn := mustConnectToGRPC(cfg.GRPC.AuthenticationServiceAddress)
+	authSvcConn := mustConnectToGRPC(cfg.GRPCClientConfig.AuthenticationServiceAddress)
 	authSvcClient := pbauthsvc.NewAuthClient(authSvcConn)
-	log.Info("GRPC AuthService connected", slog.String("address", cfg.GRPC.AuthenticationServiceAddress))
+	log.Info("GRPCClientConfig AuthService connected", slog.String("address", cfg.GRPCClientConfig.AuthenticationServiceAddress))
 	return &ClConn{
 		Client: authSvcClient,
 		Conn:   authSvcConn,
 	}
 }
 
+// mustConnectToGRPC returns grpc connection by address.
+//
+// Panics if any error occurs.
 func mustConnectToGRPC(address string) *grpc.ClientConn {
 	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -61,6 +67,7 @@ func mustConnectToGRPC(address string) *grpc.ClientConn {
 	return conn
 }
 
+// Close closes all clients connections from GRPCClients map.
 func (c *GRPCClients) Close() {
 	for name, clientConn := range c.Cl {
 		if err := clientConn.Conn.Close(); err != nil {
