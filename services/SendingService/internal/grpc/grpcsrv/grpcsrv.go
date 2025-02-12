@@ -3,7 +3,7 @@ package grpcsrv
 import (
 	"context"
 	"github.com/asaskevich/govalidator"
-	"github.com/kv1sidisi/shapeup/libs/common/errdefs"
+	"github.com/kv1sidisi/shapeup/pkg/errdefs"
 	"github.com/kv1sidisi/shapeup/services/sendsvc/api/grpc/pb/sendsvc"
 	"github.com/kv1sidisi/shapeup/services/sendsvc/internal/config"
 	"google.golang.org/grpc"

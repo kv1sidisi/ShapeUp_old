@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jackc/pgconn"
-	"github.com/kv1sidisi/shapeup/libs/common/errdefs"
-	"github.com/kv1sidisi/shapeup/services/regsvc/pkg/client/pgsqlcl"
+	"github.com/kv1sidisi/shapeup/pkg/database/pgcl"
+	"github.com/kv1sidisi/shapeup/pkg/errdefs"
 	"log/slog"
 	"strings"
 )
@@ -16,11 +16,11 @@ const (
 )
 
 type UsrMgr struct {
-	client pgsqlcl.Client
+	client pgcl.Client
 	log    *slog.Logger
 }
 
-func New(client pgsqlcl.Client, log *slog.Logger) (*UsrMgr, error) {
+func New(client pgcl.Client, log *slog.Logger) (*UsrMgr, error) {
 	return &UsrMgr{
 		client: client,
 		log:    log,

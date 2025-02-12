@@ -1,8 +1,6 @@
-package utils
+package repeatable
 
-import (
-	"time"
-)
+import "time"
 
 // DoWithTries function helps to do numerous tries of function.
 func DoWithTries(fn func() error, attempts int, delay time.Duration) (err error) {

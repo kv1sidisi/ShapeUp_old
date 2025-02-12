@@ -1,6 +1,8 @@
 package main
 
 import (
+	loadconfig "github.com/kv1sidisi/shapeup/pkg/config"
+	"github.com/kv1sidisi/shapeup/pkg/logger"
 	"github.com/kv1sidisi/shapeup/services/sendsvc/internal/app/extapp"
 	"github.com/kv1sidisi/shapeup/services/sendsvc/internal/config"
 	"log/slog"
@@ -9,16 +11,11 @@ import (
 	"syscall"
 )
 
-const (
-	envLocal = "local"
-	envDev   = "dev"
-	endProd  = "prod"
-)
-
 func main() {
-	cfg := config.MustLoad()
+	cfg := &config.Config{}
+	loadconfig.MustLoad(cfg)
 
-	log := setupLogger(cfg.Env)
+	log := logger.SetupLogger(cfg.Env)
 
 	log.Info("starting up", slog.String("env", cfg.Env))
 
@@ -35,23 +32,4 @@ func main() {
 	log.Info("received shutdown signal", slog.Any("signal", sign))
 	application.GRPCSrv.Stop()
 	log.Info("application stopped")
-}
-
-// setupLogger sets up slog logger depending on "env".
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case envDev:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case endProd:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
-	}
-
-	return log
 }

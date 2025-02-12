@@ -3,26 +3,23 @@ package main
 import (
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
+	loadconfig "github.com/kv1sidisi/shapeup/pkg/config"
+	"github.com/kv1sidisi/shapeup/pkg/database/pgcl"
+	"github.com/kv1sidisi/shapeup/pkg/logger"
 	"github.com/kv1sidisi/shapeup/services/authsvc/cmd/grpccl"
 	"github.com/kv1sidisi/shapeup/services/authsvc/internal/app/extapp"
 	"github.com/kv1sidisi/shapeup/services/authsvc/internal/config"
-	"github.com/kv1sidisi/shapeup/services/authsvc/pkg/client/pgsqlcl"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-const (
-	local = "local"
-	dev   = "dev"
-	prod  = "prod"
-)
-
 func main() {
-	cfg := config.MustLoad()
+	cfg := &config.Config{}
+	loadconfig.MustLoad(cfg)
 
-	log := setupLogger(cfg.Env)
+	log := logger.SetupLogger(cfg.Env)
 
 	log.Info("starting up", slog.String("env", cfg.Env))
 
@@ -48,22 +45,6 @@ func main() {
 	log.Info("application stopped")
 }
 
-// setupLogger returns slog logger depending on "env".
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case local:
-		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case dev:
-		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case prod:
-		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
-	}
-
-	return log
-}
-
 // mustConnectToDatabase panics if setupDatabaseConnection fails
 func mustConnectToDatabase(cfg *config.Config) *pgxpool.Pool {
 	postgresqlClient, err := setupDatabaseConnection(cfg)
@@ -77,7 +58,7 @@ func mustConnectToDatabase(cfg *config.Config) *pgxpool.Pool {
 //
 // Returns pgx client.
 func setupDatabaseConnection(cfg *config.Config) (*pgxpool.Pool, error) {
-	postgresqlClient, err := pgsqlcl.NewClient(context.TODO(), 3, cfg.Storage)
+	postgresqlClient, err := pgcl.NewClient(context.TODO(), 3, &cfg.Storage)
 	if err != nil {
 		return nil, err
 	}

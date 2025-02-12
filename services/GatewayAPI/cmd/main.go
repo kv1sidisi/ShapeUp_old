@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	loadconfig "github.com/kv1sidisi/shapeup/pkg/config"
+	"github.com/kv1sidisi/shapeup/pkg/logger"
 	pbauthsvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/authsvc"
 	pbusrcreatesvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/usrcreatesvc"
 	"github.com/kv1sidisi/shapeup/services/gtwapi/cmd/grpccl"
@@ -11,32 +13,25 @@ import (
 	"github.com/kv1sidisi/shapeup/services/gtwapi/internal/http-server/handlers/authhdlr"
 	"github.com/kv1sidisi/shapeup/services/gtwapi/internal/http-server/handlers/confacchdlr"
 	"github.com/kv1sidisi/shapeup/services/gtwapi/internal/http-server/handlers/regusrhdlr"
-	"github.com/kv1sidisi/shapeup/services/gtwapi/internal/http-server/middleware/logger"
+	"github.com/kv1sidisi/shapeup/services/gtwapi/internal/http-server/middleware/midlogger"
 	"github.com/kv1sidisi/shapeup/services/gtwapi/internal/service/authsvc"
 	"github.com/kv1sidisi/shapeup/services/gtwapi/internal/service/confaccsvc"
 	"github.com/kv1sidisi/shapeup/services/gtwapi/internal/service/regusrsvc"
 	"log/slog"
 	"net/http"
-	"os"
-)
-
-const (
-	envLocal = "local"
-	envDev   = "dev"
-	envProd  = "prod"
 )
 
 func main() {
+	cfg := &config.Config{}
+	loadconfig.MustLoad(cfg)
 
-	cfg := config.MustLoad()
-
-	log := setupLogger(cfg.Env)
+	log := logger.SetupLogger(cfg.Env)
 
 	log.Info("starting up", slog.String("env", cfg.Env))
 
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
-	router.Use(logger.New(log))
+	router.Use(midlogger.New(log))
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
@@ -71,26 +66,4 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil {
 		log.Error("failed to start server", slog.String("address", cfg.Address))
 	}
-}
-
-// setupLogger returns slog logger depending on "env".
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envDev:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envProd:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
-	}
-
-	return log
 }

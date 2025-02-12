@@ -2,7 +2,7 @@ package grpcsrv
 
 import (
 	"context"
-	"github.com/kv1sidisi/shapeup/libs/common/errdefs"
+	"github.com/kv1sidisi/shapeup/pkg/errdefs"
 	"github.com/kv1sidisi/shapeup/services/authsvc/api/grpc/pb/authsvc"
 	"github.com/kv1sidisi/shapeup/services/authsvc/internal/config"
 	"google.golang.org/grpc"

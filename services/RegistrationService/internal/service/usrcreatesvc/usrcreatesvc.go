@@ -2,7 +2,7 @@ package usrcreatesvc
 
 import (
 	"context"
-	"github.com/kv1sidisi/shapeup/libs/common/errdefs"
+	"github.com/kv1sidisi/shapeup/pkg/errdefs"
 	pbjwtsvc "github.com/kv1sidisi/shapeup/services/regsvc/api/grpccl/pb/jwtsvc"
 	pbsendsvc "github.com/kv1sidisi/shapeup/services/regsvc/api/grpccl/pb/sendsvc"
 	"github.com/kv1sidisi/shapeup/services/regsvc/cmd/grpccl"

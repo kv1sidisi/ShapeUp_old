@@ -1,11 +1,10 @@
 module github.com/kv1sidisi/shapeup/services/gtwapi
 
-go 1.23
+go 1.23.4
 
 require (
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/chi/v5 v5.2.0
-	github.com/ilyakaznacheev/cleanenv v1.5.0
 	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.3
 )
@@ -23,6 +22,14 @@ require (
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
 )
 
-require github.com/kv1sidisi/shapeup/libs/common v0.0.0
+require github.com/kv1sidisi/shapeup/pkg/logger v0.0.0
 
-replace github.com/kv1sidisi/shapeup/libs/common => ../../libs/common
+replace github.com/kv1sidisi/shapeup/pkg/logger => ../../pkg/logger
+
+require github.com/kv1sidisi/shapeup/pkg/config v0.0.0
+
+replace github.com/kv1sidisi/shapeup/pkg/config => ../../pkg/config
+
+require github.com/kv1sidisi/shapeup/pkg/errdefs v0.0.0
+
+replace github.com/kv1sidisi/shapeup/pkg/errdefs => ../../pkg/errdefs
