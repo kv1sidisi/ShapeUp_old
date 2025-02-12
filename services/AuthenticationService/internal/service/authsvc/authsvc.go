@@ -2,7 +2,7 @@ package authsvc
 
 import (
 	"context"
-	"github.com/kv1sidisi/shapeup/libs/common/errdefs"
+	"github.com/kv1sidisi/shapeup/pkg/errdefs"
 	pbjwtsvc "github.com/kv1sidisi/shapeup/services/authsvc/api/grpccl/pb/jwtsvc"
 	pbsendsvc "github.com/kv1sidisi/shapeup/services/authsvc/api/grpccl/pb/sendsvc"
 	"github.com/kv1sidisi/shapeup/services/authsvc/cmd/grpccl"

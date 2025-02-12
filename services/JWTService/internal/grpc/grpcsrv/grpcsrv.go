@@ -3,7 +3,7 @@ package grpcsrv
 import (
 	"context"
 	"fmt"
-	"github.com/kv1sidisi/shapeup/libs/common/errdefs"
+	"github.com/kv1sidisi/shapeup/pkg/errdefs"
 	"github.com/kv1sidisi/shapeup/services/jwtsvc/api/grpc/pb/jwtsvc"
 	"github.com/kv1sidisi/shapeup/services/jwtsvc/internal/config"
 	"google.golang.org/grpc"

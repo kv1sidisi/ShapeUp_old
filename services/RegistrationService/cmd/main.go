@@ -3,30 +3,27 @@ package main
 import (
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
+	loadconfig "github.com/kv1sidisi/shapeup/pkg/config"
+	"github.com/kv1sidisi/shapeup/pkg/database/pgcl"
+	"github.com/kv1sidisi/shapeup/pkg/logger"
 	"github.com/kv1sidisi/shapeup/services/regsvc/cmd/grpccl"
 	"github.com/kv1sidisi/shapeup/services/regsvc/internal/app/extapp"
 	"github.com/kv1sidisi/shapeup/services/regsvc/internal/config"
-	"github.com/kv1sidisi/shapeup/services/regsvc/pkg/client/pgsqlcl"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-const (
-	envLocal = "local"
-	envDev   = "dev"
-	endProd  = "prod"
-)
-
 func main() {
-	cfg := config.MustLoad()
+	cfg := &config.Config{}
+	loadconfig.MustLoad(cfg)
 
-	log := setupLogger(cfg.Env)
+	log := logger.SetupLogger(cfg.Env)
 
 	log.Info("starting up", slog.String("env", cfg.Env))
 
-	postgresqlClient := mustConnectToDatabase(cfg, log)
+	postgresqlClient := mustConnectToDatabase(cfg)
 	log.Info("connected to database")
 
 	//connecting grpc clients
@@ -48,28 +45,9 @@ func main() {
 	log.Info("application stopped")
 }
 
-// setupLogger returns slog logger depending on "env".
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case envDev:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case endProd:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
-	}
-
-	return log
-}
-
 // mustConnectToDatabase panics if setupDatabaseConnection fails
-func mustConnectToDatabase(cfg *config.Config, log *slog.Logger) *pgxpool.Pool {
-	postgresqlClient, err := setupDatabaseConnection(cfg, log)
+func mustConnectToDatabase(cfg *config.Config) *pgxpool.Pool {
+	postgresqlClient, err := setupDatabaseConnection(cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -78,8 +56,8 @@ func mustConnectToDatabase(cfg *config.Config, log *slog.Logger) *pgxpool.Pool {
 
 // setupDatabaseConnection connect to database
 // returns pgx client.
-func setupDatabaseConnection(cfg *config.Config, log *slog.Logger) (*pgxpool.Pool, error) {
-	postgresqlClient, err := pgsqlcl.NewClient(context.TODO(), 3, cfg.Storage)
+func setupDatabaseConnection(cfg *config.Config) (*pgxpool.Pool, error) {
+	postgresqlClient, err := pgcl.NewClient(context.TODO(), 3, &cfg.Storage)
 	if err != nil {
 		return nil, err
 	}

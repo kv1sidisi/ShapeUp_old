@@ -2,6 +2,7 @@ package suite
 
 import (
 	"context"
+	loadconfig "github.com/kv1sidisi/shapeup/pkg/config"
 	pbsendsvc "github.com/kv1sidisi/shapeup/services/sendsvc/api/grpc/pb/sendsvc"
 	"github.com/kv1sidisi/shapeup/services/sendsvc/internal/config"
 	"google.golang.org/grpc"
@@ -25,7 +26,8 @@ func New(t *testing.T) (context.Context, *Suite) {
 	t.Helper()
 	t.Parallel()
 
-	cfg := config.MustLoadByPath("../config/local.yaml")
+	cfg := &config.Config{}
+	loadconfig.MustLoadByPath("../config/local.yaml", cfg)
 
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.GRPC.Timeout)
 

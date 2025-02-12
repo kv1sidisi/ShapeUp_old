@@ -1,6 +1,6 @@
 module github.com/kv1sidisi/shapeup/services/jwtsvc
 
-go 1.23
+go 1.23.4
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
@@ -17,6 +17,14 @@ require (
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
 )
 
-require github.com/kv1sidisi/shapeup/libs/common v0.0.0
+require github.com/kv1sidisi/shapeup/pkg/logger v0.0.0
 
-replace github.com/kv1sidisi/shapeup/libs/common => ../../libs/common
+replace github.com/kv1sidisi/shapeup/pkg/logger => ../../pkg/logger
+
+require github.com/kv1sidisi/shapeup/pkg/config v0.0.0
+
+replace github.com/kv1sidisi/shapeup/pkg/config => ../../pkg/config
+
+require github.com/kv1sidisi/shapeup/pkg/errdefs v0.0.0
+
+replace github.com/kv1sidisi/shapeup/pkg/errdefs => ../../pkg/errdefs

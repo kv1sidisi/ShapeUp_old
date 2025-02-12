@@ -6,19 +6,19 @@ import (
 	"fmt"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
-	"github.com/kv1sidisi/shapeup/libs/common/errdefs"
+	"github.com/kv1sidisi/shapeup/pkg/database/pgcl"
+	"github.com/kv1sidisi/shapeup/pkg/errdefs"
 	"github.com/kv1sidisi/shapeup/services/authsvc/internal/domain/models"
-	"github.com/kv1sidisi/shapeup/services/authsvc/pkg/client/pgsqlcl"
 	"log/slog"
 	"strings"
 )
 
 type AuthMgr struct {
-	client pgsqlcl.Client
+	client pgcl.Client
 	log    *slog.Logger
 }
 
-func New(client pgsqlcl.Client, log *slog.Logger) (*AuthMgr, error) {
+func New(client pgcl.Client, log *slog.Logger) (*AuthMgr, error) {
 	return &AuthMgr{
 		client: client,
 		log:    log,
@@ -104,7 +104,7 @@ func (s *AuthMgr) AddSession(ctx context.Context,
 }
 
 // checkOnlineSession returns true is session with user already exists in session db table.
-func checkOnlineSession(ctx context.Context, log *slog.Logger, client pgsqlcl.Client, uid int64) (bool, error) {
+func checkOnlineSession(ctx context.Context, log *slog.Logger, client pgcl.Client, uid int64) (bool, error) {
 	q := `
         SELECT EXISTS (
             SELECT 1 

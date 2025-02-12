@@ -2,6 +2,7 @@ package suite
 
 import (
 	"context"
+	loadconfig "github.com/kv1sidisi/shapeup/pkg/config"
 	regv1 "github.com/kv1sidisi/shapeup/services/regsvc/api/grpc/pb/usrcreatesvc"
 	"github.com/kv1sidisi/shapeup/services/regsvc/internal/config"
 	"google.golang.org/grpc"
@@ -25,7 +26,8 @@ func New(t *testing.T) (context.Context, *Suite) {
 	t.Helper()
 	t.Parallel()
 
-	cfg := config.MustLoadByPath("../config/local.yaml")
+	cfg := &config.Config{}
+	loadconfig.MustLoadByPath("../config/local.yaml", cfg)
 
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.GRPC.Timeout)
 

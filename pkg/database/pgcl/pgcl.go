@@ -1,16 +1,18 @@
-package pgsqlcl
+package pgcl
 
 import (
 	"context"
-	"fmt"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/kv1sidisi/shapeup/services/authsvc/internal/config"
-	"github.com/kv1sidisi/shapeup/services/authsvc/pkg/client/utils"
+	rep "github.com/kv1sidisi/shapeup/pkg/utils/repeatable"
 	"log"
 	"time"
 )
+
+type StorageConfig interface {
+	GetDSN() string
+}
 
 // Client is interface for connection methods in pgx package.
 type Client interface {
@@ -21,9 +23,9 @@ type Client interface {
 }
 
 // NewClient creates client connection to postgresql throw pgx packet.
-func NewClient(ctx context.Context, maxAttempts int, sc config.StorageConfig) (pool *pgxpool.Pool, err error) {
-	dsn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", sc.Username, sc.Password, sc.Host, sc.Port, sc.Database)
-	err = utils.DoWithTries(func() error {
+func NewClient(ctx context.Context, maxAttempts int, sc StorageConfig) (pool *pgxpool.Pool, err error) {
+	dsn := sc.GetDSN()
+	err = rep.DoWithTries(func() error {
 		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
 

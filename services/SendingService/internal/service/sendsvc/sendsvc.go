@@ -3,7 +3,7 @@ package sendsvc
 import (
 	"context"
 	"github.com/go-gomail/gomail"
-	"github.com/kv1sidisi/shapeup/libs/common/errdefs"
+	"github.com/kv1sidisi/shapeup/pkg/errdefs"
 	"github.com/kv1sidisi/shapeup/services/sendsvc/internal/config"
 	"log/slog"
 )

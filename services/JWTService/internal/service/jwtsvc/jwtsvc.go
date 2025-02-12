@@ -3,7 +3,7 @@ package jwtsvc
 import (
 	"context"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/kv1sidisi/shapeup/libs/common/errdefs"
+	"github.com/kv1sidisi/shapeup/pkg/errdefs"
 	"github.com/kv1sidisi/shapeup/services/jwtsvc/internal/config"
 	"log/slog"
 	"time"
