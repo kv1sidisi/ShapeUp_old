@@ -5,7 +5,6 @@ go 1.23.4
 require (
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/chi/v5 v5.2.0
-	github.com/ilyakaznacheev/cleanenv v1.5.0
 	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.3
 )
