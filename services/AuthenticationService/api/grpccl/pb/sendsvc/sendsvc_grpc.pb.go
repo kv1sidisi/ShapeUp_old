@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Sending_SendEmail_FullMethodName = "/send.Sending/SendEmail"
+	Sending_SendEmail_FullMethodName = "/registration.Sending/SendEmail"
 )
 
 // SendingClient is the client API for Sending service.
@@ -108,7 +108,7 @@ func _Sending_SendEmail_Handler(srv interface{}, ctx context.Context, dec func(i
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Sending_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "send.Sending",
+	ServiceName: "registration.Sending",
 	HandlerType: (*SendingServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

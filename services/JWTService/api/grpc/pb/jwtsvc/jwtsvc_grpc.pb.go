@@ -19,21 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	JWT_GenerateAccessToken_FullMethodName  = "/jwt.JWT/GenerateAccessToken"
-	JWT_GenerateRefreshToken_FullMethodName = "/jwt.JWT/GenerateRefreshToken"
-	JWT_ValidateAccessToken_FullMethodName  = "/jwt.JWT/ValidateAccessToken"
-	JWT_ValidateRefreshToken_FullMethodName = "/jwt.JWT/ValidateRefreshToken"
-	JWT_GenerateLink_FullMethodName         = "/jwt.JWT/GenerateLink"
+	JWT_GenerateToken_FullMethodName = "/jwt.JWT/GenerateToken"
+	JWT_ValidateToken_FullMethodName = "/jwt.JWT/ValidateToken"
+	JWT_GenerateLink_FullMethodName  = "/jwt.JWT/GenerateLink"
 )
 
 // JWTClient is the client API for JWT service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type JWTClient interface {
-	GenerateAccessToken(ctx context.Context, in *AccessTokenRequest, opts ...grpc.CallOption) (*AccessTokenResponse, error)
-	GenerateRefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
-	ValidateAccessToken(ctx context.Context, in *ValidateAccessTokenRequest, opts ...grpc.CallOption) (*ValidateAccessTokenResponse, error)
-	ValidateRefreshToken(ctx context.Context, in *ValidateRefreshTokenRequest, opts ...grpc.CallOption) (*ValidateRefreshTokenResponse, error)
+	GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*GenerateTokenResponse, error)
+	ValidateToken(ctx context.Context, in *ValidateTokenRequest, opts ...grpc.CallOption) (*ValidateTokenResponse, error)
 	GenerateLink(ctx context.Context, in *GenerateLinkRequest, opts ...grpc.CallOption) (*GenerateLinkResponse, error)
 }
 
@@ -45,40 +41,20 @@ func NewJWTClient(cc grpc.ClientConnInterface) JWTClient {
 	return &jWTClient{cc}
 }
 
-func (c *jWTClient) GenerateAccessToken(ctx context.Context, in *AccessTokenRequest, opts ...grpc.CallOption) (*AccessTokenResponse, error) {
+func (c *jWTClient) GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*GenerateTokenResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AccessTokenResponse)
-	err := c.cc.Invoke(ctx, JWT_GenerateAccessToken_FullMethodName, in, out, cOpts...)
+	out := new(GenerateTokenResponse)
+	err := c.cc.Invoke(ctx, JWT_GenerateToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *jWTClient) GenerateRefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error) {
+func (c *jWTClient) ValidateToken(ctx context.Context, in *ValidateTokenRequest, opts ...grpc.CallOption) (*ValidateTokenResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RefreshTokenResponse)
-	err := c.cc.Invoke(ctx, JWT_GenerateRefreshToken_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *jWTClient) ValidateAccessToken(ctx context.Context, in *ValidateAccessTokenRequest, opts ...grpc.CallOption) (*ValidateAccessTokenResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ValidateAccessTokenResponse)
-	err := c.cc.Invoke(ctx, JWT_ValidateAccessToken_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *jWTClient) ValidateRefreshToken(ctx context.Context, in *ValidateRefreshTokenRequest, opts ...grpc.CallOption) (*ValidateRefreshTokenResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ValidateRefreshTokenResponse)
-	err := c.cc.Invoke(ctx, JWT_ValidateRefreshToken_FullMethodName, in, out, cOpts...)
+	out := new(ValidateTokenResponse)
+	err := c.cc.Invoke(ctx, JWT_ValidateToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -99,10 +75,8 @@ func (c *jWTClient) GenerateLink(ctx context.Context, in *GenerateLinkRequest, o
 // All implementations must embed UnimplementedJWTServer
 // for forward compatibility.
 type JWTServer interface {
-	GenerateAccessToken(context.Context, *AccessTokenRequest) (*AccessTokenResponse, error)
-	GenerateRefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
-	ValidateAccessToken(context.Context, *ValidateAccessTokenRequest) (*ValidateAccessTokenResponse, error)
-	ValidateRefreshToken(context.Context, *ValidateRefreshTokenRequest) (*ValidateRefreshTokenResponse, error)
+	GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error)
+	ValidateToken(context.Context, *ValidateTokenRequest) (*ValidateTokenResponse, error)
 	GenerateLink(context.Context, *GenerateLinkRequest) (*GenerateLinkResponse, error)
 	mustEmbedUnimplementedJWTServer()
 }
@@ -114,17 +88,11 @@ type JWTServer interface {
 // pointer dereference when methods are called.
 type UnimplementedJWTServer struct{}
 
-func (UnimplementedJWTServer) GenerateAccessToken(context.Context, *AccessTokenRequest) (*AccessTokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GenerateAccessToken not implemented")
+func (UnimplementedJWTServer) GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateToken not implemented")
 }
-func (UnimplementedJWTServer) GenerateRefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GenerateRefreshToken not implemented")
-}
-func (UnimplementedJWTServer) ValidateAccessToken(context.Context, *ValidateAccessTokenRequest) (*ValidateAccessTokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ValidateAccessToken not implemented")
-}
-func (UnimplementedJWTServer) ValidateRefreshToken(context.Context, *ValidateRefreshTokenRequest) (*ValidateRefreshTokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ValidateRefreshToken not implemented")
+func (UnimplementedJWTServer) ValidateToken(context.Context, *ValidateTokenRequest) (*ValidateTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateToken not implemented")
 }
 func (UnimplementedJWTServer) GenerateLink(context.Context, *GenerateLinkRequest) (*GenerateLinkResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateLink not implemented")
@@ -150,74 +118,38 @@ func RegisterJWTServer(s grpc.ServiceRegistrar, srv JWTServer) {
 	s.RegisterService(&JWT_ServiceDesc, srv)
 }
 
-func _JWT_GenerateAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AccessTokenRequest)
+func _JWT_GenerateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(JWTServer).GenerateAccessToken(ctx, in)
+		return srv.(JWTServer).GenerateToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: JWT_GenerateAccessToken_FullMethodName,
+		FullMethod: JWT_GenerateToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(JWTServer).GenerateAccessToken(ctx, req.(*AccessTokenRequest))
+		return srv.(JWTServer).GenerateToken(ctx, req.(*GenerateTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _JWT_GenerateRefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RefreshTokenRequest)
+func _JWT_ValidateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(JWTServer).GenerateRefreshToken(ctx, in)
+		return srv.(JWTServer).ValidateToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: JWT_GenerateRefreshToken_FullMethodName,
+		FullMethod: JWT_ValidateToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(JWTServer).GenerateRefreshToken(ctx, req.(*RefreshTokenRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _JWT_ValidateAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateAccessTokenRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(JWTServer).ValidateAccessToken(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: JWT_ValidateAccessToken_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(JWTServer).ValidateAccessToken(ctx, req.(*ValidateAccessTokenRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _JWT_ValidateRefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateRefreshTokenRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(JWTServer).ValidateRefreshToken(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: JWT_ValidateRefreshToken_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(JWTServer).ValidateRefreshToken(ctx, req.(*ValidateRefreshTokenRequest))
+		return srv.(JWTServer).ValidateToken(ctx, req.(*ValidateTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -248,20 +180,12 @@ var JWT_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*JWTServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GenerateAccessToken",
-			Handler:    _JWT_GenerateAccessToken_Handler,
+			MethodName: "GenerateToken",
+			Handler:    _JWT_GenerateToken_Handler,
 		},
 		{
-			MethodName: "GenerateRefreshToken",
-			Handler:    _JWT_GenerateRefreshToken_Handler,
-		},
-		{
-			MethodName: "ValidateAccessToken",
-			Handler:    _JWT_ValidateAccessToken_Handler,
-		},
-		{
-			MethodName: "ValidateRefreshToken",
-			Handler:    _JWT_ValidateRefreshToken_Handler,
+			MethodName: "ValidateToken",
+			Handler:    _JWT_ValidateToken_Handler,
 		},
 		{
 			MethodName: "GenerateLink",

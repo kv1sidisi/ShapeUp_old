@@ -9,7 +9,7 @@ tasks:
       - gen
     desc: "generates code from proto file to itself"
     cmds:
-      - protoc -I protos protos/*.proto --go_out=./pb/authsvc --go_opt=paths=source_relative --go-grpc_out=./pb/authsvc --go-grpc_opt=paths=source_relative
+      - protoc -I protos protos/*.proto --go_out=./pb/usrcreatesvc --go_opt=paths=source_relative --go-grpc_out=./pb/usrcreatesvc --go-grpc_opt=paths=source_relative
 
   copy_proto:
     aliases:
@@ -37,14 +37,14 @@ tasks:
       - |
         {{- $clients := split "," .CLIENTS }}
         {{- range $clients }}
-        echo Creating directory ..\..\..\{{ . }}\api\grpccl\pb\authsvc if not exists...
-        powershell -Command "New-Item -ItemType Directory -Path '..\..\..\{{ . }}\api\grpccl\pb\authsvc' -Force | Out-Null"
+        echo Creating directory ..\..\..\{{ . }}\api\grpccl\pb\usrcreatesvc if not exists...
+        powershell -Command "New-Item -ItemType Directory -Path '..\..\..\{{ . }}\api\grpccl\pb\usrcreatesvc' -Force | Out-Null"
         
-        echo Removing old .pb.go files from ..\..\..\{{ . }}\api\grpccl\pb\authsvc...
-        powershell -Command "Remove-Item -Path '..\..\..\{{ . }}\api\grpccl\pb\authsvc\*.pb.go' -Force -ErrorAction SilentlyContinue"
+        echo Removing old .pb.go files from ..\..\..\{{ . }}\api\grpccl\pb\usrcreatesvc...
+        powershell -Command "Remove-Item -Path '..\..\..\{{ . }}\api\grpccl\pb\usrcreatesvc\*.pb.go' -Force -ErrorAction SilentlyContinue"
         
-        echo Generating .pb.go files in ..\..\..\{{ . }}\api\grpccl\pb\authsvc...
-        protoc -I '..\..\..\{{ . }}\api\grpccl\protos' '..\..\..\{{ . }}\api\grpccl\protos\authsvc.proto' --go_out="..\..\..\{{ . }}\api\grpccl\pb\authsvc" --go_opt=paths=source_relative --go-grpc_out="..\..\..\{{ . }}\api\grpccl\pb\authsvc" --go-grpc_opt=paths=source_relative
+        echo Generating .pb.go files in ..\..\..\{{ . }}\api\grpccl\pb\usrcreatesvc...
+        protoc -I '..\..\..\{{ . }}\api\grpccl\protos' '..\..\..\{{ . }}\api\grpccl\protos\usrcreatesvc.proto' --go_out="..\..\..\{{ . }}\api\grpccl\pb\usrcreatesvc" --go_opt=paths=source_relative --go-grpc_out="..\..\..\{{ . }}\api\grpccl\pb\usrcreatesvc" --go-grpc_opt=paths=source_relative
         {{- end }}
     silent: true
 
