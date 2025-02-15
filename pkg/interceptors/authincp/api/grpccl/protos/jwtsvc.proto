@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package jwt;
+
+option go_package = "shapeup.jwt.v1;jwtsvc";
+
+service JWT {
+  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  int64 uid = 1;
+  string operation = 2;
+}
