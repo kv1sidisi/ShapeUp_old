@@ -86,8 +86,6 @@ func (s *JWTSvc) ValidateToken(ctx context.Context, accessToken string, secretKe
 }
 
 func (s *JWTSvc) GenerateLink(ctx context.Context, linkBase string, uid int64, operation string, secretKey string) (string, error) {
-	const op = "jwtsvc.GenerateLink"
-	log := s.log.With(slog.String("op", op))
 
 	token, err := s.GenerateToken(ctx, uid, operation, secretKey)
 	if err != nil {
@@ -95,7 +93,6 @@ func (s *JWTSvc) GenerateLink(ctx context.Context, linkBase string, uid int64, o
 	}
 
 	link := linkBase + token
-	log.Info("generated", slog.String("link", link))
 
 	return link, nil
 }

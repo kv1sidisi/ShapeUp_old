@@ -17,7 +17,7 @@ type JWTSvc interface {
 	GenerateLink(ctx context.Context, linkBase string, uid int64, operation string, secretKey string) (string, error)
 }
 
-// serverAPI handler for the gRPC server.
+// ServerAPI handler for the gRPC server.
 type ServerAPI struct {
 	jwtsvc.UnimplementedJWTServer
 	jwtService JWTSvc
