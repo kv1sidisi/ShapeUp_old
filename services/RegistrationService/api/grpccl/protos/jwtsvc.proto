@@ -5,43 +5,25 @@ package jwt;
 option go_package = "shapeup.jwt.v1;jwtsvc";
 
 service JWT {
-  rpc GenerateAccessToken (AccessTokenRequest) returns (AccessTokenResponse);
-  rpc GenerateRefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
-  rpc ValidateAccessToken (ValidateAccessTokenRequest) returns (ValidateAccessTokenResponse);
-  rpc ValidateRefreshToken (ValidateRefreshTokenRequest) returns (ValidateRefreshTokenResponse);
+  rpc GenerateToken (GenerateTokenRequest) returns (GenerateTokenResponse);
+  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
   rpc GenerateLink (GenerateLinkRequest) returns (GenerateLinkResponse);
 }
 
-message AccessTokenRequest {
-  int64 uid = 1;
-  string operation = 2;
-
-}
-message AccessTokenResponse {
-  string token = 1;
-}
-
-message RefreshTokenRequest {
-  int64 uid = 1;
-  string operation = 2;
-}
-message RefreshTokenResponse {
-  string token = 1;
-}
-
-message ValidateAccessTokenRequest {
-  string token = 1;
-}
-message ValidateAccessTokenResponse {
+message GenerateTokenRequest {
   int64 uid = 1;
   string operation = 2;
 }
 
-message ValidateRefreshTokenRequest {
+message GenerateTokenResponse {
   string token = 1;
-
 }
-message ValidateRefreshTokenResponse {
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
   int64 uid = 1;
   string operation = 2;
 }
