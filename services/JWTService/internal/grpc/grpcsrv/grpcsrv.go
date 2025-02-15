@@ -12,10 +12,8 @@ import (
 
 // JWTSvc service for serverAPI.
 type JWTSvc interface {
-	GenerateAccessToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error)
-	GenerateRefreshToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error)
-	ValidateAccessToken(ctx context.Context, accessToken string, secretKey string) (uid int64, operation string, err error)
-	ValidateRefreshToken(ctx context.Context, refreshToken string, secretKey string) (uid int64, operation string, err error)
+	GenerateToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error)
+	ValidateToken(ctx context.Context, accessToken string, secretKey string) (uid int64, operation string, err error)
 	GenerateLink(ctx context.Context, linkBase string, uid int64, operation string, secretKey string) (string, error)
 }
 
@@ -38,16 +36,16 @@ func RegisterServer(grpcServer *grpc.Server, jwtService JWTSvc, cfg *config.Conf
 	})
 }
 
-// GenerateAccessToken is the GRPC server handler method. Generates new access JWT token.
+// GenerateToken is the GRPC server handler method. Generates new JWT token.
 //
 // Returns:
 //
-//   - A pointer to AccessTokenResponse if succeeded.
+//   - A pointer to TokenResponse if succeeded.
 //
-//   - An error if: request is invalid. Error while generating access token through service.
-func (s *ServerAPI) GenerateAccessToken(ctx context.Context,
-	req *jwtsvc.AccessTokenRequest,
-) (*jwtsvc.AccessTokenResponse, error) {
+//   - An error if: request is invalid. Error while generating token through service.
+func (s *ServerAPI) GenerateToken(ctx context.Context,
+	req *jwtsvc.GenerateTokenRequest,
+) (*jwtsvc.GenerateTokenResponse, error) {
 	const op = "grpcsrv.GenerateAccessToken"
 	log := s.log.With(slog.String("op", op))
 
@@ -60,63 +58,28 @@ func (s *ServerAPI) GenerateAccessToken(ctx context.Context,
 		return nil, errdefs.InvalidOperationType
 	}
 
-	token, err := s.jwtService.GenerateAccessToken(ctx, req.GetUid(), req.GetOperation(), s.cfg.JWT.AccessTokenSecretKey)
+	token, err := s.jwtService.GenerateToken(ctx, req.GetUid(), req.GetOperation(), s.cfg.JWT.AccessTokenSecretKey)
 	if err != nil {
 		return nil, err
 	}
 
 	log.Info("access token generated successfully: ", token)
 
-	return &jwtsvc.AccessTokenResponse{
+	return &jwtsvc.GenerateTokenResponse{
 		Token: token,
 	}, nil
 }
 
-// GenerateRefreshToken is the GRPC server handler method. Generates new refresh JWT token.
+// ValidateToken is the GRPC server handler method. Validates JWT token.
 //
 // Returns:
 //
-//   - A pointer to RefreshTokenResponse if succeeded.
+//   - A pointer to ValidateTokenResponse if succeeded.
 //
-//   - An error if: request is invalid. Error while generating refresh token through service.
-func (s *ServerAPI) GenerateRefreshToken(ctx context.Context,
-	req *jwtsvc.RefreshTokenRequest,
-) (*jwtsvc.RefreshTokenResponse, error) {
-	const op = "grpcsrv.GenerateRefreshToken"
-
-	log := s.log.With(slog.String("op", op))
-
-	if req.GetUid() == 0 {
-		log.Error("invalid uid in request:", req.GetUid())
-		return nil, errdefs.InvalidUserId
-	}
-	if len(req.GetOperation()) == 0 {
-		log.Error("invalid operation in request: ", req.GetUid())
-		return nil, errdefs.InvalidOperationType
-	}
-
-	token, err := s.jwtService.GenerateRefreshToken(ctx, req.GetUid(), req.GetOperation(), s.cfg.JWT.AccessTokenSecretKey)
-	if err != nil {
-		return nil, err
-	}
-
-	log.Info("refresh token generated successfully: ", token)
-
-	return &jwtsvc.RefreshTokenResponse{
-		Token: token,
-	}, nil
-}
-
-// ValidateAccessToken is the GRPC server handler method. Validates access JWT token.
-//
-// Returns:
-//
-//   - A pointer to ValidateAccessTokenResponse if succeeded.
-//
-//   - An error if: Access token is invalid. Request is invalid. Error while validating access token through service.
-func (s *ServerAPI) ValidateAccessToken(ctx context.Context,
-	req *jwtsvc.ValidateAccessTokenRequest,
-) (*jwtsvc.ValidateAccessTokenResponse, error) {
+//   - An error if: Token is invalid. Request is invalid. Error while validating token through service.
+func (s *ServerAPI) ValidateToken(ctx context.Context,
+	req *jwtsvc.ValidateTokenRequest,
+) (*jwtsvc.ValidateTokenResponse, error) {
 	const op = "grpcsrv.ValidateAccessToken"
 	log := s.log.With(slog.String("op", op))
 
@@ -125,45 +88,14 @@ func (s *ServerAPI) ValidateAccessToken(ctx context.Context,
 		return nil, errdefs.InvalidToken
 	}
 
-	uid, operation, err := s.jwtService.ValidateAccessToken(ctx, req.GetToken(), s.cfg.JWT.AccessTokenSecretKey)
+	uid, operation, err := s.jwtService.ValidateToken(ctx, req.GetToken(), s.cfg.JWT.AccessTokenSecretKey)
 	if err != nil {
 		return nil, err
 	}
 
 	log.Info(fmt.Sprintf("token validated successfully uid: %s, operation: %s", uid, operation))
 
-	return &jwtsvc.ValidateAccessTokenResponse{
-		Operation: operation,
-		Uid:       uid,
-	}, nil
-}
-
-// ValidateRefreshToken is the GRPC server handler method. Validates refresh JWT token.
-//
-// Returns:
-//
-//   - A pointer to ValidateRefreshTokenResponse if succeeded.
-//
-//   - An error if: Refresh token is invalid. Request is invalid. Error while validating refresh token through service.
-func (s *ServerAPI) ValidateRefreshToken(ctx context.Context,
-	req *jwtsvc.ValidateRefreshTokenRequest,
-) (*jwtsvc.ValidateRefreshTokenResponse, error) {
-	const op = "grpcsrv.ValidateRefreshToken"
-	log := s.log.With(slog.String("op", op))
-
-	if len(req.GetToken()) == 0 {
-		log.Error("invalid token in request")
-		return nil, errdefs.InvalidToken
-	}
-
-	uid, operation, err := s.jwtService.ValidateRefreshToken(ctx, req.GetToken(), s.cfg.JWT.RefreshTokenSecretKey)
-	if err != nil {
-		return nil, err
-	}
-
-	log.Info(fmt.Sprintf("token validated successfully uid: %s, operation: %s", uid, operation))
-
-	return &jwtsvc.ValidateRefreshTokenResponse{
+	return &jwtsvc.ValidateTokenResponse{
 		Operation: operation,
 		Uid:       uid,
 	}, nil

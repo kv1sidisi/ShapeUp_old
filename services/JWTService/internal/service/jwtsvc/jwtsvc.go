@@ -19,6 +19,7 @@ func New(log *slog.Logger, cfg *config.Config) *JWTSvc {
 	return &JWTSvc{log: log, cfg: cfg}
 }
 
+// TODO: custom claims map
 func (s *JWTSvc) GenerateToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error) {
 	const op = "jwtsvc.GenerateAccessToken"
 	log := s.log.With(slog.String("op", op))
