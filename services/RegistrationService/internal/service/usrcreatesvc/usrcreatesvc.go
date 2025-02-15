@@ -129,7 +129,7 @@ func (r *UsrCreateSvc) ConfirmNewUser(ctx context.Context, token string) (uid in
 		slog.String("token", token),
 	)
 
-	validationResp, err := r.jwtClient.ValidateAccessToken(ctx, &pbjwtsvc.ValidateAccessTokenRequest{
+	validationResp, err := r.jwtClient.ValidateToken(ctx, &pbjwtsvc.ValidateTokenRequest{
 		Token: token,
 	})
 	if err != nil {

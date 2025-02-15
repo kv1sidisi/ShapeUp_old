@@ -97,7 +97,7 @@ func (as *AuthSvc) LoginUser(
 		return 0, "", "", errdefs.InvalidCredentials
 	}
 
-	accessTokenGenResp, err := as.jwtClient.GenerateAccessToken(ctx, &pbjwtsvc.AccessTokenRequest{
+	accessTokenGenResp, err := as.jwtClient.GenerateToken(ctx, &pbjwtsvc.GenerateTokenRequest{
 		Uid:       user.ID,
 		Operation: accessOperationType,
 	})
@@ -107,7 +107,7 @@ func (as *AuthSvc) LoginUser(
 	accessToken = accessTokenGenResp.GetToken()
 	log.Info("access token generated", slog.String("accessToken", accessToken))
 
-	refreshTokenGenResp, err := as.jwtClient.GenerateRefreshToken(ctx, &pbjwtsvc.RefreshTokenRequest{
+	refreshTokenGenResp, err := as.jwtClient.GenerateToken(ctx, &pbjwtsvc.GenerateTokenRequest{
 		Uid:       user.ID,
 		Operation: refreshOperationType,
 	})
