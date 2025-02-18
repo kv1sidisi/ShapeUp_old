@@ -18,6 +18,8 @@ var (
 )
 
 var (
+	// InvalidRequest used when grpc request data is invalid.
+	InvalidRequest       = newError(codes.InvalidArgument, "invalid request")
 	InvalidCredentials   = newError(codes.InvalidArgument, "invalid credentials")
 	InvalidUserId        = newError(codes.InvalidArgument, "invalid user id")
 	InvalidEmail         = newError(codes.InvalidArgument, "invalid email")
