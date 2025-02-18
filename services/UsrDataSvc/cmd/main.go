@@ -6,8 +6,12 @@ import (
 	loadconfig "github.com/kv1sidisi/shapeup/pkg/config"
 	"github.com/kv1sidisi/shapeup/pkg/database/pgcl"
 	"github.com/kv1sidisi/shapeup/pkg/logger"
+	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/app/extapp"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/config"
 	"log/slog"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -21,8 +25,20 @@ func main() {
 	postgresqlClient := mustConnectToDatabase(cfg)
 	log.Info("connected to database")
 
-	application
+	application := extapp.New(log, cfg, postgresqlClient)
 
+	log.Info("application created")
+
+	go application.GRPCSrv.MustRun()
+	log.Info("GRPC server started")
+
+	//Graceful shutdown
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+	sign := <-stop
+	log.Info("received shutdown signal", slog.Any("signal", sign))
+	application.GRPCSrv.Stop()
+	log.Info("application stopped")
 }
 
 // mustConnectToDatabase panics if setupDatabaseConnection fails

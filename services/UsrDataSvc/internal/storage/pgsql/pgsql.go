@@ -23,6 +23,6 @@ func (s *UsrDataMgr) UpdBsUsrAttr(ctx context.Context, bsusrattr *models.BsUsrAt
 	panic("implement me")
 }
 
-func (s *UsrDataMgr) GetById(ctx context.Context, id int64) (*models.BsUsrAttr, error) {
+func (s *UsrDataMgr) GetById(ctx context.Context) (*models.BsUsrAttr, error) {
 	panic("implement me")
 }
