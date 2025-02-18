@@ -22,3 +22,7 @@ func New(client pgcl.Client, log *slog.Logger) (*UsrDataMgr, error) {
 func (s *UsrDataMgr) UpdBsUsrAttr(ctx context.Context, bsusrattr *models.BsUsrAttr) error {
 	panic("implement me")
 }
+
+func (s *UsrDataMgr) GetById(ctx context.Context, id int64) (*models.BsUsrAttr, error) {
+	panic("implement me")
+}
