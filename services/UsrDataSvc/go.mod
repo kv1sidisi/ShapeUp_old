@@ -19,4 +19,6 @@ replace github.com/kv1sidisi/shapeup/pkg/database/pgcl => ../../pkg/database/pgc
 
 require github.com/kv1sidisi/shapeup/pkg/errdefs v0.0.0
 
+require google.golang.org/protobuf v1.36.5 // indirect
+
 replace github.com/kv1sidisi/shapeup/pkg/errdefs => ../../pkg/errdefs
