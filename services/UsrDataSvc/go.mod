@@ -47,3 +47,7 @@ require (
 )
 
 replace github.com/kv1sidisi/shapeup/pkg/errdefs => ../../pkg/errdefs
+
+require github.com/kv1sidisi/shapeup/pkg/interceptors/authincp v0.0.0
+
+replace github.com/kv1sidisi/shapeup/pkg/interceptors/authincp => ../../pkg/interceptors/authincp

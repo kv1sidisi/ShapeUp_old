@@ -5,7 +5,11 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 	loadconfig "github.com/kv1sidisi/shapeup/pkg/config"
 	"github.com/kv1sidisi/shapeup/pkg/database/pgcl"
+	"github.com/kv1sidisi/shapeup/pkg/interceptors/authincp"
 	"github.com/kv1sidisi/shapeup/pkg/logger"
+	pbjwtsvc "github.com/kv1sidisi/shapeup/services/usrdatasvc/api/grpccl/pb/jwtsvc"
+	"github.com/kv1sidisi/shapeup/services/usrdatasvc/cmd/grpccl"
+	"github.com/kv1sidisi/shapeup/services/usrdatasvc/cmd/grpccl/consts"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/app/extapp"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/config"
 	"log/slog"
@@ -25,7 +29,15 @@ func main() {
 	postgresqlClient := mustConnectToDatabase(cfg)
 	log.Info("connected to database")
 
-	application := extapp.New(log, cfg, postgresqlClient)
+	//connecting grpc clients
+	clients := grpccl.New(log, cfg)
+	defer clients.Close()
+
+	//connecting interceptors
+	jwtClient := clients.Cl[consts.JWTSvc].Client.(pbjwtsvc.JWTClient)
+	authInCp := authincp.AuthInterceptor(log, jwtClient)
+
+	application := extapp.New(log, cfg, postgresqlClient, authInCp)
 
 	log.Info("application created")
 

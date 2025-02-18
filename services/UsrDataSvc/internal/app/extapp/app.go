@@ -6,6 +6,7 @@ import (
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/config"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/service/usrdatasvc"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/storage/pgsql"
+	"google.golang.org/grpc"
 	"log/slog"
 )
 
@@ -22,6 +23,7 @@ func New(
 	log *slog.Logger,
 	cfg *config.Config,
 	postgresqlClient *pgxpool.Pool,
+	authInCp grpc.UnaryServerInterceptor,
 ) *App {
 	storage, err := pgsql.New(postgresqlClient, log)
 	if err != nil {
@@ -32,7 +34,7 @@ func New(
 	usrDataSvc := usrdatasvc.New(log, storage)
 	log.Info("user creation service created")
 
-	grpcApp := intapp.New(log, usrDataSvc, cfg)
+	grpcApp := intapp.New(log, usrDataSvc, cfg, authInCp)
 	log.Info("external GRPC server created")
 
 	return &App{

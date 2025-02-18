@@ -2,6 +2,8 @@ env: "local"
 grpc:
   port: 10005
   timeout: 10h
+grpc_client:
+  jwt_service_address: "localhost:10003"
 storage:
   host: localhost
   port: 5432

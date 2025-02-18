@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  CLIENTS: "AuthenticationService,RegistrationService"
+  CLIENTS: "AuthenticationService,RegistrationService,UsrDataSvc"
 
 tasks:
   generate:

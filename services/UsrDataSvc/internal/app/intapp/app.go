@@ -2,6 +2,7 @@ package intapp
 
 import (
 	"fmt"
+	"github.com/kv1sidisi/shapeup/pkg/interceptors/authincp"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/config"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/grpc/grpcsrv"
 	"google.golang.org/grpc"
@@ -23,8 +24,9 @@ func New(
 	log *slog.Logger,
 	usrDataSvc grpcsrv.UsrDataSvc,
 	cfg *config.Config,
+	authInCp grpc.UnaryServerInterceptor,
 ) *App {
-	gRPCServer := grpc.NewServer()
+	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(authInCp))
 	log.Info("GRPC server created")
 
 	grpcsrv.RegisterServer(gRPCServer, usrDataSvc, cfg, log)
