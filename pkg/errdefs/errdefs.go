@@ -6,6 +6,7 @@ import (
 )
 
 var (
+	ErrFieldMask            = newError(codes.Internal, "error applying field mask")
 	ErrInternal             = newError(codes.Internal, "internal error")
 	ErrUserNotConfirmed     = newError(codes.Unauthenticated, "user not confirmed")
 	ErrUserNotFound         = newError(codes.NotFound, "user not found")
