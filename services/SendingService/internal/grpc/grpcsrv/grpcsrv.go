@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/asaskevich/govalidator"
 	"github.com/kv1sidisi/shapeup/pkg/errdefs"
-	"github.com/kv1sidisi/shapeup/services/sendsvc/api/grpc/pb/sendsvc"
+	sendsvc "github.com/kv1sidisi/shapeup/pkg/proto/sendsvc/pb"
 	"github.com/kv1sidisi/shapeup/services/sendsvc/internal/config"
 	"google.golang.org/grpc"
 	"log/slog"

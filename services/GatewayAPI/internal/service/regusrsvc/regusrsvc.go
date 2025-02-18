@@ -2,7 +2,7 @@ package regusrsvc
 
 import (
 	"context"
-	pbusrcreatesvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/usrcreatesvc"
+	pbusrcreatesvc "github.com/kv1sidisi/shapeup/pkg/proto/usercreatesvc/pb"
 	"log/slog"
 )
 

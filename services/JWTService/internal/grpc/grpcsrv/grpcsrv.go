@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/kv1sidisi/shapeup/pkg/errdefs"
-	"github.com/kv1sidisi/shapeup/services/jwtsvc/api/grpc/pb/jwtsvc"
+	jwtsvc "github.com/kv1sidisi/shapeup/pkg/proto/jwtsvc/pb"
 	"github.com/kv1sidisi/shapeup/services/jwtsvc/internal/config"
 	"google.golang.org/grpc"
 	"log/slog"

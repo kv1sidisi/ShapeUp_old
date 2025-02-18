@@ -3,7 +3,7 @@ package authhdlr
 import (
 	"encoding/json"
 	"github.com/go-chi/chi/middleware"
-	pbauthsvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/authsvc"
+	pbauthsvc "github.com/kv1sidisi/shapeup/pkg/proto/authsvc/pb"
 	mapper "github.com/kv1sidisi/shapeup/services/gtwapi/internal/utils/grpchttperrmap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

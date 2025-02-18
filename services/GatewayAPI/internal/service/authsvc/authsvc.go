@@ -2,7 +2,7 @@ package authsvc
 
 import (
 	"context"
-	pbauthsvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/authsvc"
+	pbauthsvc "github.com/kv1sidisi/shapeup/pkg/proto/authsvc/pb"
 	"log/slog"
 )
 

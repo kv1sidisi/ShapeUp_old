@@ -28,3 +28,7 @@ replace github.com/kv1sidisi/shapeup/pkg/config => ../../pkg/config
 require github.com/kv1sidisi/shapeup/pkg/errdefs v0.0.0
 
 replace github.com/kv1sidisi/shapeup/pkg/errdefs => ../../pkg/errdefs
+
+require github.com/kv1sidisi/shapeup/pkg/proto v0.0.0
+
+replace github.com/kv1sidisi/shapeup/pkg/proto => ../../pkg/proto
