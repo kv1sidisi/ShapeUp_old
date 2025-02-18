@@ -7,7 +7,7 @@ import (
 	"github.com/kv1sidisi/shapeup/pkg/database/pgcl"
 	"github.com/kv1sidisi/shapeup/pkg/interceptors/authincp"
 	"github.com/kv1sidisi/shapeup/pkg/logger"
-	pbjwtsvc "github.com/kv1sidisi/shapeup/services/usrdatasvc/api/grpccl/pb/jwtsvc"
+	pbjwtsvc "github.com/kv1sidisi/shapeup/pkg/proto/jwtsvc/pb"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/cmd/grpccl"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/cmd/grpccl/consts"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/app/extapp"

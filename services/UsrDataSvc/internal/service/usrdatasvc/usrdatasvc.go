@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/kv1sidisi/shapeup/pkg/errdefs"
-	"github.com/kv1sidisi/shapeup/services/usrdatasvc/api/grpc/pb/usrdatasvc"
+	"github.com/kv1sidisi/shapeup/pkg/proto/usrdatasvc/pb"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/domain/models"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"

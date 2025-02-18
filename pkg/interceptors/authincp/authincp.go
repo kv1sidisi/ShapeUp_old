@@ -3,7 +3,7 @@ package authincp
 import (
 	"context"
 	"github.com/kv1sidisi/shapeup/pkg/errdefs"
-	pbjwtsvc "github.com/kv1sidisi/shapeup/pkg/interceptors/authincp/api/grpccl/pb"
+	pbjwtsvc "github.com/kv1sidisi/shapeup/pkg/proto/jwtsvc/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"log/slog"

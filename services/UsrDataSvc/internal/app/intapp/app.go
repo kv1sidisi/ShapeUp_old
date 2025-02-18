@@ -2,7 +2,6 @@ package intapp
 
 import (
 	"fmt"
-	"github.com/kv1sidisi/shapeup/pkg/interceptors/authincp"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/config"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/grpc/grpcsrv"
 	"google.golang.org/grpc"

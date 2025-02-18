@@ -3,7 +3,7 @@ package grpcsrv
 import (
 	"context"
 	"github.com/kv1sidisi/shapeup/pkg/errdefs"
-	"github.com/kv1sidisi/shapeup/services/usrdatasvc/api/grpc/pb/usrdatasvc"
+	"github.com/kv1sidisi/shapeup/pkg/proto/usrdatasvc/pb"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/config"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
