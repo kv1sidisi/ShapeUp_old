@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+import "google/protobuf/field_mask.proto";
+
+package usrdata;
+
+option go_package = "shapeup.usrdata.v1;usrdatasvc";
+
+// BsUsr basic user attributes.
+message BsUsrAttr {
+  string name = 1;
+  double height = 2;
+  double weight = 3;
+  string gender = 4;
+  string birth_date = 5;
+}
+
+service UsrData {
+  rpc UpdBsUsrAttr(UpdBsUsrAttrRequest) returns (UpdBsUsrAttrResponse);
+}
+
+message UpdBsUsrAttrRequest {
+  BsUsrAttr user = 1;
+
+  // FieldMask, shows which fields should be updated.
+  google.protobuf.FieldMask upd_mask = 2;
+}
+
+message UpdBsUsrAttrResponse{
+  BsUsrAttr user = 1;
+}
