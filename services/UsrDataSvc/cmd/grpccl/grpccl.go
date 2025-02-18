@@ -1,7 +1,7 @@
 package grpccl
 
 import (
-	pbjwtsvc "github.com/kv1sidisi/shapeup/services/usrdatasvc/api/grpccl/pb/jwtsvc"
+	pbjwtsvc "github.com/kv1sidisi/shapeup/pkg/proto/jwtsvc/pb"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/cmd/grpccl/consts"
 	"github.com/kv1sidisi/shapeup/services/usrdatasvc/internal/config"
 	"google.golang.org/grpc"
