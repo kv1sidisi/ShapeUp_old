@@ -8,7 +8,7 @@ require (
 	github.com/jackc/pgx/v4 v4.18.3
 	golang.org/x/crypto v0.30.0
 	google.golang.org/grpc v1.70.0
-	google.golang.org/protobuf v1.35.2
+	google.golang.org/protobuf v1.36.5 // indirect
 )
 
 require (
@@ -52,4 +52,3 @@ replace github.com/kv1sidisi/shapeup/pkg/errdefs => ../../pkg/errdefs
 require github.com/kv1sidisi/shapeup/pkg/proto v0.0.0
 
 replace github.com/kv1sidisi/shapeup/pkg/proto => ../../pkg/proto
-

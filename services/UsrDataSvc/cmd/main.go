@@ -37,6 +37,8 @@ func main() {
 	jwtClient := clients.Cl[consts.JWTSvc].Client.(pbjwtsvc.JWTClient)
 	authInCp := authincp.AuthInterceptor(log, jwtClient)
 
+	log.Info("interceptors connected")
+
 	application := extapp.New(log, cfg, postgresqlClient, authInCp)
 
 	log.Info("application created")

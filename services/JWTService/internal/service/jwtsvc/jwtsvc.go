@@ -60,7 +60,7 @@ func (s *JWTSvc) ValidateToken(ctx context.Context, accessToken string, secretKe
 		return []byte(secretKey), nil
 	})
 	if err != nil {
-		log.Error("failed to parse access token")
+		log.Error("failed to parse access token", token)
 		return 0, "", errdefs.InvalidCredentials
 	}
 

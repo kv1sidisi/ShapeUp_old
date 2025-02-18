@@ -53,6 +53,7 @@ func (s *serverAPI) Login(
 	log := s.log.With(slog.String("op", op))
 
 	if len(req.Username) == 0 || len(req.Password) == 0 {
+		log.Info("got wrong credentials: ", req.Username, req.Password)
 		return nil, errdefs.InvalidCredentials
 	}
 

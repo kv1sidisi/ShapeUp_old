@@ -3,7 +3,7 @@ package suite
 import (
 	"context"
 	loadconfig "github.com/kv1sidisi/shapeup/pkg/config"
-	regv1 "github.com/kv1sidisi/shapeup/services/regsvc/api/grpc/pb/usrcreatesvc"
+	regv1 "github.com/kv1sidisi/shapeup/pkg/proto/usercreatesvc/pb"
 	"github.com/kv1sidisi/shapeup/services/regsvc/internal/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

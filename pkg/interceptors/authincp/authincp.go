@@ -15,12 +15,13 @@ func AuthInterceptor(log *slog.Logger, jwtsvc pbjwtsvc.JWTClient) grpc.UnaryServ
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			log.Error("missing metadata for ", slog.String("interceptor", op))
+			//TODO: поменять ошибку на какую нибудь Unauthenticated.
 			return nil, errdefs.ErrInternal
 		}
 
 		token, ok := md["authorization"]
 		if len(token) == 0 || !ok {
-			log.Error("missing token for ", slog.String("interceptor", op))
+			log.Error("missing token for ", slog.String("interceptor", op), token)
 			return nil, errdefs.ErrInternal
 		}
 
