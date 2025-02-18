@@ -9,10 +9,10 @@ option go_package = "shapeup.usrdata.v1;usrdatasvc";
 // BsUsr basic user attributes.
 message BsUsrAttr {
   string name = 1;
-  double height = 4;
-  double weight = 5;
-  string gender = 6;
-  string birth_date = 7;
+  double height = 2;
+  double weight = 3;
+  string gender = 4;
+  string birth_date = 5;
 }
 
 service UsrData {
