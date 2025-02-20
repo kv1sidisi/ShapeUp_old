@@ -81,7 +81,7 @@ func (s *AuthMgr) AddSession(ctx context.Context,
 		return errdefs.ErrSessionAlreadyExists
 	}
 
-	//TODO: device_info, ip_address,
+	//TODO: device_info, ip_address
 	q := `INSERT INTO user_sessions (uid, refresh_token)
 			VALUES ($1, $2)
 			RETURNING id`
@@ -90,7 +90,7 @@ func (s *AuthMgr) AddSession(ctx context.Context,
 
 	var sessionId int64
 
-	if err := s.client.QueryRow(ctx, q, uid, accessToken, refreshToken).Scan(&sessionId); err != nil {
+	if err := s.client.QueryRow(ctx, q, uid, refreshToken).Scan(&sessionId); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			log.Error(fmt.Sprintf("SQL Error: %s, Detail: %s, Where %s, Code: %s, SQLState: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()), err)
@@ -109,7 +109,7 @@ func checkOnlineSession(ctx context.Context, log *slog.Logger, client pgcl.Clien
 	q := `
         SELECT EXISTS (
             SELECT 1 
-            FROM sessions 
+            FROM user_sessions 
             WHERE uid = $1
         )`
 
@@ -130,7 +130,7 @@ func (s *AuthMgr) IsUserConfirmed(ctx context.Context, uid int64) (confirmed boo
 	log := s.log.With(
 		slog.String("op", op))
 
-	q := `SELECT isconfirmed FROM users WHERE id = $1`
+	q := `SELECT is_confirmed FROM users WHERE id = $1`
 
 	log.Info(fmt.Sprintf("query: %s", format.RemoveLinesAndTabs(q)))
 

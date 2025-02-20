@@ -73,7 +73,7 @@ func (s *UsrMgr) ConfirmAccount(ctx context.Context, uid int64) error {
 		slog.String("op", op),
 	)
 
-	query := `UPDATE users SET isconfirmed = TRUE WHERE id = $1`
+	query := `UPDATE users SET is_confirmed = TRUE WHERE id = $1`
 
 	log.Info(fmt.Sprintf("SQL Query: %s", query))
 
