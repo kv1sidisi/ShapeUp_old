@@ -34,7 +34,7 @@ func (s *UsrDataMgr) GetById(ctx context.Context) (*models.BsUsrAttr, error) {
 	log := s.log.With(
 		slog.String("op", op))
 
-	q := `SELECT name, height, weight, gender, birth_date FROM bsusrattr WHERE uid = $1`
+	q := `SELECT name, height, weight, birth_date, gender FROM user_metrics WHERE uid = $1`
 
 	log.Info(fmt.Sprintf("query: %s", format.RemoveLinesAndTabs(q)))
 
