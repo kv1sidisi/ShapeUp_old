@@ -7,8 +7,8 @@ import (
 	"github.com/jackc/pgconn"
 	"github.com/kv1sidisi/shapeup/pkg/database/pgcl"
 	"github.com/kv1sidisi/shapeup/pkg/errdefs"
+	"github.com/kv1sidisi/shapeup/pkg/utils/format"
 	"log/slog"
-	"strings"
 )
 
 const (
@@ -43,7 +43,7 @@ func (s *UsrMgr) SaveUser(ctx context.Context, email string, passHash []byte) (u
 			VALUES ($1, $2)
 			RETURNING id`
 
-	log.Info(fmt.Sprintf("SQL Query: %s", removeLinesAndTabs(q)))
+	log.Info(fmt.Sprintf("SQL Query: %s", format.RemoveLinesAndTabs(q)))
 
 	if err := s.client.QueryRow(ctx, q, email, passHash).Scan(&uid); err != nil {
 		var pgErr *pgconn.PgError
@@ -95,7 +95,7 @@ func (s *UsrMgr) DeleteUser(ctx context.Context, uid int64) error {
 	)
 	q := `DELETE FROM users WHERE id = $1`
 
-	log.Info(fmt.Sprintf("SQL query: %s", removeLinesAndTabs(q)))
+	log.Info(fmt.Sprintf("SQL query: %s", format.RemoveLinesAndTabs(q)))
 
 	if _, err := s.client.Exec(ctx, q, uid); err != nil {
 		log.Error("failed to delete user: ", err)
@@ -103,11 +103,4 @@ func (s *UsrMgr) DeleteUser(ctx context.Context, uid int64) error {
 	}
 	return nil
 
-}
-
-// removeLinesAndTabs removes \n and \t from string.
-func removeLinesAndTabs(input string) string {
-	input = strings.ReplaceAll(input, "\n", "")
-	input = strings.ReplaceAll(input, "\t", "")
-	return input
 }

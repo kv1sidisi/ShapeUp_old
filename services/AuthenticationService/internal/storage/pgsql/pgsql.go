@@ -8,9 +8,9 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/kv1sidisi/shapeup/pkg/database/pgcl"
 	"github.com/kv1sidisi/shapeup/pkg/errdefs"
+	"github.com/kv1sidisi/shapeup/pkg/utils/format"
 	"github.com/kv1sidisi/shapeup/services/authsvc/internal/domain/models"
 	"log/slog"
-	"strings"
 )
 
 type AuthMgr struct {
@@ -81,11 +81,11 @@ func (s *AuthMgr) AddSession(ctx context.Context,
 		return errdefs.ErrSessionAlreadyExists
 	}
 
-	q := `INSERT INTO sessions (user_id, access_token, refresh_token)
+	q := `INSERT INTO sessions (uid, access_token, refresh_token)
 			VALUES ($1, $2, $3)
 			RETURNING id`
 
-	log.Info("SQL query: %s", removeLinesAndTabs(q))
+	log.Info("SQL query: %s", format.RemoveLinesAndTabs(q))
 
 	var sessionId int64
 
@@ -109,10 +109,10 @@ func checkOnlineSession(ctx context.Context, log *slog.Logger, client pgcl.Clien
         SELECT EXISTS (
             SELECT 1 
             FROM sessions 
-            WHERE user_id = $1
+            WHERE uid = $1
         )`
 
-	log.Info(fmt.Sprintf("query: %s", removeLinesAndTabs(q)))
+	log.Info(fmt.Sprintf("query: %s", format.RemoveLinesAndTabs(q)))
 
 	var exists bool
 	err := client.QueryRow(ctx, q, uid).Scan(&exists)
@@ -131,7 +131,7 @@ func (s *AuthMgr) IsUserConfirmed(ctx context.Context, uid int64) (confirmed boo
 
 	q := `SELECT isconfirmed FROM users WHERE id = $1`
 
-	log.Info(fmt.Sprintf("query: %s", removeLinesAndTabs(q)))
+	log.Info(fmt.Sprintf("query: %s", format.RemoveLinesAndTabs(q)))
 
 	var isConfirmed bool
 	if err := s.client.QueryRow(ctx, q, uid).Scan(&isConfirmed); err != nil {
@@ -145,11 +145,4 @@ func (s *AuthMgr) IsUserConfirmed(ctx context.Context, uid int64) (confirmed boo
 	}
 
 	return isConfirmed, nil
-}
-
-// removeLinesAndTabs removes \n and \t from string.
-func removeLinesAndTabs(input string) string {
-	input = strings.ReplaceAll(input, "\n", "")
-	input = strings.ReplaceAll(input, "\t", "")
-	return input
 }
