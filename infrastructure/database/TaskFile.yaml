@@ -6,7 +6,7 @@ tasks:
     cmds:
       - 'if [ -f .env ]; then export $(grep -v "^#" .env | xargs); fi'
     silent: true
-  migrations:new:
+  migration:new:
     desc: "Creates new migration file (task migrations:new name=new_table)"
     cmds:
       - task: load-env

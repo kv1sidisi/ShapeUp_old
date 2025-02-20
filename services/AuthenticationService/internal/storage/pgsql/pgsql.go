@@ -81,8 +81,9 @@ func (s *AuthMgr) AddSession(ctx context.Context,
 		return errdefs.ErrSessionAlreadyExists
 	}
 
-	q := `INSERT INTO sessions (uid, access_token, refresh_token)
-			VALUES ($1, $2, $3)
+	//TODO: device_info, ip_address,
+	q := `INSERT INTO user_sessions (uid, refresh_token)
+			VALUES ($1, $2)
 			RETURNING id`
 
 	log.Info("SQL query: %s", format.RemoveLinesAndTabs(q))
