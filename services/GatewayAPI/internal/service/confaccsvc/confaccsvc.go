@@ -2,7 +2,7 @@ package confaccsvc
 
 import (
 	"context"
-	pbusrcreatesvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/usrcreatesvc"
+	pbusrcreatesvc "github.com/kv1sidisi/shapeup/pkg/proto/usercreatesvc/pb"
 	"log/slog"
 )
 
@@ -30,6 +30,6 @@ func (ca *ConfAccSvc) ConfirmAccount(token string) error {
 		return err
 	}
 
-	log.Info("confirmed account ", slog.Int64("userId", resp.UserId))
+	log.Info("confirmed account ", slog.Any("userId", resp.GetUid()))
 	return nil
 }

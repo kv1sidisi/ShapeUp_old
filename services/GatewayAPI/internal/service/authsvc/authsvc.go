@@ -2,7 +2,7 @@ package authsvc
 
 import (
 	"context"
-	pbauthsvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/authsvc"
+	pbauthsvc "github.com/kv1sidisi/shapeup/pkg/proto/authsvc/pb"
 	"log/slog"
 )
 
@@ -33,6 +33,6 @@ func (as *AuthSvc) Login(username string, password string) (*pbauthsvc.LoginResp
 		return nil, err
 	}
 
-	log.Info("logged in account ", slog.Int64("userId", resp.GetUserId()))
+	log.Info("logged in account ", slog.Any("userId", resp.GetUid()))
 	return resp, nil
 }

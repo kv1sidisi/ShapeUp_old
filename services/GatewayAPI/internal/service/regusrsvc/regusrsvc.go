@@ -2,7 +2,7 @@ package regusrsvc
 
 import (
 	"context"
-	pbusrcreatesvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/usrcreatesvc"
+	pbusrcreatesvc "github.com/kv1sidisi/shapeup/pkg/proto/usercreatesvc/pb"
 	"log/slog"
 )
 
@@ -34,6 +34,6 @@ func (ru *RegUsrSvc) RegisterUser(email string, password string) (resp *pbusrcre
 		return nil, err
 	}
 
-	log.Info("registered account ", slog.Int64("userId", resp.GetUserId()))
+	log.Info("registered account ", slog.Any("userId", resp.GetUid()))
 	return resp, nil
 }

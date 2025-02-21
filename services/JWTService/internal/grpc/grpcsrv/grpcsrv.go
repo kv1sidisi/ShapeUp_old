@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/kv1sidisi/shapeup/pkg/errdefs"
-	"github.com/kv1sidisi/shapeup/services/jwtsvc/api/grpc/pb/jwtsvc"
+	jwtsvc "github.com/kv1sidisi/shapeup/pkg/proto/jwtsvc/pb"
 	"github.com/kv1sidisi/shapeup/services/jwtsvc/internal/config"
 	"google.golang.org/grpc"
 	"log/slog"
@@ -12,9 +12,9 @@ import (
 
 // JWTSvc service for serverAPI.
 type JWTSvc interface {
-	GenerateToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error)
-	ValidateToken(ctx context.Context, accessToken string, secretKey string) (uid int64, operation string, err error)
-	GenerateLink(ctx context.Context, linkBase string, uid int64, operation string, secretKey string) (string, error)
+	GenerateToken(ctx context.Context, uid []byte, operation string, secretKey string) (string, error)
+	ValidateToken(ctx context.Context, accessToken string, secretKey string) (uid []byte, operation string, err error)
+	GenerateLink(ctx context.Context, linkBase string, uid []byte, operation string, secretKey string) (string, error)
 }
 
 // ServerAPI handler for the gRPC server.
@@ -46,10 +46,10 @@ func RegisterServer(grpcServer *grpc.Server, jwtService JWTSvc, cfg *config.Conf
 func (s *ServerAPI) GenerateToken(ctx context.Context,
 	req *jwtsvc.GenerateTokenRequest,
 ) (*jwtsvc.GenerateTokenResponse, error) {
-	const op = "grpcsrv.GenerateAccessToken"
+	const op = "grpcsrv.GenerateToken"
 	log := s.log.With(slog.String("op", op))
 
-	if req.GetUid() == 0 {
+	if req.GetUid() == nil {
 		log.Error("invalid uid in request:", req.GetUid())
 		return nil, errdefs.InvalidUserId
 	}
@@ -63,7 +63,7 @@ func (s *ServerAPI) GenerateToken(ctx context.Context,
 		return nil, err
 	}
 
-	log.Info("access token generated successfully: ", token)
+	log.Info("token generated successfully: ", token)
 
 	return &jwtsvc.GenerateTokenResponse{
 		Token: token,
@@ -133,7 +133,7 @@ func (s *ServerAPI) GenerateLink(ctx context.Context,
 }
 
 func validateGenerateLinkRequest(req *jwtsvc.GenerateLinkRequest) error {
-	if req.GetUid() == 0 {
+	if req.GetUid() == nil {
 		return errdefs.InvalidUserId
 	}
 

@@ -3,7 +3,7 @@ package grpcsrv
 import (
 	"context"
 	"github.com/kv1sidisi/shapeup/pkg/errdefs"
-	"github.com/kv1sidisi/shapeup/services/authsvc/api/grpc/pb/authsvc"
+	"github.com/kv1sidisi/shapeup/pkg/proto/authsvc/pb"
 	"github.com/kv1sidisi/shapeup/services/authsvc/internal/config"
 	"google.golang.org/grpc"
 	"log/slog"
@@ -15,7 +15,7 @@ type AuthSvc interface {
 		ctx context.Context,
 		username string,
 		password string,
-	) (userId int64, accessToken string, refreshToken string, err error)
+	) (uid []byte, accessToken string, refreshToken string, err error)
 }
 
 // serverAPI handler for the gRPC server.
@@ -53,6 +53,7 @@ func (s *serverAPI) Login(
 	log := s.log.With(slog.String("op", op))
 
 	if len(req.Username) == 0 || len(req.Password) == 0 {
+		log.Info("got wrong credentials: ", req.Username, req.Password)
 		return nil, errdefs.InvalidCredentials
 	}
 
@@ -63,7 +64,7 @@ func (s *serverAPI) Login(
 	log.Info("logged successfully userId: ", uid)
 
 	return &authsvc.LoginResponse{
-		UserId:       uid,
+		Uid:          uid,
 		JwtToken:     jwt,
 		RefreshToken: refresh,
 	}, nil

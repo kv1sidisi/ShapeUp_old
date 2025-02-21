@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package jwt;
+
+option go_package = "shapeup.jwt.v1;jwtsvc";
+
+service JWT {
+  rpc GenerateToken (GenerateTokenRequest) returns (GenerateTokenResponse);
+  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc GenerateLink (GenerateLinkRequest) returns (GenerateLinkResponse);
+}
+
+message GenerateTokenRequest {
+  bytes uid = 1;
+  string operation = 2;
+}
+
+message GenerateTokenResponse {
+  string token = 1;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  bytes uid = 1;
+  string operation = 2;
+}
+
+message GenerateLinkRequest {
+  string link_base = 1;
+  bytes uid = 2;
+  string operation = 3;
+
+}
+message GenerateLinkResponse {
+  string link = 1;
+}

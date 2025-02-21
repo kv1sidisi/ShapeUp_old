@@ -1,7 +1,7 @@
 package tests
 
 import (
-	pbsendsvc "github.com/kv1sidisi/shapeup/services/sendsvc/api/grpc/pb/sendsvc"
+	pbsendsvc "github.com/kv1sidisi/shapeup/pkg/proto/sendsvc/pb"
 	"github.com/kv1sidisi/shapeup/services/sendsvc/tests/suite"
 	"github.com/stretchr/testify/require"
 	"testing"

@@ -2,7 +2,7 @@ package tests
 
 import (
 	"github.com/brianvoe/gofakeit/v6"
-	regv1 "github.com/kv1sidisi/shapeup/services/regsvc/api/grpc/pb/usrcreatesvc"
+	regv1 "github.com/kv1sidisi/shapeup/pkg/proto/usercreatesvc/pb"
 	"github.com/kv1sidisi/shapeup/services/regsvc/tests/suite"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

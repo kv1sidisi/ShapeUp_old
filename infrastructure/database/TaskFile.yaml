@@ -1,0 +1,38 @@
+version: '3'
+
+tasks:
+  load-env:
+    desc: "Loads environment variables"
+    cmds:
+      - 'if [ -f .env ]; then export $(grep -v "^#" .env | xargs); fi'
+    silent: true
+  migration:new:
+    desc: "Creates new migration file (task migrations:new name=new_table)"
+    cmds:
+      - task: load-env
+      - 'goose -dir {{.GOOSE_MIGRATION_DIR | default "./migrations"}} create {{.name}} sql'
+    vars:
+      name: '{{.CLI_ARGS | default "new_migration"}}'
+  migration:up:
+    desc: "Apply all migrations"
+    cmds:
+      - task: load-env
+      - 'goose up'
+
+  migration:down:
+    desc: "Rollback the last migration"
+    cmds:
+      - task: load-env
+      - 'goose down'
+
+  migration:status:
+    desc: "Check migration status"
+    cmds:
+      - task: load-env
+      - 'goose status'
+
+  migration:reset:
+    desc: "Rollback all migrations and reapply them"
+    cmds:
+      - task: migration:down
+      - task: migration:up

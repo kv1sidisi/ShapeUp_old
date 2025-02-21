@@ -6,13 +6,15 @@ require (
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/chi/v5 v5.2.0
 	google.golang.org/grpc v1.70.0
-	google.golang.org/protobuf v1.36.3
+	google.golang.org/protobuf v1.36.5 // indirect
 )
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.0 // indirect
+	github.com/ilyakaznacheev/cleanenv v1.5.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
@@ -30,6 +32,11 @@ require github.com/kv1sidisi/shapeup/pkg/config v0.0.0
 
 replace github.com/kv1sidisi/shapeup/pkg/config => ../../pkg/config
 
-require github.com/kv1sidisi/shapeup/pkg/errdefs v0.0.0
-
 replace github.com/kv1sidisi/shapeup/pkg/errdefs => ../../pkg/errdefs
+
+require (
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.0
+	github.com/kv1sidisi/shapeup/pkg/proto v0.0.0
+)
+
+replace github.com/kv1sidisi/shapeup/pkg/proto => ../../pkg/proto

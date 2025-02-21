@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/asaskevich/govalidator"
 	"github.com/kv1sidisi/shapeup/pkg/errdefs"
-	usrcreatesvc2 "github.com/kv1sidisi/shapeup/services/regsvc/api/grpc/pb/usrcreatesvc"
+	usrcreatesvc "github.com/kv1sidisi/shapeup/pkg/proto/usercreatesvc/pb"
 	"github.com/kv1sidisi/shapeup/services/regsvc/internal/config"
 	"google.golang.org/grpc"
 	"log/slog"
@@ -17,17 +17,17 @@ type UsrCreateSvc interface {
 		ctx context.Context,
 		email string,
 		password string,
-	) (userId int64, err error)
+	) (uid []byte, err error)
 
 	ConfirmNewUser(
 		ctx context.Context,
 		jwt string,
-	) (userId int64, err error)
+	) (uid []byte, err error)
 }
 
 // serverAPI handler for the gRPC server.
 type serverAPI struct {
-	usrcreatesvc2.UnimplementedUserCreationServer
+	usrcreatesvc.UnimplementedUserCreationServer
 	userCreation UsrCreateSvc
 	cfg          *config.Config
 	log          *slog.Logger
@@ -41,7 +41,7 @@ func RegisterServer(gRPC *grpc.Server,
 	cfg *config.Config,
 	log *slog.Logger,
 ) {
-	usrcreatesvc2.RegisterUserCreationServer(
+	usrcreatesvc.RegisterUserCreationServer(
 		gRPC,
 		&serverAPI{
 			userCreation: userCreation,
@@ -59,8 +59,8 @@ func RegisterServer(gRPC *grpc.Server,
 //   - An error if: Request is invalid. Error while registering user through service.
 func (s *serverAPI) Register(
 	ctx context.Context,
-	req *usrcreatesvc2.RegisterRequest,
-) (*usrcreatesvc2.RegisterResponse, error) {
+	req *usrcreatesvc.RegisterRequest,
+) (*usrcreatesvc.RegisterResponse, error) {
 	const op = "grpcsrv.Register"
 	log := s.log.With(slog.String("op", op))
 
@@ -71,22 +71,22 @@ func (s *serverAPI) Register(
 	log.Info("register request valid")
 
 	// UsrCreateSvc the new user
-	userId, err := s.userCreation.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
+	uid, err := s.userCreation.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
 		return nil, err
 	}
 	log.Info("user registered successfully")
 
 	// Return the response with the user ID
-	return &usrcreatesvc2.RegisterResponse{
-		UserId: userId,
+	return &usrcreatesvc.RegisterResponse{
+		Uid: uid,
 	}, nil
 }
 
 // validateRegisterRequest performs validation on the registration request.
 //
 // Returns nil if request is invalid.
-func validateRegisterRequest(log *slog.Logger, req *usrcreatesvc2.RegisterRequest) error {
+func validateRegisterRequest(log *slog.Logger, req *usrcreatesvc.RegisterRequest) error {
 	// Validate email
 	if !govalidator.IsEmail(req.GetEmail()) {
 		log.Error("invalid email in request")
@@ -115,8 +115,8 @@ func validateRegisterRequest(log *slog.Logger, req *usrcreatesvc2.RegisterReques
 //
 //   - An error if: Request is invalid. Error while confirming user through service.
 func (s *serverAPI) Confirm(ctx context.Context,
-	req *usrcreatesvc2.ConfirmRequest,
-) (*usrcreatesvc2.ConfirmResponse, error) {
+	req *usrcreatesvc.ConfirmRequest,
+) (*usrcreatesvc.ConfirmResponse, error) {
 	const op = "grpcsrv.Confirm"
 	log := s.log.With(slog.String("op", op))
 
@@ -124,13 +124,13 @@ func (s *serverAPI) Confirm(ctx context.Context,
 		return nil, errdefs.InvalidCredentials
 	}
 
-	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt)
+	uid, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt)
 	if err != nil {
 		return nil, err
 	}
 	log.Info("user confirmed")
 
-	return &usrcreatesvc2.ConfirmResponse{
-		UserId: userId,
+	return &usrcreatesvc.ConfirmResponse{
+		Uid: uid,
 	}, nil
 }

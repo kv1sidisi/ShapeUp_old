@@ -6,7 +6,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
 	github.com/stretchr/testify v1.10.0
 	google.golang.org/grpc v1.70.0
-	google.golang.org/protobuf v1.35.2
+	google.golang.org/protobuf v1.36.5
 )
 
 require (
@@ -36,3 +36,7 @@ replace github.com/kv1sidisi/shapeup/pkg/config => ../../pkg/config
 require github.com/kv1sidisi/shapeup/pkg/errdefs v0.0.0
 
 replace github.com/kv1sidisi/shapeup/pkg/errdefs => ../../pkg/errdefs
+
+require github.com/kv1sidisi/shapeup/pkg/proto v0.0.0
+
+replace github.com/kv1sidisi/shapeup/pkg/proto => ../../pkg/proto

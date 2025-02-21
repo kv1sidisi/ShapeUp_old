@@ -3,7 +3,7 @@ package regusrhdlr
 import (
 	"encoding/json"
 	"github.com/go-chi/chi/middleware"
-	pbusrcreatesvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/usrcreatesvc"
+	pbusrcreatesvc "github.com/kv1sidisi/shapeup/pkg/proto/usercreatesvc/pb"
 	mapper "github.com/kv1sidisi/shapeup/services/gtwapi/internal/utils/grpchttperrmap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -1,8 +1,8 @@
 package grpccl
 
 import (
-	pbauthsvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/authsvc"
-	pbusrcreatesvc "github.com/kv1sidisi/shapeup/services/gtwapi/api/grpccl/pb/usrcreatesvc"
+	pbauthsvc "github.com/kv1sidisi/shapeup/pkg/proto/authsvc/pb"
+	pbusrcreatesvc "github.com/kv1sidisi/shapeup/pkg/proto/usercreatesvc/pb"
 	"github.com/kv1sidisi/shapeup/services/gtwapi/cmd/grpccl/consts"
 	"github.com/kv1sidisi/shapeup/services/gtwapi/internal/config"
 	"google.golang.org/grpc"

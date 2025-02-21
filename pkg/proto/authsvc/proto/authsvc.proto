@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "shapeup.auth.v1;authsvc";
+
+service Auth {
+  rpc Login(LoginRequest) returns (LoginResponse);
+}
+
+message LoginRequest {
+  string username = 1; // User email or login
+  string password = 2; // User password
+}
+
+message LoginResponse {
+  bytes uid = 1; // Logged in user id
+  string jwt_token = 2; // Logged in user jwt token
+  string refresh_token = 3; // Logged in user refresh token
+}

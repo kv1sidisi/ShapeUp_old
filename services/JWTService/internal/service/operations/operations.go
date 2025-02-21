@@ -7,8 +7,9 @@ const (
 	accessOperationType       = "access"
 	confirmationOperationType = "confirmation"
 
-	accessTokenExpireTime  = time.Minute * 30
-	refreshTokenExpireTime = time.Hour * 24 * 30
+	accessTokenExpireTime       = time.Minute * 30
+	refreshTokenExpireTime      = time.Hour * 24 * 30
+	confirmationTokenExpireTime = time.Hour
 )
 
 type OpInfo struct {
@@ -31,7 +32,7 @@ func GetOperationInfo(operation string) OpInfo {
 	case confirmationOperationType:
 		return OpInfo{
 			Type:       confirmationOperationType,
-			ExpireTime: 0,
+			ExpireTime: confirmationTokenExpireTime,
 		}
 	}
 
