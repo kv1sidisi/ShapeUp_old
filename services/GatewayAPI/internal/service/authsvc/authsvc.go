@@ -33,6 +33,6 @@ func (as *AuthSvc) Login(username string, password string) (*pbauthsvc.LoginResp
 		return nil, err
 	}
 
-	log.Info("logged in account ", slog.Int64("userId", resp.GetUserId()))
+	log.Info("logged in account ", slog.Any("userId", resp.GetUid()))
 	return resp, nil
 }

@@ -17,12 +17,12 @@ type UsrCreateSvc interface {
 		ctx context.Context,
 		email string,
 		password string,
-	) (userId int64, err error)
+	) (uid []byte, err error)
 
 	ConfirmNewUser(
 		ctx context.Context,
 		jwt string,
-	) (userId int64, err error)
+	) (uid []byte, err error)
 }
 
 // serverAPI handler for the gRPC server.
@@ -71,7 +71,7 @@ func (s *serverAPI) Register(
 	log.Info("register request valid")
 
 	// UsrCreateSvc the new user
-	userId, err := s.userCreation.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
+	uid, err := s.userCreation.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (s *serverAPI) Register(
 
 	// Return the response with the user ID
 	return &usrcreatesvc.RegisterResponse{
-		UserId: userId,
+		Uid: uid,
 	}, nil
 }
 
@@ -124,13 +124,13 @@ func (s *serverAPI) Confirm(ctx context.Context,
 		return nil, errdefs.InvalidCredentials
 	}
 
-	userId, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt)
+	uid, err := s.userCreation.ConfirmNewUser(ctx, req.Jwt)
 	if err != nil {
 		return nil, err
 	}
 	log.Info("user confirmed")
 
 	return &usrcreatesvc.ConfirmResponse{
-		UserId: userId,
+		Uid: uid,
 	}, nil
 }

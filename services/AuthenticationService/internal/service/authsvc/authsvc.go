@@ -33,12 +33,11 @@ type AuthMgr interface {
 		email string,
 	) (user models.User, err error)
 	AddSession(ctx context.Context,
-		uid int64,
-		accessToken string,
+		uid []byte,
 		refreshToken string,
 	) (err error)
 	IsUserConfirmed(ctx context.Context,
-		uid int64,
+		uid []byte,
 	) (confirmed bool, err error)
 }
 
@@ -71,30 +70,30 @@ func (as *AuthSvc) LoginUser(
 	ctx context.Context,
 	username string,
 	password string,
-) (userId int64, accessToken string, refreshToken string, err error) {
+) (uif []byte, accessToken string, refreshToken string, err error) {
 	const op = "authsvc.LoginUser"
 	log := as.log.With(slog.String("op", op),
 		slog.String("username", username))
 
 	user, err := as.storage.FindUserByEmail(ctx, username)
 	if err != nil {
-		return 0, "", "", err
+		return nil, "", "", err
 	}
 
 	isConfirmed, err := as.storage.IsUserConfirmed(ctx, user.ID)
 	if err != nil {
-		return 0, "", "", err
+		return nil, "", "", err
 	}
 	if !isConfirmed {
 		log.Error("user is not confirmed")
-		return 0, "", "", errdefs.ErrUserNotConfirmed
+		return nil, "", "", errdefs.ErrUserNotConfirmed
 	}
 
 	log.Info("user is confirmed")
 
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
 		log.Error("invalid password")
-		return 0, "", "", errdefs.InvalidCredentials
+		return nil, "", "", errdefs.InvalidCredentials
 	}
 
 	accessTokenGenResp, err := as.jwtClient.GenerateToken(ctx, &pbjwtsvc.GenerateTokenRequest{
@@ -102,7 +101,7 @@ func (as *AuthSvc) LoginUser(
 		Operation: accessOperationType,
 	})
 	if err != nil {
-		return 0, "", "", err
+		return nil, "", "", err
 	}
 	accessToken = accessTokenGenResp.GetToken()
 	log.Info("access token generated", slog.String("accessToken", accessToken))
@@ -112,13 +111,13 @@ func (as *AuthSvc) LoginUser(
 		Operation: refreshOperationType,
 	})
 	if err != nil {
-		return 0, "", "", err
+		return nil, "", "", err
 	}
 	refreshToken = refreshTokenGenResp.GetToken()
 	log.Info("refresh token generated", slog.String("refreshToken", refreshToken))
 
-	if err := as.storage.AddSession(ctx, user.ID, accessToken, refreshToken); err != nil {
-		return 0, "", "", err
+	if err := as.storage.AddSession(ctx, user.ID, refreshToken); err != nil {
+		return nil, "", "", err
 	}
 	log.Info("session created")
 

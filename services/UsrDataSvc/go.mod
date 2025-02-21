@@ -52,6 +52,9 @@ require github.com/kv1sidisi/shapeup/pkg/interceptors/authincp v0.0.0
 
 replace github.com/kv1sidisi/shapeup/pkg/interceptors/authincp => ../../pkg/interceptors/authincp
 
-require github.com/kv1sidisi/shapeup/pkg/proto v0.0.0
+require (
+	github.com/google/uuid v1.6.0
+	github.com/kv1sidisi/shapeup/pkg/proto v0.0.0
+)
 
 replace github.com/kv1sidisi/shapeup/pkg/proto => ../../pkg/proto

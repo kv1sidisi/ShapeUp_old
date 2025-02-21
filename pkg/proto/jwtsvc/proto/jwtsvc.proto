@@ -11,7 +11,7 @@ service JWT {
 }
 
 message GenerateTokenRequest {
-  int64 uid = 1;
+  bytes uid = 1;
   string operation = 2;
 }
 
@@ -24,13 +24,13 @@ message ValidateTokenRequest {
 }
 
 message ValidateTokenResponse {
-  int64 uid = 1;
+  bytes uid = 1;
   string operation = 2;
 }
 
 message GenerateLinkRequest {
   string link_base = 1;
-  int64 uid = 2;
+  bytes uid = 2;
   string operation = 3;
 
 }

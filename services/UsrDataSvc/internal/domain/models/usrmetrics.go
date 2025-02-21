@@ -1,6 +1,6 @@
 package models
 
-type BsUsrAttr struct {
+type UsrMetrics struct {
 	Name      string
 	Height    float64
 	Weight    float64

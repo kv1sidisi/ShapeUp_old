@@ -30,6 +30,6 @@ func (ca *ConfAccSvc) ConfirmAccount(token string) error {
 		return err
 	}
 
-	log.Info("confirmed account ", slog.Int64("userId", resp.UserId))
+	log.Info("confirmed account ", slog.Any("userId", resp.GetUid()))
 	return nil
 }

@@ -19,14 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UsrData_UpdBsUsrAttr_FullMethodName = "/usrdata.UsrData/UpdBsUsrAttr"
+	UsrData_UpdUsrMetrics_FullMethodName    = "/usrdata.UsrData/UpdUsrMetrics"
+	UsrData_CreateUsrMetrics_FullMethodName = "/usrdata.UsrData/CreateUsrMetrics"
 )
 
 // UsrDataClient is the client API for UsrData service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UsrDataClient interface {
-	UpdBsUsrAttr(ctx context.Context, in *UpdBsUsrAttrRequest, opts ...grpc.CallOption) (*UpdBsUsrAttrResponse, error)
+	UpdUsrMetrics(ctx context.Context, in *UpdUsrMetricsRequest, opts ...grpc.CallOption) (*UpdUsrMetricsResponse, error)
+	CreateUsrMetrics(ctx context.Context, in *CreateUsrMetricsRequest, opts ...grpc.CallOption) (*CreateUsrMetricsResponse, error)
 }
 
 type usrDataClient struct {
@@ -37,10 +39,20 @@ func NewUsrDataClient(cc grpc.ClientConnInterface) UsrDataClient {
 	return &usrDataClient{cc}
 }
 
-func (c *usrDataClient) UpdBsUsrAttr(ctx context.Context, in *UpdBsUsrAttrRequest, opts ...grpc.CallOption) (*UpdBsUsrAttrResponse, error) {
+func (c *usrDataClient) UpdUsrMetrics(ctx context.Context, in *UpdUsrMetricsRequest, opts ...grpc.CallOption) (*UpdUsrMetricsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdBsUsrAttrResponse)
-	err := c.cc.Invoke(ctx, UsrData_UpdBsUsrAttr_FullMethodName, in, out, cOpts...)
+	out := new(UpdUsrMetricsResponse)
+	err := c.cc.Invoke(ctx, UsrData_UpdUsrMetrics_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usrDataClient) CreateUsrMetrics(ctx context.Context, in *CreateUsrMetricsRequest, opts ...grpc.CallOption) (*CreateUsrMetricsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateUsrMetricsResponse)
+	err := c.cc.Invoke(ctx, UsrData_CreateUsrMetrics_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +63,8 @@ func (c *usrDataClient) UpdBsUsrAttr(ctx context.Context, in *UpdBsUsrAttrReques
 // All implementations must embed UnimplementedUsrDataServer
 // for forward compatibility.
 type UsrDataServer interface {
-	UpdBsUsrAttr(context.Context, *UpdBsUsrAttrRequest) (*UpdBsUsrAttrResponse, error)
+	UpdUsrMetrics(context.Context, *UpdUsrMetricsRequest) (*UpdUsrMetricsResponse, error)
+	CreateUsrMetrics(context.Context, *CreateUsrMetricsRequest) (*CreateUsrMetricsResponse, error)
 	mustEmbedUnimplementedUsrDataServer()
 }
 
@@ -62,8 +75,11 @@ type UsrDataServer interface {
 // pointer dereference when methods are called.
 type UnimplementedUsrDataServer struct{}
 
-func (UnimplementedUsrDataServer) UpdBsUsrAttr(context.Context, *UpdBsUsrAttrRequest) (*UpdBsUsrAttrResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdBsUsrAttr not implemented")
+func (UnimplementedUsrDataServer) UpdUsrMetrics(context.Context, *UpdUsrMetricsRequest) (*UpdUsrMetricsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdUsrMetrics not implemented")
+}
+func (UnimplementedUsrDataServer) CreateUsrMetrics(context.Context, *CreateUsrMetricsRequest) (*CreateUsrMetricsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateUsrMetrics not implemented")
 }
 func (UnimplementedUsrDataServer) mustEmbedUnimplementedUsrDataServer() {}
 func (UnimplementedUsrDataServer) testEmbeddedByValue()                 {}
@@ -86,20 +102,38 @@ func RegisterUsrDataServer(s grpc.ServiceRegistrar, srv UsrDataServer) {
 	s.RegisterService(&UsrData_ServiceDesc, srv)
 }
 
-func _UsrData_UpdBsUsrAttr_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdBsUsrAttrRequest)
+func _UsrData_UpdUsrMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdUsrMetricsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UsrDataServer).UpdBsUsrAttr(ctx, in)
+		return srv.(UsrDataServer).UpdUsrMetrics(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UsrData_UpdBsUsrAttr_FullMethodName,
+		FullMethod: UsrData_UpdUsrMetrics_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsrDataServer).UpdBsUsrAttr(ctx, req.(*UpdBsUsrAttrRequest))
+		return srv.(UsrDataServer).UpdUsrMetrics(ctx, req.(*UpdUsrMetricsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UsrData_CreateUsrMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateUsrMetricsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsrDataServer).CreateUsrMetrics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UsrData_CreateUsrMetrics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsrDataServer).CreateUsrMetrics(ctx, req.(*CreateUsrMetricsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,8 +146,12 @@ var UsrData_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UsrDataServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "UpdBsUsrAttr",
-			Handler:    _UsrData_UpdBsUsrAttr_Handler,
+			MethodName: "UpdUsrMetrics",
+			Handler:    _UsrData_UpdUsrMetrics_Handler,
+		},
+		{
+			MethodName: "CreateUsrMetrics",
+			Handler:    _UsrData_CreateUsrMetrics_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

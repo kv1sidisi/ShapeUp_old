@@ -7,7 +7,7 @@ package usrdata;
 option go_package = "shapeup.usrdata.v1;usrdatasvc";
 
 // BsUsr basic user attributes.
-message BsUsrAttr {
+message UsrMetrics {
   string name = 1;
   double height = 2;
   double weight = 3;
@@ -16,16 +16,25 @@ message BsUsrAttr {
 }
 
 service UsrData {
-  rpc UpdBsUsrAttr(UpdBsUsrAttrRequest) returns (UpdBsUsrAttrResponse);
+  rpc UpdUsrMetrics(UpdUsrMetricsRequest) returns (UpdUsrMetricsResponse);
+  rpc CreateUsrMetrics(CreateUsrMetricsRequest) returns (CreateUsrMetricsResponse);
 }
 
-message UpdBsUsrAttrRequest {
-  BsUsrAttr user = 1;
+message UpdUsrMetricsRequest {
+  UsrMetrics user = 1;
 
   // FieldMask, shows which fields should be updated.
   google.protobuf.FieldMask upd_mask = 2;
 }
 
-message UpdBsUsrAttrResponse{
-  BsUsrAttr user = 1;
+message UpdUsrMetricsResponse {
+  UsrMetrics user = 1;
+}
+
+message CreateUsrMetricsRequest {
+  UsrMetrics user = 1;
+}
+
+message CreateUsrMetricsResponse {
+  bytes uid = 1;
 }

@@ -32,7 +32,7 @@ func New(client pgcl.Client, log *slog.Logger) (*UsrMgr, error) {
 // Returns:
 //   - user ID if successful.
 //   - An error if: Email already exists. Database returns error.
-func (s *UsrMgr) SaveUser(ctx context.Context, email string, passHash []byte) (uid int64, err error) {
+func (s *UsrMgr) SaveUser(ctx context.Context, email string, passHash []byte) (uid []byte, err error) {
 	const op = "pgsql.SaveUser"
 
 	log := s.log.With(
@@ -52,12 +52,13 @@ func (s *UsrMgr) SaveUser(ctx context.Context, email string, passHash []byte) (u
 
 			if pgErr.Code == codeEmailAlreadyExists {
 				log.Error("email already exists")
-				return 0, errdefs.ErrEmailAlreadyExists
+				return uid, errdefs.ErrEmailAlreadyExists
 			}
 
-			return 0, errdefs.ErrDatabaseInternal
+			return uid, errdefs.ErrDatabaseInternal
 		}
-		return 0, errdefs.ErrDatabaseInternal
+		log.Error(err.Error())
+		return uid, errdefs.ErrDatabaseInternal
 	}
 
 	return uid, nil
@@ -67,7 +68,7 @@ func (s *UsrMgr) SaveUser(ctx context.Context, email string, passHash []byte) (u
 //
 // Returns:
 //   - An error if: Database returns error.
-func (s *UsrMgr) ConfirmAccount(ctx context.Context, uid int64) error {
+func (s *UsrMgr) ConfirmAccount(ctx context.Context, uid []byte) error {
 	const op = "pgsql.ConfirmAccount"
 	log := s.log.With(
 		slog.String("op", op),
@@ -88,7 +89,7 @@ func (s *UsrMgr) ConfirmAccount(ctx context.Context, uid int64) error {
 //
 // Returns:
 //   - An error if: Database returns error.
-func (s *UsrMgr) DeleteUser(ctx context.Context, uid int64) error {
+func (s *UsrMgr) DeleteUser(ctx context.Context, uid []byte) error {
 	const op = "pgsql.DeleteUser"
 	log := s.log.With(
 		slog.String("op", op),

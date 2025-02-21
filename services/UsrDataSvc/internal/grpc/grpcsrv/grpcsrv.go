@@ -12,7 +12,8 @@ import (
 
 // UsrDataSvc service for serverAPI.
 type UsrDataSvc interface {
-	UpdUsr(ctx context.Context, bsusrattr *usrdatasvc.BsUsrAttr, mask *fieldmaskpb.FieldMask) (updbsusrattr *usrdatasvc.BsUsrAttr, err error)
+	UpdUsr(ctx context.Context, usrmetr *usrdatasvc.UsrMetrics, mask *fieldmaskpb.FieldMask) (updbsusrattr *usrdatasvc.UsrMetrics, err error)
+	CreateUsr(ctx context.Context, usrmetr *usrdatasvc.UsrMetrics) (uid []byte, err error)
 }
 
 // serverAPI handler for the gRPC server.
@@ -40,14 +41,14 @@ func RegisterServer(gRPC *grpc.Server,
 		})
 }
 
-// UpdBsUsrAttr is the GRPC server handler method. Updates base user's attributes.
+// UpdUsrMetrics is the GRPC server handler method. Updates user's metrics.
 //
 // Returns:
 //
-//   - A pointer to UpdBsUsrAttrRequest if successful.
+//   - A pointer to UpdMetricsRequest if successful.
 //
-//   - An error if: Request is invalid. Error while updating base user's attributes through service.
-func (s *serverAPI) UpdBsUsrAttr(ctx context.Context, req *usrdatasvc.UpdBsUsrAttrRequest) (*usrdatasvc.UpdBsUsrAttrResponse, error) {
+//   - An error if: Request is invalid. Error while updating user's metrics through service.
+func (s *serverAPI) UpdUsrMetrics(ctx context.Context, req *usrdatasvc.UpdUsrMetricsRequest) (*usrdatasvc.UpdUsrMetricsResponse, error) {
 	const op = "grpcsrv.UpdBsUsrAttr"
 	log := s.log.With(slog.String("op", op))
 
@@ -63,7 +64,7 @@ func (s *serverAPI) UpdBsUsrAttr(ctx context.Context, req *usrdatasvc.UpdBsUsrAt
 
 	log.Info("request valid")
 
-	updbsusrattr, err := s.usrData.UpdUsr(ctx, req.GetUser(), req.GetUpdMask())
+	usr, err := s.usrData.UpdUsr(ctx, req.GetUser(), req.GetUpdMask())
 
 	if err != nil {
 		log.Error(err.Error())
@@ -72,7 +73,44 @@ func (s *serverAPI) UpdBsUsrAttr(ctx context.Context, req *usrdatasvc.UpdBsUsrAt
 
 	log.Info("user attributes updated successfully")
 
-	return &usrdatasvc.UpdBsUsrAttrResponse{
-		User: updbsusrattr,
+	return &usrdatasvc.UpdUsrMetricsResponse{
+		User: usr,
+	}, nil
+}
+
+// CreateUsrMetrics is the GRPC server handler method. Creates user's metrics.
+//
+// Returns:
+//
+//   - A pointer to CreateMetricsRequest if successful.
+//
+//   - An error if: Request is invalid. Error while creating user's metrics through service.
+func (s *serverAPI) CreateUsrMetrics(ctx context.Context, req *usrdatasvc.CreateUsrMetricsRequest) (*usrdatasvc.CreateUsrMetricsResponse, error) {
+	const op = "grpcsrv.CreateUsrMetrics"
+	log := s.log.With(slog.String("op", op))
+
+	if req.GetUser() == nil {
+		log.Error("invalid user in grpc request")
+		return nil, errdefs.InvalidRequest
+	}
+
+	if ctx.Value("uid") == nil {
+		log.Error("invalid uid in grpc request(context)")
+		return nil, errdefs.InvalidCredentials
+	}
+
+	log.Info("request valid")
+
+	uid, err := s.usrData.CreateUsr(ctx, req.GetUser())
+
+	if err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+
+	log.Info("user attributes created successfully")
+
+	return &usrdatasvc.CreateUsrMetricsResponse{
+		Uid: uid,
 	}, nil
 }

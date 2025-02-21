@@ -15,7 +15,7 @@ type AuthSvc interface {
 		ctx context.Context,
 		username string,
 		password string,
-	) (userId int64, accessToken string, refreshToken string, err error)
+	) (uid []byte, accessToken string, refreshToken string, err error)
 }
 
 // serverAPI handler for the gRPC server.
@@ -64,7 +64,7 @@ func (s *serverAPI) Login(
 	log.Info("logged successfully userId: ", uid)
 
 	return &authsvc.LoginResponse{
-		UserId:       uid,
+		Uid:          uid,
 		JwtToken:     jwt,
 		RefreshToken: refresh,
 	}, nil

@@ -20,8 +20,8 @@ type UsrDataSvc struct {
 }
 
 type UsrDataMgr interface {
-	UpdBsUsrAttr(ctx context.Context, bsusrattr *models.BsUsrAttr) error
-	GetById(ctx context.Context) (*models.BsUsrAttr, error)
+	UpdUsrMetrics(ctx context.Context, usrmetr *models.UsrMetrics) error
+	GetById(ctx context.Context) (*models.UsrMetrics, error)
 }
 
 func New(log *slog.Logger, usrDataMgr UsrDataMgr) *UsrDataSvc {
@@ -35,7 +35,7 @@ func New(log *slog.Logger, usrDataMgr UsrDataMgr) *UsrDataSvc {
 //   - Proto of base user's data if successful.
 //
 //   - Error if: database manager returns error. Applying field mask fails.
-func (u *UsrDataSvc) UpdUsr(ctx context.Context, bsusrattr *usrdatasvc.BsUsrAttr, mask *fieldmaskpb.FieldMask) (updbsusrattr *usrdatasvc.BsUsrAttr, err error) {
+func (u *UsrDataSvc) UpdUsr(ctx context.Context, usrmetr *usrdatasvc.UsrMetrics, mask *fieldmaskpb.FieldMask) (updusrmetr *usrdatasvc.UsrMetrics, err error) {
 	const op = "usrdatasvc.UpdUsr"
 
 	log := u.log.With(slog.String("op", op))
@@ -45,14 +45,14 @@ func (u *UsrDataSvc) UpdUsr(ctx context.Context, bsusrattr *usrdatasvc.BsUsrAttr
 		return nil, err
 	}
 
-	updatedUser := protoToDomain(bsusrattr)
+	updatedUser := protoToDomain(usrmetr)
 
 	if err := applyFieldMask(u.log, existingUser, updatedUser, mask); err != nil {
 		log.Error("failed to apply mask")
 		return nil, err
 	}
 
-	if err := u.usrDataMgr.UpdBsUsrAttr(ctx, updatedUser); err != nil {
+	if err := u.usrDataMgr.UpdUsrMetrics(ctx, updatedUser); err != nil {
 		return nil, err
 	}
 
@@ -103,8 +103,8 @@ func snakeToCamel(name string) string {
 	return strings.Join(parts, "")
 }
 
-func protoToDomain(pu *usrdatasvc.BsUsrAttr) *models.BsUsrAttr {
-	return &models.BsUsrAttr{
+func protoToDomain(pu *usrdatasvc.UsrMetrics) *models.UsrMetrics {
+	return &models.UsrMetrics{
 		Name:      pu.GetName(),
 		Height:    pu.GetHeight(),
 		Weight:    pu.GetWeight(),
@@ -113,8 +113,8 @@ func protoToDomain(pu *usrdatasvc.BsUsrAttr) *models.BsUsrAttr {
 	}
 }
 
-func domainToProto(d *models.BsUsrAttr) *usrdatasvc.BsUsrAttr {
-	return &usrdatasvc.BsUsrAttr{
+func domainToProto(d *models.UsrMetrics) *usrdatasvc.UsrMetrics {
+	return &usrdatasvc.UsrMetrics{
 		Name:      d.Name,
 		Height:    d.Height,
 		Weight:    d.Weight,

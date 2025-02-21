@@ -62,8 +62,7 @@ func (s *AuthMgr) FindUserByEmail(ctx context.Context,
 //   - userId, access and refresh tokens of successful.
 //   - An error if: Session already exists. Database returns error.
 func (s *AuthMgr) AddSession(ctx context.Context,
-	uid int64,
-	accessToken string,
+	uid []byte,
 	refreshToken string,
 ) (err error) {
 	const op = "postgresql.SaveSession"
@@ -88,7 +87,7 @@ func (s *AuthMgr) AddSession(ctx context.Context,
 
 	log.Info("SQL query: %s", format.RemoveLinesAndTabs(q))
 
-	var sessionId int64
+	var sessionId []byte
 
 	if err := s.client.QueryRow(ctx, q, uid, refreshToken).Scan(&sessionId); err != nil {
 		var pgErr *pgconn.PgError
@@ -105,7 +104,7 @@ func (s *AuthMgr) AddSession(ctx context.Context,
 }
 
 // checkOnlineSession returns true is session with user already exists in session db table.
-func checkOnlineSession(ctx context.Context, log *slog.Logger, client pgcl.Client, uid int64) (bool, error) {
+func checkOnlineSession(ctx context.Context, log *slog.Logger, client pgcl.Client, uid []byte) (bool, error) {
 	q := `
         SELECT EXISTS (
             SELECT 1 
@@ -125,7 +124,7 @@ func checkOnlineSession(ctx context.Context, log *slog.Logger, client pgcl.Clien
 }
 
 // IsUserConfirmed checks if user`s account confirmed and returns true or false.
-func (s *AuthMgr) IsUserConfirmed(ctx context.Context, uid int64) (confirmed bool, err error) {
+func (s *AuthMgr) IsUserConfirmed(ctx context.Context, uid []byte) (confirmed bool, err error) {
 	const op = "postgresql.IsUserConfirmed"
 	log := s.log.With(
 		slog.String("op", op))

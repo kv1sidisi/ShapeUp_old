@@ -2,6 +2,7 @@ package jwtsvc
 
 import (
 	"context"
+	"encoding/base64"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/kv1sidisi/shapeup/pkg/errdefs"
 	"github.com/kv1sidisi/shapeup/services/jwtsvc/internal/config"
@@ -20,7 +21,7 @@ func New(log *slog.Logger, cfg *config.Config) *JWTSvc {
 }
 
 // TODO: custom claims map
-func (s *JWTSvc) GenerateToken(ctx context.Context, uid int64, operation string, secretKey string) (string, error) {
+func (s *JWTSvc) GenerateToken(ctx context.Context, uid []byte, operation string, secretKey string) (string, error) {
 	const op = "jwtsvc.GenerateAccessToken"
 	log := s.log.With(slog.String("op", op))
 
@@ -48,7 +49,7 @@ func (s *JWTSvc) GenerateToken(ctx context.Context, uid int64, operation string,
 	return accessToken, nil
 }
 
-func (s *JWTSvc) ValidateToken(ctx context.Context, accessToken string, secretKey string) (uid int64, operation string, err error) {
+func (s *JWTSvc) ValidateToken(ctx context.Context, accessToken string, secretKey string) (uid []byte, operation string, err error) {
 	const op = "jwtsvc.ValidateAccessToken"
 	log := s.log.With(slog.String("op", op))
 
@@ -60,32 +61,57 @@ func (s *JWTSvc) ValidateToken(ctx context.Context, accessToken string, secretKe
 		return []byte(secretKey), nil
 	})
 	if err != nil {
-		log.Error("failed to parse access token", token)
-		return 0, "", errdefs.InvalidCredentials
+		log.Error("failed to parse access token", err)
+		return nil, "", errdefs.InvalidCredentials
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if exp, ok := claims["exp"].(float64); ok {
 			if int64(exp) < time.Now().Unix() {
 				log.Error("access token is expired")
-				return 0, "", errdefs.ErrTokenExpired
+				return nil, "", errdefs.ErrTokenExpired
 			}
 		} else {
-			log.Error("error getting \"expired\" claim")
-			return 0, "", errdefs.ErrInternal
+			log.Error("error getting \"exp\" claim")
+			return nil, "", errdefs.ErrInternal
 		}
 
-		uid = int64(claims["user_id"].(float64))
-		operation = claims["operation"].(string)
+		opVal, ok := claims["operation"].(string)
+		if !ok || opVal == "" {
+			log.Error("error getting \"operation\" claim")
+			return nil, "", errdefs.ErrInternal
+		}
+		operation = opVal
 
-		return uid, operation, nil
+		rawUID, ok := claims["user_id"]
+		if !ok {
+			log.Error("error getting \"user_id\" claim")
+			return nil, "", errdefs.ErrInternal
+		}
+
+		var decodedUID []byte
+		switch v := rawUID.(type) {
+		case string:
+			decodedUID, err = base64.StdEncoding.DecodeString(v)
+			if err != nil {
+				log.Error("error decoding user_id: ", err)
+				return nil, "", errdefs.ErrInternal
+			}
+		case []byte:
+			decodedUID = v
+		default:
+			log.Error("unsupported type for user_id claim")
+			return nil, "", errdefs.ErrInternal
+		}
+
+		return decodedUID, operation, nil
 	}
 
 	log.Error("invalid access token")
-	return 0, "", errdefs.InvalidToken
+	return nil, "", errdefs.InvalidToken
 }
 
-func (s *JWTSvc) GenerateLink(ctx context.Context, linkBase string, uid int64, operation string, secretKey string) (string, error) {
+func (s *JWTSvc) GenerateLink(ctx context.Context, linkBase string, uid []byte, operation string, secretKey string) (string, error) {
 
 	token, err := s.GenerateToken(ctx, uid, operation, secretKey)
 	if err != nil {

@@ -15,7 +15,7 @@ message RegisterRequest {
 }
 
 message RegisterResponse {
-  int64 user_id = 1; // User ID of the registered user
+  bytes uid = 1; // User ID of the registered user
 }
 
 message ConfirmRequest {
@@ -23,7 +23,7 @@ message ConfirmRequest {
 }
 
 message ConfirmResponse {
-  int64 user_id = 1; // user_id of confirmed account
+  bytes uid = 1; // user_id of confirmed account
 }
 
 
