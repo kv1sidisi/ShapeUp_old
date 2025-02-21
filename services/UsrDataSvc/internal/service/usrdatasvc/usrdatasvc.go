@@ -21,6 +21,7 @@ type UsrDataSvc struct {
 
 type UsrDataMgr interface {
 	UpdUsrMetrics(ctx context.Context, usrmetr *models.UsrMetrics) error
+	CreateUsrMetrics(ctx context.Context, usrmetr *models.UsrMetrics) (uid []byte, err error)
 	GetById(ctx context.Context) (*models.UsrMetrics, error)
 }
 
@@ -84,7 +85,7 @@ func applyFieldMask(logger *slog.Logger, existingPtr interface{}, updatePtr inte
 			return errdefs.ErrFieldMask
 		}
 		if field.CanSet() {
-			field.Set(updateVal)
+			field.Set(updateField)
 		} else {
 			log.Error(fmt.Sprintf("field %s can not be set", fieldName))
 			return errdefs.ErrFieldMask
@@ -121,4 +122,25 @@ func domainToProto(d *models.UsrMetrics) *usrdatasvc.UsrMetrics {
 		Gender:    d.Gender,
 		BirthDate: d.BirthDate,
 	}
+}
+
+// CreateUsr creates base user's data through database manager.
+//
+// Returns:
+//
+//   - uid if successful.
+//
+//   - Error if: database manager returns error.
+func (u *UsrDataSvc) CreateUsr(ctx context.Context, usrmetr *usrdatasvc.UsrMetrics) (uid []byte, err error) {
+	const op = "usrdatasvc.CreateUsr"
+	log := u.log.With(slog.String("op", op))
+
+	usr := protoToDomain(usrmetr)
+	uid, err = u.usrDataMgr.CreateUsrMetrics(ctx, usr)
+	if err != nil {
+		return uid, err
+	}
+
+	log.Info("created usr metrics")
+	return uid, nil
 }

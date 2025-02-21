@@ -57,9 +57,9 @@ func (s *serverAPI) UpdUsrMetrics(ctx context.Context, req *usrdatasvc.UpdUsrMet
 		return nil, errdefs.InvalidRequest
 	}
 
-	if ctx.Value("uid") == nil {
-		log.Error("invalid uid in grpc request(context)")
-		return nil, errdefs.InvalidCredentials
+	if req.GetUpdMask() == nil || len(req.GetUpdMask().Paths) == 0 {
+		log.Error("invalid upd mask in grpc request")
+		return nil, errdefs.InvalidRequest
 	}
 
 	log.Info("request valid")
@@ -89,16 +89,9 @@ func (s *serverAPI) CreateUsrMetrics(ctx context.Context, req *usrdatasvc.Create
 	const op = "grpcsrv.CreateUsrMetrics"
 	log := s.log.With(slog.String("op", op))
 
-	if req.GetUser() == nil {
-		log.Error("invalid user in grpc request")
-		return nil, errdefs.InvalidRequest
+	if err := validateCreateUsrMetricsRequest(s.log, req); err != nil {
+		return nil, err
 	}
-
-	if ctx.Value("uid") == nil {
-		log.Error("invalid uid in grpc request(context)")
-		return nil, errdefs.InvalidCredentials
-	}
-
 	log.Info("request valid")
 
 	uid, err := s.usrData.CreateUsr(ctx, req.GetUser())
@@ -113,4 +106,34 @@ func (s *serverAPI) CreateUsrMetrics(ctx context.Context, req *usrdatasvc.Create
 	return &usrdatasvc.CreateUsrMetricsResponse{
 		Uid: uid,
 	}, nil
+}
+
+func validateCreateUsrMetricsRequest(logger *slog.Logger, req *usrdatasvc.CreateUsrMetricsRequest) error {
+	const op = "grpcsrv.validateCreateUsrMetricsRequest"
+	log := logger.With(slog.String("op", op))
+
+	usr := req.GetUser()
+
+	if usr.Height <= 0 {
+		log.Error("invalid user height in grpc request")
+		return errdefs.InvalidRequest
+	}
+	if usr.BirthDate == "" {
+		log.Error("invalid user date in grpc request")
+		return errdefs.InvalidRequest
+	}
+	if usr.Gender == "" {
+		log.Error("invalid user gender in grpc request")
+		return errdefs.InvalidRequest
+	}
+	if usr.Weight <= 0 {
+		log.Error("invalid user weight in grpc request")
+		return errdefs.InvalidRequest
+	}
+	if usr.Name == "" {
+		log.Error("invalid user name in grpc request")
+		return errdefs.InvalidRequest
+	}
+
+	return nil
 }

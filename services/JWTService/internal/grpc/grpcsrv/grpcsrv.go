@@ -46,7 +46,7 @@ func RegisterServer(grpcServer *grpc.Server, jwtService JWTSvc, cfg *config.Conf
 func (s *ServerAPI) GenerateToken(ctx context.Context,
 	req *jwtsvc.GenerateTokenRequest,
 ) (*jwtsvc.GenerateTokenResponse, error) {
-	const op = "grpcsrv.GenerateAccessToken"
+	const op = "grpcsrv.GenerateToken"
 	log := s.log.With(slog.String("op", op))
 
 	if req.GetUid() == nil {
